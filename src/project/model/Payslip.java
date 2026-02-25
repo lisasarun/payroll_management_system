@@ -1,4 +1,4 @@
-package project.modal;
+package project.model;
 
 public class Payslip {
 }

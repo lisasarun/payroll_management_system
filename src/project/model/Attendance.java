@@ -1,4 +1,4 @@
-package project.modal;
+package project.model;
 
 import lombok.Data;
 import lombok.Builder;

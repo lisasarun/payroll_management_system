@@ -2,6 +2,7 @@
   <library name="lombok">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../../Lombok/lombok.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/lombok.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

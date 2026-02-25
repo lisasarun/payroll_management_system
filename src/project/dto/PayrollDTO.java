@@ -23,6 +23,7 @@ public class PayrollDTO {
 
     private LocalDate payPeriodStart;
     private LocalDate payPeriodEnd;
+}
 
     private BigDecimal baseSalary;
     private BigDecimal overtimePay;  // calculated, not directly in ERD payroll table

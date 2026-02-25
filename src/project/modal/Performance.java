@@ -17,6 +17,7 @@ public class Performance {
     private LocalDate reviewDate;
     private String reviewerName;
     private Integer rating;
+    private Integer score;
     private String comments;
     private String goals;
     private LocalDate nextReviewDate;

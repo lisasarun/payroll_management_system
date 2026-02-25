@@ -1,9 +1,6 @@
 package project.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +9,8 @@ import java.time.LocalDate;
   DTO for payroll data used in calculation, display, and report generation.
   Mirrors payroll table + adds computed fields for payslip.
  */
-@Data
+@Setter
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,7 +21,7 @@ public class PayrollDTO {
 
     private LocalDate payPeriodStart;
     private LocalDate payPeriodEnd;
-}
+
 
     private BigDecimal baseSalary;
     private BigDecimal overtimePay;  // calculated, not directly in ERD payroll table

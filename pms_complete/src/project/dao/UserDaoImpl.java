@@ -3,22 +3,45 @@ package project.dao;
 import project.config.DbConfig;
 import project.model.Employee;
 import project.model.User;
+import project.util.PasswordUtil;
 
 import java.sql.*;
 
+/**
+ * Data Access Object implementation for login and user management.
+ *
+ * Password verification uses {@link PasswordUtil#verifyAny(String, String)} so that
+ * both legacy SHA-256 hashes and new PBKDF2 hashes are accepted. When a legacy hash
+ * is detected on successful login, it is transparently upgraded to PBKDF2.
+ */
 public class UserDaoImpl implements UserDao {
 
     @Override
     public User adminLogin(String username, String password) {
-        String sql = "SELECT admin_id, username, password, permission_level FROM admins WHERE username = ?";
+        String sql = "SELECT admin_id, username, password, permission_level, last_login FROM admins WHERE username = ?";
         try (Connection conn = DbConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
-            if (rs.next() && rs.getString("password").equals(password)) {
-                User user = mapUser(rs);
-                updateAdminLastLogin(user.getAdminId());
-                return user;
+            if (rs.next()) {
+                String storedHash = rs.getString("password");
+                if (PasswordUtil.verifyAny(password, storedHash)) {
+                    int adminId = rs.getInt("admin_id");
+
+                    // Transparent hash upgrade: SHA-256 -> PBKDF2
+                    if (PasswordUtil.needsUpgrade(storedHash)) {
+                        String newHash = PasswordUtil.hashSecure(password);
+                        try (PreparedStatement up = conn.prepareStatement(
+                                "UPDATE admins SET password = ? WHERE admin_id = ?")) {
+                            up.setString(1, newHash);
+                            up.setInt(2, adminId);
+                            up.executeUpdate();
+                        }
+                    }
+
+                    updateAdminLastLogin(adminId);
+                    return mapUser(rs);
+                }
             }
         } catch (SQLException e) {
             System.err.println("[UserDao] adminLogin: " + e.getMessage());
@@ -33,10 +56,25 @@ public class UserDaoImpl implements UserDao {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
-            if (rs.next() && rs.getString("password").equals(password)) {
-                Employee emp = mapEmployee(rs);
-                updateEmployeeLastLogin(emp.getEmployeeId());
-                return emp;
+            if (rs.next()) {
+                String storedHash = rs.getString("password");
+                if (PasswordUtil.verifyAny(password, storedHash)) {
+                    Employee emp = mapEmployee(rs);
+
+                    // Transparent hash upgrade for employees as well.
+                    if (PasswordUtil.needsUpgrade(storedHash)) {
+                        String newHash = PasswordUtil.hashSecure(password);
+                        try (PreparedStatement up = conn.prepareStatement(
+                                "UPDATE employees SET password = ? WHERE employee_id = ?")) {
+                            up.setString(1, newHash);
+                            up.setInt(2, emp.getEmployeeId());
+                            up.executeUpdate();
+                        }
+                    }
+
+                    updateEmployeeLastLogin(emp.getEmployeeId());
+                    return emp;
+                }
             }
         } catch (SQLException e) {
             System.err.println("[UserDao] employeeLogin: " + e.getMessage());
@@ -54,6 +92,19 @@ public class UserDaoImpl implements UserDao {
             if (rs.next()) return mapUser(rs);
         } catch (SQLException e) {
             System.err.println("[UserDao] findAdminByUsername: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public User findAdminById(int adminId) {
+        String sql = "SELECT admin_id, username, password, permission_level FROM admins WHERE admin_id = ?";
+        try (Connection conn = DbConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, adminId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return mapUser(rs);
+        } catch (SQLException e) {
+            System.err.println("[UserDao] findAdminById: " + e.getMessage());
         }
         return null;
     }
@@ -79,7 +130,9 @@ public class UserDaoImpl implements UserDao {
                      "UPDATE admins SET last_login = NOW() WHERE admin_id = ?")) {
             ps.setInt(1, adminId);
             ps.executeUpdate();
-        } catch (SQLException ignored) {}
+        } catch (SQLException e) {
+            System.err.println("[UserDao] updateAdminLastLogin: " + e.getMessage());
+        }
     }
 
     @Override

@@ -1,10 +1,91 @@
 package project.config;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
+/**
+ * Manages the single shared PostgreSQL connection.
+ * SECURITY: Reads credentials from environment variables or system properties:
+ *   - DB_URL  (default: jdbc:postgresql://localhost:5432/payroll_db)
+ *   - DB_USER (default: postgres)
+ *   - DB_PASS (NO REAL DEFAULT – use for DEV only)
+ *
+ * Setup examples:
+ *   Windows (PowerShell):    $env:DB_PASS = "your_password"
+ *   Windows (cmd):           set DB_PASS=your_password
+ *   Linux/Mac:               export DB_PASS=your_password
+ *   JVM system property:     java -DDB_PASS=your_password MainApplication
+ */
 public class DbConfig {
 
-    public static Connection getConnection() {
-        return DatabaseConfig.getConnection();
+    private static final String URL     = getEnvOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/payroll_db");
+    private static final String DB_USER = getEnvOrDefault("DB_USER", "postgres");
+    /**
+     * Development-only fallback password.
+     *
+     * IMPORTANT:
+     * - For your real database, always set DB_PASS via environment variable or -D system property.
+     * - This placeholder value is intentionally non-sensitive and should be changed on your machine.
+     */
+    private static final String DB_PASS = getEnvOrDefault("DB_PASS", "dev_password");
+
+    private static Connection conn;
+
+    /**
+     * Helper method to read environment variables with fallback defaults.
+     */
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getenv(key);
+        if (value != null && !value.isEmpty()) {
+            return value;
+        }
+        // Also check system properties (for -D flags)
+        value = System.getProperty(key);
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
     }
+
+    public static void init() {
+        if (conn == null) openConnection();
+    }
+
+    public static Connection getConnection() {
+        try {
+            if (conn == null || conn.isClosed() || !conn.isValid(2)) openConnection();
+        } catch (SQLException e) {
+            openConnection();
+        }
+        return conn;
+    }
+
+    private static void openConnection() {
+        try {
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection(URL, DB_USER, DB_PASS);
+            conn.setAutoCommit(true);
+            if ("dev_password".equals(DB_PASS)) {
+                System.err.println("[DB] WARNING: Using development placeholder password 'dev_password'.");
+                System.err.println("[DB]          Set DB_PASS environment variable for your real PostgreSQL password.");
+            }
+            System.out.println("[DB] Connected to PostgreSQL successfully (" + URL + ").");
+        } catch (ClassNotFoundException e) {
+            System.err.println("[DB] Driver not found — add postgresql JAR to libraries.");
+        } catch (SQLException e) {
+            System.err.println("[DB] Connection failed: " + e.getMessage());
+            System.err.println("[DB] Check: DB_PASS environment variable is correct.");
+        }
+    }
+
+    public static void close() {
+        if (conn != null) {
+            try { conn.close(); } catch (SQLException ignored) {}
+            conn = null;
+        }
+    }
+
+    public static String getUrl()    { return URL; }
+
+    public static String getDbUser() { return DB_USER; }
+
+    public static String getDbPass() { return DB_PASS; }
 }

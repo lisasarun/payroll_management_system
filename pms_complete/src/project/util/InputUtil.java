@@ -86,7 +86,14 @@ public class InputUtil {
         while (true) {
             System.out.print(prompt);
             String s = SC.nextLine().trim();
-            if (s.matches("^[\\w.+\\-]+@[\\w\\-]+\\.[a-zA-Z]{2,}$")) return s;
+            // FIX Issue #9: Stricter email validation (max 1 consecutive special char, no ++)
+            if (s.matches("^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-])*\\.[a-zA-Z]{2,}$")) {
+                // Additional check: no consecutive special characters
+                if (!s.contains("..") && !s.contains("--") && !s.contains("__") &&
+                    !s.contains("++") && !s.contains(".-") && !s.contains("-.")) {
+                    return s;
+                }
+            }
             System.out.println("  Invalid email. Example: user@company.com");
         }
     }

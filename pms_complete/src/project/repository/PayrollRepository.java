@@ -27,7 +27,7 @@ public class PayrollRepository {
 
     public boolean save(Payroll p) {
         String sql = "INSERT INTO payroll (employee_id, pay_period_start, pay_period_end, " +
-                     "base_salary, bonus, deductions, total_paid, payment_date) VALUES (?,?,?,?,?,?,?,?)";
+                "base_salary, bonus, deductions, total_paid, payment_date) VALUES (?,?,?,?,?,?,?,?)";
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, p.getEmployeeId());
@@ -66,9 +66,25 @@ public class PayrollRepository {
         return null;
     }
 
+    /**
+     * FIX: Use this inside transactions instead of findLatest().
+     * Reuses the caller's connection so it can read the uncommitted payroll
+     * row inserted by the stored procedure, without closing the transaction.
+     */
+    public Payroll findLatestWithConnection(Connection conn, int employeeId) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT * FROM payroll WHERE employee_id = ? ORDER BY pay_period_start DESC LIMIT 1")) {
+            ps.setInt(1, employeeId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return mapRow(rs);
+        } catch (SQLException e) { System.err.println("[PayRepo] findLatestWithConnection: " + e.getMessage()); }
+        return null;
+    }
+
     public Payroll findById(int payrollId) {
         try (Connection c = DbConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement("SELECT * FROM payroll WHERE payroll_id = ?")) {
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT * FROM payroll WHERE payroll_id = ?")) {
             ps.setInt(1, payrollId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return mapRow(rs);

@@ -15,6 +15,13 @@ public class SalaryCalculator {
     private static final double TAX_RATE        = 0.10;
     private static final double SOC_SEC_RATE    = 0.02;
 
+    // FIX Issue #7: Validate constants at class load time
+    static {
+        if (WORK_DAYS <= 0 || HOURS_PER_DAY <= 0) {
+            throw new IllegalStateException("Invalid salary calculation constants: WORK_DAYS and HOURS_PER_DAY must be positive");
+        }
+    }
+
     public static BigDecimal hourlyRate(BigDecimal baseSalary) {
         return baseSalary.divide(BigDecimal.valueOf((long) WORK_DAYS * HOURS_PER_DAY), 4, RoundingMode.HALF_UP);
     }

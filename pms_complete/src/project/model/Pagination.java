@@ -3,9 +3,14 @@ package project.model;
 import lombok.Getter;
 
 @Getter
+
+
 public class Pagination {
+
     private int page;
+
     private final int size;
+
     private final int totalItems;
 
     public Pagination(int page, int size, int totalItems) {

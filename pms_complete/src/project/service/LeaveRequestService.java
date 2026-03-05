@@ -27,13 +27,24 @@ public class LeaveRequestService {
      */
     public boolean submitLeaveRequest(int employeeId, LocalDate startDate, LocalDate endDate,
                                       String leaveType, String reason) {
-        // Validation
+        // Validation #1: Date range
         if (startDate.isAfter(endDate)) {
             System.out.println("  Start date must be before end date.");
             return false;
         }
-        if (startDate.isBefore(LocalDate.now())) {
-            System.out.println("  Cannot request leave for past dates.");
+
+        // FIX Issue #3: Cannot request leave for today or past dates
+        if (startDate.isBefore(LocalDate.now().plusDays(1))) {
+            System.out.println("  Cannot request leave for today or past dates. Request at least 1 day in advance.");
+            return false;
+        }
+
+        // FIX Issue #5: Cannot request leave for weekends
+        if (startDate.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
+            startDate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY ||
+            endDate.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
+            endDate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+            System.out.println("  Cannot request leave for weekends (Saturdays/Sundays are non-working days).");
             return false;
         }
 
@@ -88,7 +99,7 @@ public class LeaveRequestService {
     }
 
     /**
-     * Convert LeaveRequest entity to DTO with employee/reviewer names.
+     * Convert LeaveRequest Entity to DTO with employee/reviewer names.
      */
     private LeaveRequestDTO toDTO(LeaveRequest lr) {
         LeaveRequestDTO dto = new LeaveRequestDTO();

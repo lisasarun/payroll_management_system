@@ -7,6 +7,7 @@ import project.service.EmployeeService;
 import project.util.InputUtil;
 import project.util.ViewUtil;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class AttendanceController {
@@ -14,12 +15,12 @@ public class AttendanceController {
     private final AttendanceService attService = new AttendanceService();
     private final EmployeeService   empService = new EmployeeService();
 
-    // Called from Employee dashboard
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public void checkIn(int employeeId) {
         ViewUtil.printTitle("CHECK IN");
         if (attService.checkIn(employeeId))
-            ViewUtil.printSuccess("Checked in at " + java.time.LocalDateTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            ViewUtil.printSuccess("Checked in at " + java.time.LocalDateTime.now().format(FMT));
         else
             ViewUtil.printError("Check-in failed or already done today.");
     }
@@ -27,8 +28,7 @@ public class AttendanceController {
     public void checkOut(int employeeId) {
         ViewUtil.printTitle("CHECK OUT");
         if (attService.checkOut(employeeId))
-            ViewUtil.printSuccess("Checked out at " + java.time.LocalDateTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            ViewUtil.printSuccess("Checked out at " + java.time.LocalDateTime.now().format(FMT));
         else
             ViewUtil.printError("Check-out failed. Did you check in today?");
     }
@@ -40,7 +40,6 @@ public class AttendanceController {
         ViewUtil.printAttendanceTable(list);
     }
 
-    // Called from Admin dashboard
     public void viewAllAttendance() {
         int total = attService.countAll();
         if (total == 0) { ViewUtil.printInfo("No attendance records found."); return; }
@@ -59,9 +58,9 @@ public class AttendanceController {
                     a.getEmployeeId(),
                     a.getEmployeeName() != null ? a.getEmployeeName() : "—",
                     a.getDate(),
-                    a.getStatus() != null ? a.getStatus() : "—",
-                    a.getCheckIn()  != null ? a.getCheckIn().toString().substring(0,19)  : "—",
-                    a.getCheckOut() != null ? a.getCheckOut().toString().substring(0,19) : "—"));
+                    a.getStatus()    != null ? a.getStatus()             : "—",
+                    a.getCheckIn()   != null ? a.getCheckIn().format(FMT)  : "—",
+                    a.getCheckOut()  != null ? a.getCheckOut().format(FMT) : "—"));
 
             System.out.println();
             ViewUtil.printPaginationHint(pg.getPage(), pg.getTotalPages());

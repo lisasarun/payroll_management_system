@@ -3,15 +3,24 @@ package project.service;
 import project.dto.PayrollDTO;
 import project.mapper.EntityMapper;
 import project.model.*;
+import project.procedure.PayrollProcedure;
 import project.repository.*;
 import project.util.DateUtil;
 import project.util.SalaryCalculator;
 
 import java.math.BigDecimal;
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Handles payroll calculation business logic.
+ * Uses the PostgreSQL stored procedure (calculate_payroll) for payroll insertion
+ * as required by the project specification.
+ */
 public class PayrollService {
 
     private final PayrollRepository     payrollRepo = new PayrollRepository();
@@ -20,6 +29,10 @@ public class PayrollService {
     private final AttendanceRepository  attRepo     = new AttendanceRepository();
     private final BonusRepository       bonusRepo   = new BonusRepository();
 
+    /**
+     * Calculates and saves payroll for one employee for a given month/year.
+     * Uses the PostgreSQL stored procedure calculate_payroll() for the DB insert.
+     */
     public boolean calculatePayroll(int employeeId, int month, int year) {
         Employee emp = empRepo.findById(employeeId);
         if (emp == null) { System.out.println("  Employee not found."); return false; }
@@ -27,55 +40,90 @@ public class PayrollService {
         LocalDate from = DateUtil.firstDayOfMonth(month, year);
         LocalDate to   = DateUtil.lastDayOfMonth(month, year);
 
-        // Check for duplicate
-        List<Payroll> existing = payrollRepo.findByEmployee(employeeId);
-        for (Payroll p : existing) {
-            if (!p.getPayPeriodStart().isBefore(from) && !p.getPayPeriodStart().isAfter(to)) {
-                System.out.println("  Payroll already calculated for this period.");
+        // Prevent duplicate/overlapping payroll periods
+        for (Payroll p : payrollRepo.findByEmployee(employeeId)) {
+            if (!(p.getPayPeriodEnd().isBefore(from) || p.getPayPeriodStart().isAfter(to))) {
+                System.out.println("  Payroll period overlaps with existing period: " +
+                        p.getPayPeriodStart() + " to " + p.getPayPeriodEnd());
                 return false;
             }
         }
 
+        // Retrieve attendance records for overtime calculation
         List<Attendance> attList = attRepo.findByEmployeeAndPeriod(employeeId, from, to);
-        BigDecimal base  = emp.getBaseSalary() != null ? emp.getBaseSalary() : BigDecimal.ZERO;
-        BigDecimal ot    = SalaryCalculator.calculateOvertimePay(base, attList);
+        BigDecimal base = emp.getBaseSalary() != null ? emp.getBaseSalary() : BigDecimal.ZERO;
+        BigDecimal ot   = SalaryCalculator.calculateOvertimePay(base, attList);
 
-        // Bonus from latest performance score
-        double avgScore = perfRepo.getAverageScore(employeeId);
+        // Performance-based bonus
+        double avgScore  = perfRepo.getAverageScore(employeeId);
         BigDecimal bonus = SalaryCalculator.calculateBonus(base, avgScore);
 
-        BigDecimal gross = base.add(ot).add(bonus);
+        // Deductions = tax (10% of gross) + social security (2% of base)
+        BigDecimal gross      = base.add(ot).add(bonus);
         BigDecimal deductions = SalaryCalculator.totalDeductions(base, gross);
-        BigDecimal totalPaid  = SalaryCalculator.calculateTotalPay(base, ot, bonus, deductions);
 
-        Payroll payroll = new Payroll();
-        payroll.setEmployeeId(employeeId);
-        payroll.setPayPeriodStart(from);
-        payroll.setPayPeriodEnd(to);
-        payroll.setBaseSalary(base);
-        payroll.setBonus(bonus);
-        payroll.setDeductions(deductions);
-        payroll.setTotalPaid(totalPaid);
-        payroll.setPaymentDate(LocalDate.now());
+        // ── TRANSACTION: fresh dedicated connection — never reuse the shared singleton ──
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(
+                    project.config.DbConfig.getUrl(),
+                    project.config.DbConfig.getDbUser(),
+                    project.config.DbConfig.getDbPass());
+            conn.setAutoCommit(false); // Start transaction
 
-        boolean saved = payrollRepo.save(payroll);
+            // Step 1: Call stored procedure to save payroll
+            boolean saved = PayrollProcedure.calculateWithConnection(
+                    conn, employeeId, from, to, bonus, deductions
+            );
 
-        // Save bonus record separately if bonus > 0
-        if (saved && bonus.compareTo(BigDecimal.ZERO) > 0) {
-            Payroll latest = payrollRepo.findLatest(employeeId);
-            if (latest != null) {
-                Bonus b = new Bonus();
-                b.setEmployeeId(employeeId);
-                b.setPayrollId(latest.getPayrollId());
-                b.setAmount(bonus);
-                b.setReason("Performance bonus (score: " + String.format("%.2f", avgScore) + ")");
-                b.setAwardedDate(LocalDate.now());
-                bonusRepo.save(b);
+            if (!saved) {
+                conn.rollback();
+                System.out.println("  Stored procedure failed — check PostgreSQL logs.");
+                return false;
+            }
+
+            // Step 2: Save Bonus Record if bonus > 0 (within same transaction)
+            if (bonus.compareTo(BigDecimal.ZERO) > 0) {
+                Payroll latest = payrollRepo.findLatestWithConnection(conn, employeeId);
+                if (latest != null) {
+                    Bonus b = new Bonus();
+                    b.setEmployeeId(employeeId);
+                    b.setPayrollId(latest.getPayrollId());
+                    b.setAmount(bonus);
+                    b.setReason("Performance bonus — avg score: " + String.format("%.2f", avgScore));
+                    b.setAwardedDate(LocalDate.now());
+
+                    if (!bonusRepo.saveWithConnection(conn, b)) {
+                        conn.rollback();
+                        System.out.println("  Bonus save failed — transaction rolled back.");
+                        return false;
+                    }
+                }
+            }
+
+            conn.commit(); // Commit transaction - all or nothing
+            return true;
+
+        } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.err.println("  Transaction rolled back: " + e.getMessage());
+                } catch (SQLException ignored) {}
+            }
+            return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close(); // Close the dedicated connection when done
+                } catch (SQLException ignored) {}
             }
         }
-        return saved;
     }
 
+    /**
+     * Builds a Payslip object from stored payroll + employee data.
+     */
     public Payslip buildPayslip(int employeeId, int payrollId) {
         Employee emp = empRepo.findById(employeeId);
         Payroll  pay = payrollRepo.findById(payrollId);
@@ -85,11 +133,11 @@ public class PayrollService {
         List<Attendance> attList = attRepo.findByEmployeeAndPeriod(
                 employeeId, pay.getPayPeriodStart(), pay.getPayPeriodEnd());
 
-        BigDecimal base = emp.getBaseSalary() != null ? emp.getBaseSalary() : BigDecimal.ZERO;
-        BigDecimal ot   = SalaryCalculator.calculateOvertimePay(base, attList);
-        BigDecimal tax  = SalaryCalculator.calculateTax(base.add(ot).add(
-                pay.getBonus() != null ? pay.getBonus() : BigDecimal.ZERO));
-        BigDecimal ss   = SalaryCalculator.calculateSocialSecurity(base);
+        BigDecimal base  = emp.getBaseSalary() != null ? emp.getBaseSalary() : BigDecimal.ZERO;
+        BigDecimal ot    = SalaryCalculator.calculateOvertimePay(base, attList);
+        BigDecimal bonus = pay.getBonus() != null ? pay.getBonus() : BigDecimal.ZERO;
+        BigDecimal tax   = SalaryCalculator.calculateTax(base.add(ot).add(bonus));
+        BigDecimal ss    = SalaryCalculator.calculateSocialSecurity(base);
 
         Payslip ps = new Payslip();
         ps.setEmployeeId(employeeId);
@@ -100,7 +148,7 @@ public class PayrollService {
         ps.setPaymentDate(pay.getPaymentDate() != null ? pay.getPaymentDate() : LocalDate.now());
         ps.setBaseSalary(base);
         ps.setOvertimePay(ot);
-        ps.setBonus(pay.getBonus() != null ? pay.getBonus() : BigDecimal.ZERO);
+        ps.setBonus(bonus);
         ps.setTax(tax);
         ps.setSocialSecurity(ss);
         ps.setTotalDeductions(tax.add(ss));

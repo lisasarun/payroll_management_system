@@ -3,12 +3,14 @@ package project.service;
 import project.dto.AttendanceDTO;
 import project.mapper.EntityMapper;
 import project.model.Attendance;
+import project.model.Employee;
 import project.repository.AttendanceRepository;
 import project.repository.EmployeeRepository;
 import project.util.DateUtil;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AttendanceService {
@@ -17,6 +19,13 @@ public class AttendanceService {
     private final EmployeeRepository   employeeRepo   = new EmployeeRepository();
 
     public boolean checkIn(int employeeId) {
+        // FIX Issue #6: Validate business hours (7 AM - 11 PM)
+        java.time.LocalTime now = java.time.LocalTime.now();
+        if (now.isBefore(java.time.LocalTime.of(7, 0)) || now.isAfter(java.time.LocalTime.of(23, 0))) {
+            System.out.println("  Check-in allowed only between 7:00 AM and 11:00 PM.");
+            return false;
+        }
+
         Attendance today = attendanceRepo.findTodayRecord(employeeId);
         if (today != null && today.getCheckIn() != null) {
             System.out.println("  You have already checked in today.");
@@ -43,11 +52,12 @@ public class AttendanceService {
     }
 
     public List<AttendanceDTO> getByEmployee(int employeeId) {
+        Employee emp = employeeRepo.findById(employeeId);
+        String empName = emp != null ? emp.getFullName() : "";
         return attendanceRepo.findByEmployee(employeeId).stream()
                 .map(a -> {
                     AttendanceDTO dto = EntityMapper.toAttendanceDTO(a);
-                    var emp = employeeRepo.findById(employeeId);
-                    if (emp != null) dto.setEmployeeName(emp.getFullName());
+                    dto.setEmployeeName(empName);
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -59,12 +69,29 @@ public class AttendanceService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * FIX: Fetch all employees in one query using a Map, then enrich attendance DTOs.
+     * Avoids the N+1 query problem (one DB call per row).
+     */
     public List<AttendanceDTO> getAllPaged(int page, int size) {
-        return attendanceRepo.findAll(page, size).stream()
+        List<Attendance> records = attendanceRepo.findAll(page, size);
+
+        // Collect unique employee IDs and load them in batch
+        Map<Integer, String> empNames = records.stream()
+                .map(Attendance::getEmployeeId)
+                .distinct()
+                .collect(Collectors.toMap(
+                        id -> id,
+                        id -> {
+                            Employee e = employeeRepo.findById(id);
+                            return e != null ? e.getFullName() : "Unknown";
+                        }
+                ));
+
+        return records.stream()
                 .map(a -> {
                     AttendanceDTO dto = EntityMapper.toAttendanceDTO(a);
-                    var emp = employeeRepo.findById(a.getEmployeeId());
-                    if (emp != null) dto.setEmployeeName(emp.getFullName());
+                    dto.setEmployeeName(empNames.getOrDefault(a.getEmployeeId(), "Unknown"));
                     return dto;
                 })
                 .collect(Collectors.toList());

@@ -6,15 +6,14 @@ import project.model.*;
 import java.math.BigDecimal;
 
 /**
- * Manual mapper between model ↔ DTO.
- * No MapStruct — pure setter/getter mapping as required by project rules.
+  Manual mapper between Model <=> DTO.
+  No MapStruct — pure setter/getter mapping as required by project rules.
  */
 public class EntityMapper {
 
     //  Employee
 
     public static EmployeeDTO toEmployeeDTO(Employee e) {
-
         if (e == null) return null;
         EmployeeDTO dto = new EmployeeDTO();
         dto.setEmployeeId(e.getEmployeeId());
@@ -22,6 +21,9 @@ public class EntityMapper {
         dto.setEmail(e.getEmail());
         dto.setActive(e.isActive());
         dto.setBaseSalary(e.getBaseSalary());
+        dto.setPosition(e.getPosition());
+        dto.setDepartment(e.getDepartment());
+        dto.setHireDate(e.getHireDate());
         dto.setLastLogin(e.getLastLogin());
         dto.setCreatedAt(e.getCreatedAt());
         return dto;
@@ -35,6 +37,9 @@ public class EntityMapper {
         e.setEmail(dto.getEmail());
         e.setActive(dto.isActive());
         e.setBaseSalary(dto.getBaseSalary());
+        e.setPosition(dto.getPosition());
+        e.setDepartment(dto.getDepartment());
+        e.setHireDate(dto.getHireDate());
         return e;
     }
 

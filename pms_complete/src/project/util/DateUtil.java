@@ -6,7 +6,7 @@ import java.time.YearMonth;
 
 public class DateUtil {
 
-    /** Returns the number of working days (Mon–Fri) in a given month/year. */
+    /** Returns the number of working days (Mon - Fri) in a given month/year. */
     public static int getWorkingDaysInMonth(int month, int year) {
         YearMonth ym = YearMonth.of(year, month);
         int days = 0;

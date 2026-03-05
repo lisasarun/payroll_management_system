@@ -1,6 +1,6 @@
 package project.repository;
 
-import project.config.DatabaseConfig;
+import project.config.DbConfig;
 import project.model.LeaveRequest;
 
 import java.sql.*;
@@ -16,7 +16,7 @@ public class LeaveRequestRepository {
     public boolean save(LeaveRequest leave) {
         String sql = "INSERT INTO leave_request (employee_id, start_date, end_date, leave_type, " +
                      "reason, status, request_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection c = DatabaseConfig.getConnection();
+        try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, leave.getEmployeeId());
             ps.setDate(2, Date.valueOf(leave.getStartDate()));
@@ -35,7 +35,7 @@ public class LeaveRequestRepository {
     public boolean updateStatus(int leaveRequestId, String status, int reviewerId, String reviewNote) {
         String sql = "UPDATE leave_request SET status = ?, reviewer_id = ?, review_note = ?, " +
                      "review_date = ? WHERE leave_request_id = ?";
-        try (Connection c = DatabaseConfig.getConnection();
+        try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, reviewerId);
@@ -51,7 +51,7 @@ public class LeaveRequestRepository {
 
     public LeaveRequest findById(int id) {
         String sql = "SELECT * FROM leave_request WHERE leave_request_id = ?";
-        try (Connection c = DatabaseConfig.getConnection();
+        try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -65,7 +65,7 @@ public class LeaveRequestRepository {
     public List<LeaveRequest> findByEmployee(int employeeId) {
         String sql = "SELECT * FROM leave_request WHERE employee_id = ? ORDER BY request_date DESC";
         List<LeaveRequest> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
+        try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, employeeId);
             ResultSet rs = ps.executeQuery();
@@ -79,7 +79,7 @@ public class LeaveRequestRepository {
     public List<LeaveRequest> findByStatus(String status) {
         String sql = "SELECT * FROM leave_request WHERE status = ? ORDER BY request_date ASC";
         List<LeaveRequest> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
+        try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
@@ -93,7 +93,7 @@ public class LeaveRequestRepository {
     public List<LeaveRequest> findAll() {
         String sql = "SELECT * FROM leave_request ORDER BY request_date DESC";
         List<LeaveRequest> list = new ArrayList<>();
-        try (Connection c = DatabaseConfig.getConnection();
+        try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(mapRow(rs));

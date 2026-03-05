@@ -10,18 +10,39 @@ import java.util.List;
 
 public class BonusRepository {
 
-    public boolean save(Bonus b) {
+    /**
+     * Save bonus using provided Connection (for transactions).
+     */
+    public boolean saveWithConnection(Connection c, Bonus b) {
         String sql = "INSERT INTO bonus (employee_id, payroll_id, amount, reason, awarded_date) VALUES (?,?,?,?,?)";
-        try (Connection c = DbConfig.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, b.getEmployeeId());
-            ps.setInt(2, b.getPayrollId());
+            // FIX: payroll_id is nullable — use NULL when not linked to a payroll
+            if (b.getPayrollId() > 0) {
+                ps.setInt(2, b.getPayrollId());
+            } else {
+                ps.setNull(2, Types.INTEGER);
+            }
             ps.setBigDecimal(3, b.getAmount());
             ps.setString(4, b.getReason());
             ps.setDate(5, Date.valueOf(b.getAwardedDate()));
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) { System.err.println("[BonusRepo] save: " + e.getMessage()); }
-        return false;
+        } catch (SQLException e) {
+            System.err.println("[BonusRepo] save: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Save bonus with auto-created connection (non-transactional).
+     */
+    public boolean save(Bonus b) {
+        try (Connection c = DbConfig.getConnection()) {
+            return saveWithConnection(c, b);
+        } catch (SQLException e) {
+            System.err.println("[BonusRepo] save: " + e.getMessage());
+            return false;
+        }
     }
 
     public List<Bonus> findByEmployee(int employeeId) {
@@ -35,7 +56,9 @@ public class BonusRepository {
                 Bonus b = new Bonus();
                 b.setBonusId(rs.getInt("bonus_id"));
                 b.setEmployeeId(rs.getInt("employee_id"));
-                b.setPayrollId(rs.getInt("payroll_id"));
+                // FIX: payroll_id can be NULL — check wasNull() before using the int value
+                int payrollId = rs.getInt("payroll_id");
+                b.setPayrollId(rs.wasNull() ? 0 : payrollId);
                 b.setAmount(rs.getBigDecimal("amount"));
                 b.setReason(rs.getString("reason"));
                 Date ad = rs.getDate("awarded_date");

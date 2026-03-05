@@ -2,7 +2,11 @@ package project.model;
 
 import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+/**
+ * LeaveRequest entity representing employee leave/time-off requests
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,4 +24,6 @@ public class LeaveRequest {
     private String reviewNote;
     private LocalDate requestDate;
     private LocalDate reviewDate;
+    private LocalDateTime createdAt;
+
 }

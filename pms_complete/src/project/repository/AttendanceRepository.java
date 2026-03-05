@@ -31,8 +31,8 @@ public class AttendanceRepository {
 
     public boolean checkIn(int employeeId) {
         String sql = "INSERT INTO attendance (employee_id, date, check_in, status) " +
-                     "VALUES (?, CURRENT_DATE, NOW(), 'PRESENT') " +
-                     "ON CONFLICT (employee_id, date) DO NOTHING";
+                "VALUES (?, CURRENT_DATE, NOW(), 'PRESENT') " +
+                "ON CONFLICT (employee_id, date) DO NOTHING";
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, employeeId);
@@ -43,9 +43,9 @@ public class AttendanceRepository {
 
     public boolean checkOut(int employeeId) {
         String sql = "UPDATE attendance SET check_out = NOW(), " +
-                     "work_hours = ROUND(EXTRACT(EPOCH FROM (NOW()-check_in))/3600.0,2), " +
-                     "overtime_hours = GREATEST(ROUND(EXTRACT(EPOCH FROM (NOW()-check_in))/3600.0,2)-8,0) " +
-                     "WHERE employee_id = ? AND date = CURRENT_DATE AND check_out IS NULL";
+                "work_hours = ROUND(EXTRACT(EPOCH FROM (NOW()-check_in))/3600.0,2), " +
+                "overtime_hours = GREATEST(ROUND(EXTRACT(EPOCH FROM (NOW()-check_in))/3600.0,2)-8,0) " +
+                "WHERE employee_id = ? AND date = CURRENT_DATE AND check_out IS NULL";
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, employeeId);

@@ -1,4 +1,4 @@
-import project.config.DatabaseConfig;
+import project.config.DbConfig;
 import project.controller.*;
 import project.dao.UserDao;
 import project.dao.UserDaoImpl;
@@ -7,6 +7,11 @@ import project.model.User;
 import project.util.InputUtil;
 import project.util.ViewUtil;
 
+/**
+  PMS — Payroll Management System
+  Entry point. Initialises DB connection, drives role-based login,
+ and routes to Admin or Employee dashboard.
+ */
 public class MainApplication {
 
     private static final int MAX_ATTEMPTS = 3;
@@ -16,17 +21,19 @@ public class MainApplication {
     private static final AttendanceController  attCtrl      = new AttendanceController();
     private static final PerformanceController perfCtrl     = new PerformanceController();
     private static final PayrollController     payrollCtrl  = new PayrollController();
+    private static final EmployeeController    empCtrl      = new EmployeeController();
+    private static final LeaveRequestController leaveCtrl   = new LeaveRequestController();
 
     public static void main(String[] args) {
 
-        // 1. Connect to database — MUST be first
-        DatabaseConfig.init();
+        // Connect to Database - MUST be first
+        DbConfig.init();
 
         ViewUtil.printAppHeader();
         System.out.println("  Welcome to PMS — Payroll Management System");
         System.out.println("  Press Ctrl+C at any time to exit.\n");
 
-        // 2. Main loop
+        // Main loop
         while (true) {
             String role = selectRole();
             if (role == null) break;
@@ -40,11 +47,11 @@ public class MainApplication {
             if (!ok) ViewUtil.printError("Too many failed attempts. Returning to main menu.\n");
         }
 
-        // 3. Clean shutdown
+        // Clean shutdown
         System.out.println("\n" + "═".repeat(72));
         System.out.println("  Thank you for using PMS. Goodbye!");
         System.out.println("═".repeat(72) + "\n");
-        DatabaseConfig.close();
+        DbConfig.close();
     }
 
     //  Role selection
@@ -57,8 +64,7 @@ public class MainApplication {
             System.out.println("  [2] Employee");
             System.out.println("  [0] Exit");
             System.out.println("─".repeat(50));
-            String ch = InputUtil.readMenuChoice("  Select: ");
-            switch (ch) {
+            switch (InputUtil.readMenuChoice("  Select: ")) {
                 case "1" -> { return "ADMIN"; }
                 case "2" -> { return "EMPLOYEE"; }
                 case "0" -> { return null; }
@@ -98,6 +104,7 @@ public class MainApplication {
                 case "4" -> payrollCtrl.calculatePayroll();
                 case "5" -> payrollCtrl.generatePayslip();
                 case "6" -> adminCtrl.manageBonuses();
+                case "7" -> leaveCtrl.reviewLeaveRequests(admin.getAdminId());
                 case "0" -> {
                     System.out.printf("%n  Goodbye, %s.%n", admin.getUsername());
                     running = false;
@@ -137,6 +144,9 @@ public class MainApplication {
                 case "3" -> attCtrl.viewMyAttendance(emp.getEmployeeId());
                 case "4" -> perfCtrl.viewMyPerformance(emp.getEmployeeId());
                 case "5" -> payrollCtrl.viewMyPayslip(emp.getEmployeeId());
+                case "6" -> empCtrl.changePassword(emp.getEmployeeId());
+                case "7" -> leaveCtrl.submitLeaveRequest(emp.getEmployeeId());
+                case "8" -> leaveCtrl.viewMyLeaveRequests(emp.getEmployeeId());
                 case "0" -> {
                     System.out.printf("%n  Goodbye, %s!%n", emp.getFullName());
                     running = false;

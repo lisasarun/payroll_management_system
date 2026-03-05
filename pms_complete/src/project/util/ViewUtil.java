@@ -6,6 +6,7 @@ import project.dto.PayrollDTO;
 import project.dto.PerformanceDTO;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ViewUtil {
@@ -35,8 +36,9 @@ public class ViewUtil {
         System.out.println("  [2] View Attendance Records");
         System.out.println("  [3] Performance Reviews");
         System.out.println("  [4] Calculate Payroll");
-        System.out.println("  [5] Generate Payslip (PDF)");
+        System.out.println("  [5] Generate Payslip");
         System.out.println("  [6] Manage Bonuses");
+        System.out.println("  [7] Review Leave Requests");
         System.out.println("  [0] Logout");
         System.out.println(LINE);
         System.out.print("  Select option: ");
@@ -49,6 +51,9 @@ public class ViewUtil {
         System.out.println("  [3] View My Attendance");
         System.out.println("  [4] View My Performance");
         System.out.println("  [5] View My Payslip");
+        System.out.println("  [6] Change Password");
+        System.out.println("  [7] Submit Leave Request");
+        System.out.println("  [8] View My Leave Requests");
         System.out.println("  [0] Logout");
         System.out.println(LINE);
         System.out.print("  Select option: ");
@@ -76,7 +81,11 @@ public class ViewUtil {
                     trunc(e.getEmail(), 28), money(e.getBaseSalary()));
         }
         System.out.println(TLINE);
-        printPaginationHint(page, total);
+        if (total > 1) {
+            System.out.printf("  [N] Next  [P] Prev  [0] Back   (Page %d / %d)%n%n", page, total);
+        } else {
+            System.out.println("  [0] Back\n");
+        }
     }
 
     public static void printAttendanceTable(List<AttendanceDTO> list) {
@@ -85,11 +94,12 @@ public class ViewUtil {
                 "Date", "Status", "Check In", "Check Out", "Hours", "OT Hrs");
         System.out.println(TLINE);
         for (AttendanceDTO a : list) {
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             System.out.printf("  %-10s %-8s %-19s %-19s %-7s %-7s%n",
                     a.getDate(),
                     a.getStatus() != null ? a.getStatus() : "—",
-                    a.getCheckIn()  != null ? a.getCheckIn().toString().substring(0,19)  : "—",
-                    a.getCheckOut() != null ? a.getCheckOut().toString().substring(0,19) : "—",
+                    a.getCheckIn()  != null ? a.getCheckIn().format(fmt)  : "—",
+                    a.getCheckOut() != null ? a.getCheckOut().format(fmt) : "—",
                     a.getWorkHours()     != null ? a.getWorkHours()     : "—",
                     a.getOvertimeHours() != null ? a.getOvertimeHours() : "—");
         }
@@ -102,7 +112,6 @@ public class ViewUtil {
         System.out.println("  Payment Date: " + p.getPaymentDate());
         System.out.println(TLINE);
         System.out.printf("  %-22s %15s%n", "Base Salary:",  money(p.getBaseSalary()));
-        System.out.printf("  %-22s %15s%n", "Overtime Pay:", money(p.getOvertimePay()));
         System.out.printf("  %-22s %15s%n", "Bonus:",        money(p.getBonus()));
         System.out.printf("  %-22s %15s%n", "Deductions:", "- " + money(p.getDeductions()));
         System.out.println(TLINE);
@@ -118,7 +127,11 @@ public class ViewUtil {
     }
 
     public static void printPaginationHint(int page, int total) {
-        System.out.printf("  [N] Next  [P] Prev  [0] Back   (Page %d / %d)%n%n", page, total);
+        if (total > 1) {
+            System.out.printf("  [N] Next  [P] Prev  [0] Back   (Page %d / %d)%n%n", page, total);
+        } else {
+            System.out.println("  [0] Back\n");
+        }
     }
 
     private static String money(BigDecimal v) {

@@ -1,639 +1,860 @@
 # Payroll Management System (PMS)
-### Final Year Project — Version 2.0
+
+### Final  Project – Console-Based Java Application
 
 ---
 
-## 🎯 PROJECT OVERVIEW
+## 1. Project Overview
 
-**Payroll Management System** is a console-based Java application that calculates employee payroll while analyzing performance and attendance. This system demonstrates:
+**Payroll Management System (PMS)** is a **console-based Java application** that calculates employee payroll while analyzing **attendance** and **performance**.
 
-- **Role-based access control** (Admin vs Employee)
-- **Attendance tracking** (check-in/out, overtime, late tracking)
-- **Performance reviews** and bonus calculations
-- **Payroll processing** using PostgreSQL stored procedures
-- **PDF payslip generation** using iText5
-- **Clean architecture** with separation of concerns (Model, DTO, Repository, Service, Controller)
+The system demonstrates:
 
-**Teacher's Goal**: *"To calculate payroll while analyzing employee performance and attendance."* ✅
+- Role-based access control (Admin vs Employee)
+- Employee information management
+- Attendance tracking (check-in / check-out, overtime)
+- Performance reviews and bonus calculation
+- Payroll processing using a PostgreSQL stored procedure
+- Payslip generation as PDF using JasperReports
 
----
+**Teacher’s goal**:
+> “Calculate payroll while analyzing employee performance and attendance.”
 
-## 📋 SYSTEM REQUIREMENTS
-
-### Software Requirements:
-1. **JDK 11+** (Java Development Kit)
-2. **PostgreSQL 12+** (Database)
-3. **IntelliJ IDEA** (IDE) or any Java IDE
-4. **pgAdmin 4** (PostgreSQL management tool)
-
-### Required JAR Libraries:
-- `postgresql-42.7.1.jar` (JDBC driver)
-- `lombok.jar` (Lombok annotations)
-- `itextpdf-5.5.13.3.jar` (PDF generation)
+This project fully implements that goal.
 
 ---
 
-## 🚀 INSTALLATION & SETUP
+## 2. Main Features (Teacher Requirements Mapping)
 
-### Step 1: Set Up PostgreSQL Database
+### 2.1 Role-based login (Admin + Employee)
 
-1. **Open pgAdmin 4**
-2. Right-click **Databases** → **Create** → **Database**
-3. Enter database name: `payroll_db`
-4. Click **Save**
+- Separate login flows for:
+  - **Admin**: username + password.
+  - **Employee**: email + password.
+- Successful login routes to:
+  - **Admin dashboard** – management functions only.
+  - **Employee dashboard** – self-service functions only.
+- Role-based menus ensure employees cannot access admin-only features.
 
-5. **Run the SQL setup script:**
-   - Open `payroll_db` → **Tools** → **Query Tool**
-   - Open file: `pms_complete/database/setup.sql`
-   - Press **F5** or click **Execute** ▶️
-   - Wait for success message: `✓ Setup complete! Database initialized with sample data.`
+### 2.2 Employee information management
 
-6. **Verify database password:**
-   - Default username: `postgres`
-   - If your PostgreSQL password is NOT `dev_password`, you must set it as an environment variable:
-     ```bash
-     # Windows (Command Prompt)
-     set DB_PASS=your_postgres_password
+- Admin can:
+  - Create new employees (full name, email, base salary, position, department, password).
+  - View employee list with pagination.
+  - Search employees by name.
+  - Update employee details.
+  - Disable employees (soft delete via `is_active = FALSE`).
 
-     # Windows (PowerShell)
-     $env:DB_PASS="your_postgres_password"
+### 2.3 Attendance tracking (check-in / check-out)
 
-     # Linux/Mac
-     export DB_PASS=your_postgres_password
-     ```
+- Employee functions:
+  - **Check-in**:
+    - Once per day.
+    - Only allowed during configured time window (e.g. 7:00–23:00).
+    - Stored with `check_in`, `status`, etc.
+  - **Check-out**:
+    - Requires a valid check-in today.
+    - Once per day.
+    - Calculates:
+      - `work_hours`
+      - `overtime_hours` (hours above 8 per day)
+- System guarantees:
+  - One attendance record per employee per day (unique `(employee_id, date)`).
+  - Correct `check_out >= check_in` via DB constraint.
+  - Ability to view:
+    - **My Attendance** (per employee).
+    - **All Attendance** (admin, with pagination).
 
-### Step 2: Set Up IntelliJ IDEA Project
+### 2.4 Salary + overtime pay calculation
 
-1. **Open IntelliJ IDEA**
-2. **Open Project** → Navigate to `D:\Java Programing\pms_complete` → Click **OK**
-3. **Add JAR Libraries:**
-   - **File** → **Project Structure** → **Libraries** → **+** → **Java**
-   - Add these JARs (download if missing):
-     - `postgresql-42.7.1.jar` — [Download](https://jdbc.postgresql.org/download/)
-     - `lombok.jar` — [Download](https://projectlombok.org/download)
-     - `itextpdf-5.5.13.3.jar` — [Download](https://github.com/itext/itextpdf/releases/tag/5.5.13.3)
-   - Click **Apply** → **OK**
+- Base salary per employee stored in `employees.base_salary`.
+- Overtime pay:
+  - Uses daily `overtime_hours` from attendance.
+  - Hourly rate derived from base salary.
+- Deductions:
+  - **Income Tax**: 10% of gross (base + overtime + bonus).
+  - **Social Security**: 2% of base salary.
+- Total pay:
+  - `total_paid = base_salary + bonus – deductions`.
+- Implemented in `SalaryCalculator` and `PayrollService`.
 
-4. **Enable Lombok Plugin:**
-   - **File** → **Settings** → **Plugins**
-   - Search: "Lombok"
-   - Install and restart IntelliJ
+### 2.5 Performance rating & bonus calculation
 
-5. **Build the project:**
-   - **Build** → **Rebuild Project**
-   - Check for errors (should be **0 errors**)
+- Admin can record performance reviews:
+  - Score (0 < score ≤ 100).
+  - Comments.
+  - Reviewer admin ID.
+- System maintains:
+  - All performance records per employee.
+  - Latest review.
+  - **Average score** for bonus calculation.
+- Bonus tiers (example logic):
+  - High scores receive higher bonus percentages of base salary.
+- Bonuses are:
+  - Computed in Java.
+  - Stored in `bonus` table.
+  - Linked to specific payrolls.
 
-### Step 3: Configure Database Connection
+### 2.6 Payslip PDFs using JasperReports
 
-If your PostgreSQL is running on a different host/port or database name:
-
-Edit `pms_complete/src/project/config/DbConfig.java` line 22:
-```java
-private static final String URL = getEnvOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/payroll_db");
-```
-
-Or set environment variable:
-```bash
-set DB_URL=jdbc:postgresql://your_host:5432/your_database
-set DB_USER=your_username
-set DB_PASS=your_password
-```
-
----
-
-## ▶️ HOW TO RUN
-
-### Method 1: Run from IntelliJ IDEA
-1. Open `MainApplication.java`
-2. Right-click → **Run 'MainApplication.main()'**
-3. Console will display the welcome screen
-
-### Method 2: Run from Terminal/CMD
-```bash
-cd "D:\Java Programing\pms_complete"
-javac -cp ".;lib/*" pms_complete/src/**/*.java -d out/production/pms_complete
-java -cp ".;lib/*;out/production/pms_complete" MainApplication
-```
-
-*(On Linux/Mac, use `:` instead of `;` in classpath)*
-
----
-
-## 🔐 LOGIN CREDENTIALS
-
-After running the database setup script, use these credentials:
-
-### Admin Accounts:
-| Username | Password  | Permission Level |
-|----------|-----------|------------------|
-| admin    | admin123  | SUPER_ADMIN      |
-| hr       | hr123     | HR_MANAGER       |
-
-### Employee Accounts:
-| Email            | Password  | Position              | Base Salary |
-|------------------|-----------|-----------------------|-------------|
-| alice@pms.com    | alice123  | Software Engineer     | $3,000.00   |
-| bob@pms.com      | bob123    | Marketing Specialist  | $2,500.00   |
-| carol@pms.com    | carol123  | Senior Developer      | $3,500.00   |
-| david@pms.com    | david123  | HR Coordinator        | $2,800.00   |
-| emma@pms.com     | emma123   | Financial Analyst     | $3,200.00   |
+- Admin:
+  - Calculates payrolls for employees.
+  - Generates payslips for any existing payroll record.
+- Employee:
+  - Views own payroll history.
+  - Generates own payslips.
+- PDF generation:
+  - Uses **JasperReports** with template `payslip.jrxml`.
+  - Outputs PDF files to a local `reports/` folder.
+  - Shows:
+    - Employee info, pay period, payment date.
+    - Base salary, overtime pay, bonus.
+    - Tax, social security.
+    - Net pay.
 
 ---
 
-## 📖 USER GUIDE
+## 3. Technology Stack
 
-### Admin Features:
-
-1. **Manage Employees**
-   - Add new employee (name, email, password, salary, position, department)
-   - Update employee details
-   - Search employees by name
-   - Disable employee accounts
-   - List all employees (paginated)
-
-2. **View Attendance Records**
-   - See all employee check-in/out times
-   - View overtime hours and late arrivals
-   - Paginated display
-
-3. **Performance Reviews**
-   - Rate employee performance (0-100 scale)
-   - Add review comments
-   - View employee performance history
-
-4. **Calculate Payroll**
-   - Calculate for one employee or all employees
-   - Specify month/year for payroll period
-   - Automatic calculation includes:
-     - Base salary
-     - Overtime pay (1.5x hourly rate)
-     - Performance bonus (5%-15% based on score)
-     - Tax deduction (10% of gross)
-     - Social security (2% of base)
-   - Uses PostgreSQL stored procedure for data integrity
-
-5. **Generate Payslip**
-   - Select employee and payroll period
-   - View payslip in console
-   - Save professional PDF to `reports/` folder
-
-6. **Manage Bonuses**
-   - Award manual bonuses to employees
-   - View bonus history
-
-7. **Review Leave Requests**
-   - Approve or reject employee leave requests
-   - View pending requests
-
-### Employee Features:
-
-1. **Check In** — Record daily arrival time
-2. **Check Out** — Record departure time (auto-calculates overtime)
-3. **View My Attendance** — See personal attendance history
-4. **View My Performance** — See performance reviews
-5. **View My Payslip** — View and download payslips as PDF
-6. **Change Password** — Update account password
-7. **Submit Leave Request** — Request time off (sick, vacation, personal, emergency)
-8. **View My Leave Requests** — See request status
+- **Language**: Java (JDK 11+ recommended; tested with JDK 17)
+- **UI**: Console (System.in / System.out) – no GUI, no web
+- **Database**: PostgreSQL
+- **Database access**: JDBC + `PreparedStatement` (no ORM / no JPA)
+- **Reporting**: JasperReports (JRXML → PDF) + OpenPDF
+- **Project type**: Plain Java project (no Maven/Gradle)
+- **Models**: Lombok (`@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`)
+- **Security**:
+  - Password hashing with PBKDF2 + salt (`PasswordUtil`)
+  - Backward-compatible with legacy SHA-256 hashes (existing data)
+  - Role-based access enforced in controllers & menus
+- **Architecture**:
+  - Layered:
+    - Controller (console) → Service → Repository/DAO → Database
+  - DTOs and mappers isolate presentation from DB models
 
 ---
 
-## 🧪 TESTING GUIDE
+## 4. Project Structure
 
-### Test 1: Admin Login & Employee Management
-```
-1. Run application
-2. Select [1] Admin
-3. Login: admin / admin123
-4. Select [1] Manage Employees
-5. Select [5] List All Employees
-6. Expected: Shows 5 employees (Alice, Bob, Carol, David, Emma)
-```
-
-### Test 2: Employee Login & Attendance
-```
-1. Run application
-2. Select [2] Employee
-3. Login: alice@pms.com / alice123
-4. Select [1] Check In
-5. Expected: "✔ Checked in at [current time]"
-6. Select [2] Check Out
-7. Expected: "✔ Checked out at [current time]"
-8. Select [3] View My Attendance
-9. Expected: Shows attendance records including today's record
-```
-
-### Test 3: Performance Review & Bonus Calculation
-```
-1. Login as admin
-2. Select [3] Performance Reviews
-3. Select [1] Add Performance Review
-4. Employee ID: 1 (Alice)
-5. Score: 95.00
-6. Comments: "Outstanding work this quarter"
-7. Expected: Performance review saved
-8. Note: Score >= 90 = 15% bonus on next payroll
-```
-
-### Test 4: Payroll Calculation (CORE FEATURE)
-```
-1. Login as admin
-2. Select [4] Calculate Payroll
-3. Select [1] Calculate for one employee
-4. Employee ID: 1 (Alice)
-5. Month: [current month, e.g., 3 for March]
-6. Year: [current year, e.g., 2026]
-7. Confirm: y
-8. Expected:
-   - "✔ Payroll calculated."
-   - Shows breakdown: Base + Overtime + Bonus - Deductions = Total
-
-Calculation breakdown for Alice (if avg score = 92):
-  Base Salary: $3,000.00
-  Overtime Pay: (depends on attendance, e.g., 5 hrs × $25.57 × 1.5 = $191.78)
-  Bonus: $450.00 (15% of base for score >= 90)
-  Gross: $3,641.78
-  Tax (10%): -$364.18
-  Social Security (2% of base): -$60.00
-  Total Paid: $3,217.60
-```
-
-### Test 5: PDF Payslip Generation
-```
-1. Login as admin
-2. Select [5] Generate Payslip
-3. Employee ID: 1
-4. Select payroll ID from list
-5. Expected:
-   - Displays payslip in console
-   - "✔ Payslip PDF saved → reports/payslip_emp1_[date].pdf"
-6. Open the PDF file — should show professional payslip with:
-   - Company header (blue banner)
-   - Employee information
-   - Earnings table
-   - Deductions table
-   - Net pay (highlighted)
-```
-
-### Test 6: Employee Views Own Payslip
-```
-1. Login as employee: alice@pms.com / alice123
-2. Select [5] View My Payslip
-3. Select payroll ID
-4. Expected: Same payslip display + PDF saved
-```
-
-### Test 7: Leave Request Workflow
-```
-1. Login as employee: bob@pms.com / bob123
-2. Select [7] Submit Leave Request
-3. Start Date: [future date, e.g., 2026-03-10]
-4. End Date: [future date, e.g., 2026-03-12]
-5. Leave Type: 2 (Vacation)
-6. Reason: "Family vacation"
-7. Expected: "✔ Leave request submitted."
-
-8. Logout → Login as admin
-9. Select [7] Review Leave Requests
-10. Select [1] View Pending Requests
-11. Expected: Shows Bob's leave request
-12. Select request → Approve/Reject
-13. Expected: Status updated
-```
-
-### Test 8: Role-Based Access Control
-```
-1. Login as employee
-2. Try to access admin features → NOT POSSIBLE (menu doesn't show admin options)
-3. Expected: Employees can ONLY see their own data
-4. Login as admin
-5. Expected: Admin can see ALL data
-```
-
----
-
-## 🏗️ PROJECT STRUCTURE
-
-```
+```text
 pms_complete/
-├── database/
-│   └── setup.sql                 # PostgreSQL database schema + test data
-├── reports/                      # Generated PDF payslips (created at runtime)
-├── src/
-│   ├── MainApplication.java      # Entry point + role-based routing
-│   └── project/
-│       ├── config/
-│       │   └── DbConfig.java     # Database connection manager
-│       ├── controller/
-│       │   ├── AdminController.java       # Admin actions
-│       │   ├── AttendanceController.java  # Attendance check-in/out
-│       │   ├── EmployeeController.java    # Employee self-service
-│       │   ├── LeaveRequestController.java
-│       │   ├── LoginController.java
-│       │   ├── PayrollController.java     # Payroll calculation
-│       │   └── PerformanceController.java
-│       ├── dao/
-│       │   ├── UserDao.java              # Login interface
-│       │   └── UserDaoImpl.java          # Login implementation
-│       ├── dto/
-│       │   ├── AttendanceDTO.java
-│       │   ├── EmployeeDTO.java
-│       │   ├── LeaveRequestDTO.java
-│       │   ├── PayrollDTO.java
-│       │   ├── PerformanceDTO.java
-│       │   └── ...                       # Data Transfer Objects
-│       ├── mapper/
-│       │   └── EntityMapper.java         # Entity ↔ DTO conversion
-│       ├── model/
-│       │   ├── Attendance.java
-│       │   ├── Bonus.java
-│       │   ├── Employee.java
-│       │   ├── LeaveRequest.java
-│       │   ├── Payroll.java
-│       │   ├── Payslip.java
-│       │   ├── Performance.java
-│       │   └── User.java                 # Domain models (Lombok)
-│       ├── procedure/
-│       │   └── PayrollProcedure.java     # Calls PostgreSQL stored procedure
-│       ├── report/
-│       │   ├── JasperReportGenerator.java  # PDF generation using iText5
-│       │   └── templates/
-│       │       └── payslip.jrxml           # Payslip template documentation
-│       ├── repository/
-│       │   ├── AttendanceRepository.java
-│       │   ├── BonusRepository.java
-│       │   ├── EmployeeRepository.java
-│       │   ├── LeaveRequestRepository.java
-│       │   ├── PayrollRepository.java
-│       │   └── PerformanceRepository.java  # Data access layer (JDBC)
-│       ├── service/
-│       │   ├── AttendanceService.java
-│       │   ├── AuthService.java
-│       │   ├── BonusService.java
-│       │   ├── EmployeeService.java
-│       │   ├── LeaveRequestService.java
-│       │   ├── PayrollService.java         # Core payroll logic
-│       │   └── PerformanceService.java     # Business logic layer
-│       └── util/
-│           ├── DateUtil.java
-│           ├── InputUtil.java              # Console input helpers
-│           ├── PasswordUtil.java           # SHA-256 + PBKDF2 hashing
-│           ├── SalaryCalculator.java       # Salary/bonus/tax calculations
-│           └── ViewUtil.java               # Console output formatting
-└── README.md (this file)
+├─ pms_complete/
+│  ├─ src/
+│  │  ├─ MainApplication.java
+│  │  │    ↳ Program entry point, role selection, admin/employee dashboards
+│  │  │
+│  │  ├─ project/config/
+│  │  │    └─ DbConfig.java
+│  │  │         ↳ Central PostgreSQL connection management
+│  │  │
+│  │  ├─ project/dao/
+│  │  │    ├─ UserDao.java
+│  │  │    └─ UserDaoImpl.java
+│  │  │         ↳ Login (admin/employee), last_login updates
+│  │  │
+│  │  ├─ project/model/
+│  │  │    ├─ Employee.java
+│  │  │    ├─ Attendance.java
+│  │  │    ├─ Performance.java
+│  │  │    ├─ Payroll.java
+│  │  │    ├─ Bonus.java
+│  │  │    ├─ LeaveRequest.java
+│  │  │    ├─ Payslip.java
+│  │  │    ├─ User.java
+│  │  │    └─ Pagination.java
+│  │  │
+│  │  ├─ project/dto/
+│  │  │    ├─ EmployeeDTO.java
+│  │  │    ├─ AttendanceDTO.java
+│  │  │    ├─ PerformanceDTO.java
+│  │  │    ├─ PayrollDTO.java
+│  │  │    ├─ LeaveRequestDTO.java
+│  │  │    ├─ SalaryReportDTO.java
+│  │  │    ├─ LoginRequest.java
+│  │  │    ├─ LoginResponse.java
+│  │  │    └─ UserDTO.java
+│  │  │
+│  │  ├─ project/mapper/
+│  │  │    └─ EntityMapper.java
+│  │  │         ↳ Converts between models and DTOs
+│  │  │
+│  │  ├─ project/repository/
+│  │  │    ├─ EmployeeRepository.java
+│  │  │    ├─ AttendanceRepository.java
+│  │  │    ├─ PerformanceRepository.java
+│  │  │    ├─ PayrollRepository.java
+│  │  │    ├─ BonusRepository.java
+│  │  │    └─ LeaveRequestRepository.java
+│  │  │         ↳ All pure JDBC with PreparedStatement
+│  │  │
+│  │  ├─ project/service/
+│  │  │    ├─ AuthService.java
+│  │  │    ├─ EmployeeService.java
+│  │  │    ├─ AttendanceService.java
+│  │  │    ├─ PerformanceService.java
+│  │  │    ├─ PayrollService.java
+│  │  │    ├─ BonusService.java
+│  │  │    └─ LeaveRequestService.java
+│  │  │         ↳ Business logic for each aggregate
+│  │  │
+│  │  ├─ project/controller/
+│  │  │    ├─ AdminController.java
+│  │  │    ├─ EmployeeController.java
+│  │  │    ├─ AttendanceController.java
+│  │  │    ├─ PerformanceController.java
+│  │  │    ├─ PayrollController.java
+│  │  │    └─ LeaveRequestController.java
+│  │  │         ↳ Menus and user input handling
+│  │  │
+│  │  ├─ project/util/
+│  │  │    ├─ InputUtil.java
+│  │  │    ├─ ViewUtil.java
+│  │  │    ├─ DateUtil.java
+│  │  │    ├─ SalaryCalculator.java
+│  │  │    └─ PasswordUtil.java
+│  │  │
+│  │  ├─ project/report/
+│  │  │    ├─ JasperReportGenerator.java
+│  │  │    └─ templates/
+│  │  │         └─ payslip.jrxml
+│  │  │
+│  │  └─ project/procedure/
+│  │       └─ PayrollProcedure.java
+│  │            ↳ Calls PostgreSQL stored procedure calculate_payroll(...)
+│  │
+│  └─ database/
+│     └─ setup.sql
+│          ↳ Full schema, stored procedure, indexes, views, sample data
+│
+├─ README.md
+└─ QUICKSTART.md
+
 ```
+
+## +. High-Level Flowchart (Text Version)
+
+### Main Flow (Simplified)
+
+1. **Start application**
+  - `MainApplication.main()` calls `DbConfig.init()` and prints welcome.
+
+2. **Role selection**
+  - Show menu: Admin / Employee / Exit.
+  - User chooses role.
+
+3. **Admin login**
+  - Read username + password.
+  - `UserDaoImpl.adminLogin(...)`:
+    - Fetch admin row.
+    - Verify password (PBKDF2 or legacy SHA-256).
+    - Upgrade hash if needed.
+  - If OK → `runAdminDashboard(admin)`.
+
+4. **Employee login**
+  - Read email + password.
+  - `UserDaoImpl.employeeLogin(...)`:
+    - Fetch employee row where `is_active = TRUE`.
+    - Verify password.
+    - Upgrade hash if needed.
+    - Update `last_login`.
+  - If OK → `runEmployeeDashboard(employee)`.
+
+5. **Admin dashboard (loop)**
+  - Options:
+    - Manage employees (CRUD).
+    - View all attendance.
+    - Manage performance (add/view reviews).
+    - Calculate payroll.
+    - Generate payslips.
+    - Manage bonuses.
+    - Review leave requests.
+  - On each option, the corresponding controller is called:
+    - e.g. `PayrollController.calculatePayroll()` → `PayrollService.calculatePayroll()`.
+
+6. **Employee dashboard (loop)**
+  - Options:
+    - Check in / Check out (`AttendanceController` → `AttendanceService` → `AttendanceRepository`).
+    - View my attendance.
+    - View my performance.
+    - View my payslip (build `Payslip` and call `JasperReportGenerator`).
+    - Change password.
+    - Submit / view my leave requests.
+
+7. **Exit**
+  - On main menu `0`, application says goodbye and `DbConfig.close()`.
 
 ---
 
-## 🧮 CALCULATION FORMULAS
+## +. Database ERD (Entities & Relationships)
 
-### 1. Hourly Rate
-```
-hourly_rate = base_salary / (22 working_days × 8 hours)
-```
-
-### 2. Overtime Pay
-```
-overtime_pay = (total_overtime_hours × hourly_rate × 1.5)
-```
-
-### 3. Performance Bonus (based on average performance score)
-```
-if score >= 90:  bonus = base_salary × 15%
-if score >= 80:  bonus = base_salary × 10%
-if score >= 75:  bonus = base_salary × 5%
-if score < 75:   bonus = $0
-```
-
-### 4. Deductions
-```
-tax = (base_salary + overtime_pay + bonus) × 10%
-social_security = base_salary × 2%
-total_deductions = tax + social_security
-```
-
-### 5. Net Pay
-```
-net_pay = base_salary + overtime_pay + bonus - total_deductions
-```
+### Tables (from `setup.sql`)
 
 ---
 
-## 🗄️ DATABASE SCHEMA
+**`admins`**
 
-### Tables:
-1. **admins** — Admin users with permission levels
-2. **employees** — Employee accounts with credentials
-3. **attendance** — Daily check-in/out records
-4. **performance** — Performance review scores
-5. **payroll** — Calculated payroll records
-6. **bonus** — Bonus payments (linked to payroll or standalone)
-7. **leave_request** — Employee leave requests
-
-### Stored Procedure:
-- **`calculate_payroll(employee_id, period_start, period_end, bonus, deductions)`**
-  - Validates employee exists and is active
-  - Validates date range and amounts
-  - Calculates total_paid = base_salary + bonus - deductions
-  - Inserts payroll record atomically
-
-### Indexes:
-- Optimized indexes on foreign keys and frequently queried columns for performance
+| Column | Notes |
+|---|---|
+| `admin_id` | PK |
+| `username` | UNIQUE |
+| `password` | |
+| `permission_level` | |
+| `created_at` | |
+| `last_login` | |
+| `is_active` | |
 
 ---
 
-## 🎨 KEY FEATURES IMPLEMENTATION
+**`employees`**
 
-### 1. Role-Based Access Control
-- **Admin**: Full access to all employees' data, can manage everything
-- **Employee**: Can only view/modify own data (attendance, performance, payslips)
-- Enforced at controller and service layers
-
-### 2. Attendance Tracking
-- Automatic work hours calculation: `(check_out - check_in) in hours`
-- Overtime: `max(work_hours - 8, 0)`
-- Late tracking: `late_minutes` stored if check-in after 9:00 AM
-- Unique constraint: One record per employee per day
-
-### 3. Performance-Based Bonus
-- Admin rates employees on 0-100 scale
-- Average score determines bonus tier
-- Bonus automatically included in payroll calculation
-
-### 4. Payroll Processing
-- Uses PostgreSQL **stored procedure** (requirement met ✅)
-- Prevents duplicate/overlapping pay periods
-- Transaction-based: Payroll + Bonus saved atomically
-- Rollback on failure ensures data integrity
-
-### 5. PDF Payslip Generation
-- Professional layout using iText5 library
-- Blue header banner with company branding
-- Detailed breakdown: Earnings, Deductions, Net Pay
-- Saved to `reports/` folder with unique filename
-
-### 6. Password Security
-- **SHA-256 hashing** for legacy database compatibility
-- **PBKDF2** support for new passwords (migration path)
-- Constant-time comparison to prevent timing attacks
+| Column | Notes |
+|---|---|
+| `employee_id` | PK |
+| `full_name` | |
+| `email` | UNIQUE |
+| `password` | |
+| `is_active` | |
+| `base_salary` | |
+| `position` | |
+| `department` | |
+| `hire_date` | |
+| `last_login` | |
+| `created_at` | |
+| `updated_at` | |
 
 ---
 
-## 🐛 TROUBLESHOOTING
+**`attendance`**
 
-### Problem: "Driver not found — add postgresql JAR to libraries"
-**Solution**: Download `postgresql-42.7.1.jar` and add to IntelliJ libraries (see Step 2 above)
-
-### Problem: "Connection failed: password authentication failed"
-**Solution**:
-1. Check your PostgreSQL password
-2. Set environment variable: `set DB_PASS=your_password`
-3. Or edit `DbConfig.java` line 25 to hardcode password (not recommended)
-
-### Problem: "Lombok errors — @Data not found"
-**Solution**:
-1. Install Lombok plugin in IntelliJ
-2. Enable annotation processing: **Settings** → **Build** → **Compiler** → **Annotation Processors** → ✅ Enable
-
-### Problem: "PDF generation failed"
-**Solution**: Verify `itextpdf-5.5.13.3.jar` is in classpath (NOT itextpdf 7.x or jasperreports)
-
-### Problem: "No employees found" after setup
-**Solution**: Re-run `setup.sql` — may have had SQL errors during execution
-
-### Problem: "Payroll calculation failed"
-**Solution**: Check:
-1. Employee has attendance records in the period
-2. Employee has performance reviews (for bonus calculation)
-3. No overlapping payroll periods exist
-4. PostgreSQL stored procedure `calculate_payroll` was created
+| Column | Notes |
+|---|---|
+| `attendance_id` | PK |
+| `employee_id` | FK → `employees.employee_id` |
+| `date` | |
+| `check_in` | |
+| `check_out` | |
+| `status` | `PRESENT`, `ABSENT`, `LATE`, `HALF_DAY`, `ON_LEAVE` |
+| `work_hours` | |
+| `overtime_hours` | |
+| `late_minutes` | |
+| `early_leave_minutes` | |
+| `leave_type` | |
+| `note` | |
+| `created_at` | |
+| *(unique)* | `(employee_id, date)` |
 
 ---
 
-## ✅ PROJECT COMPLETION CHECKLIST
+**`performance`**
 
-- [✅] Console-based Java application
-- [✅] PostgreSQL database with stored procedure
-- [✅] JDBC with PreparedStatement (no ORM)
-- [✅] Manual DTO ↔ Model mapping (EntityMapper)
-- [✅] Lombok annotations for clean code
-- [✅] Role-based access control (Admin/Employee)
-- [✅] Employee management (CRUD operations)
-- [✅] Attendance tracking (check-in/out, overtime, late)
-- [✅] Performance reviews and ratings
-- [✅] Automatic bonus calculation based on performance
-- [✅] Payroll calculation using stored procedure
-- [✅] Professional PDF payslip generation
-- [✅] Leave request workflow
-- [✅] Transaction support with rollback
-- [✅] Password hashing (SHA-256 + PBKDF2)
-- [✅] Comprehensive error handling
-- [✅] Input validation
-- [✅] Clean architecture (separation of concerns)
-- [✅] Pagination for large datasets
-- [✅] Complete test data for demonstration
-- [✅] Full documentation
+| Column | Notes |
+|---|---|
+| `performance_id` | PK |
+| `employee_id` | FK → `employees.employee_id` |
+| `review_date` | |
+| `score` | 0 < score ≤ 100 |
+| `comments` | |
+| `reviewer_id` | FK → `admins.admin_id` |
+| `created_at` | |
 
 ---
 
-## 📊 EVALUATION READINESS
+**`payroll`**
 
-### Teacher's Goal: "Calculate payroll while analyzing employee performance and attendance"
-
-**✅ FULLY ACHIEVED:**
-
-1. **Attendance Analysis** ✅
-   - Tracks check-in/out times
-   - Calculates work hours and overtime
-   - Overtime pay included in payroll
-
-2. **Performance Analysis** ✅
-   - Performance scores (0-100)
-   - Average score determines bonus tier
-   - Bonus automatically applied to payroll
-
-3. **Payroll Calculation** ✅
-   - Base salary from employee record
-   - Overtime pay from attendance (1.5× hourly rate)
-   - Bonus from performance scores (5%-15%)
-   - Tax (10%) and social security (2%) deductions
-   - Net pay = Base + Overtime + Bonus - Deductions
-   - Uses PostgreSQL stored procedure ✅
-   - Saves payroll + bonus atomically (transaction) ✅
-
-4. **Professional Output** ✅
-   - Console display of all data
-   - PDF payslip generation
-   - Clean, formatted reports
+| Column | Notes |
+|---|---|
+| `payroll_id` | PK |
+| `employee_id` | FK → `employees.employee_id` |
+| `pay_period_start` | |
+| `pay_period_end` | |
+| `base_salary` | |
+| `bonus` | |
+| `deductions` | |
+| `total_paid` | |
+| `payment_date` | |
+| `created_at` | |
 
 ---
 
-## 📈 SUGGESTED GRADING CRITERIA
+**`bonus`**
 
-| Criterion | Weight | Status |
-|-----------|--------|--------|
-| Database Design & Normalization | 15% | ✅ Perfect |
-| Role-Based Access Control | 10% | ✅ Perfect |
-| Attendance Module | 15% | ✅ Perfect |
-| Performance Module | 10% | ✅ Perfect |
-| Payroll Calculation Logic | 20% | ✅ Perfect |
-| PDF Report Generation | 10% | ✅ Perfect |
-| Code Quality & Architecture | 10% | ✅ Perfect |
-| Error Handling & Validation | 5% | ✅ Perfect |
-| Documentation & Testing | 5% | ✅ Perfect |
-| **TOTAL** | **100%** | **✅ 100/100** |
+| Column | Notes |
+|---|---|
+| `bonus_id` | PK |
+| `employee_id` | FK → `employees.employee_id` |
+| `payroll_id` | FK → `payroll.payroll_id` (nullable, `ON DELETE SET NULL`) |
+| `amount` | |
+| `reason` | |
+| `awarded_date` | |
+| `created_at` | |
 
 ---
 
-## 💡 FUTURE ENHANCEMENTS (Optional)
+**`leave_request`**
 
-If time permits for extra credit:
-1. ✨ Web interface (Spring Boot + Thymeleaf)
-2. ✨ Email notifications for payslip delivery
-3. ✨ Multi-currency support
-4. ✨ Advanced reporting (charts/graphs)
-5. ✨ Biometric attendance integration
-6. ✨ Mobile app for employee check-in
+| Column | Notes |
+|---|---|
+| `leave_request_id` | PK |
+| `employee_id` | FK → `employees.employee_id` |
+| `start_date` | |
+| `end_date` | |
+| `leave_type` | `SICK`, `VACATION`, `PERSONAL`, `EMERGENCY` |
+| `reason` | |
+| `status` | `PENDING`, `APPROVED`, `REJECTED` |
+| `reviewer_id` | FK → `admins.admin_id` (nullable) |
+| `review_note` | |
+| `request_date` | |
+| `review_date` | |
+| `created_at` | |
+
+## +. Database Relationships (Text ERD)
+
+1. **Admins ↔ Performance**
+  - One admin can write many performance reviews.
+  - `performance.reviewer_id` → `admins.admin_id`
+
+2. **Employees ↔ Attendance**
+  - One employee has many attendance records.
+  - `attendance.employee_id` → `employees.employee_id`
+  - Unique constraint on `(employee_id, date)` ensures at most one row per day per employee.
+
+3. **Employees ↔ Performance**
+  - One employee has many performance records.
+  - `performance.employee_id` → `employees.employee_id`
+
+4. **Employees ↔ Payroll**
+  - One employee has many payroll records (each for a period).
+  - `payroll.employee_id` → `employees.employee_id`
+
+5. **Employees ↔ Bonus**
+  - One employee has many bonus records.
+  - `bonus.employee_id` → `employees.employee_id`
+  - A bonus may optionally be linked to a specific payroll:
+    - `bonus.payroll_id` → `payroll.payroll_id`
+
+6. **Employees ↔ Leave Requests**
+  - One employee has many `leave_request` rows.
+  - `leave_request.employee_id` → `employees.employee_id`
+  - Each request may be reviewed by an admin:
+    - `leave_request.reviewer_id` → `admins.admin_id`
+
+
+## 5. System Requirements
+
+### 5.1 Software
+
+| Requirement | Version |
+|---|---|
+| JDK | 11 or higher (JDK 17 recommended) |
+| PostgreSQL | 12 or higher |
+| pgAdmin 4 / psql | To run `setup.sql` |
+| IntelliJ IDEA | Or any Java IDE |
+
+### 5.2 Required JAR Libraries
+
+Create a `lib/` folder and add these JARs:
+
+**Database + Lombok**
+- `postgresql-42.x.x.jar` (PostgreSQL JDBC driver)
+- `lombok.jar`
+
+**JasperReports stack (tested combination)**
+- `jasperreports-6.20.6.jar`
+- `commons-beanutils-1.9.4.jar`
+- `commons-collections4-4.2.jar`
+- `commons-digester-2.1.jar`
+- `commons-logging-1.2.jar`
+- `openpdf-1.3.30.jar`
+- `jackson-core-2.14.1.jar`
+- `jackson-databind-2.14.1.jar`
+- `jackson-annotations-2.14.1.jar`
+- `jackson-dataformat-xml-2.14.1.jar`
+- `ecj-3.21.0.jar` (Eclipse Java compiler used by JasperReports)
 
 ---
 
-## 👨‍💻 PROJECT METADATA
+## 6. Database Setup
 
-- **Project Name**: Payroll Management System (PMS)
-- **Version**: 2.0
-- **Type**: Final Year Project
-- **Architecture**: Console-based MVC with service layer
-- **Database**: PostgreSQL 12+
-- **Language**: Java 11+
-- **Libraries**: JDBC, Lombok, iText5
-- **Patterns**: Repository, DTO, DAO, Service Layer, MVC
-- **Date**: March 2026
+### 6.1 Create the database
+
+1. Open pgAdmin.
+2. Connect to your PostgreSQL server.
+3. Right-click **Databases** → **Create** → **Database**.
+4. Name: `payroll_db`
+5. Click **Save**.
+
+### 6.2 Run the schema + sample data script
+
+1. In pgAdmin, expand **Databases** → `payroll_db`.
+2. Right-click `payroll_db` → **Tools** → **Query Tool**.
+3. In Query Tool, open:
+   ```
+   pms_complete/pms_complete/database/setup.sql
+   ```
+4. Click **Execute** (or press `F5`).
+5. When complete, output should contain:
+   ```
+   ✓ Setup complete! Database initialized with sample data.
+   ```
+
+The script creates:
+- **Tables:** `admins`, `employees`, `attendance`, `performance`, `payroll`, `bonus`, `leave_request`
+- **Stored procedure:** `calculate_payroll(...)`
+- Indexes and useful views
+- **Sample data for:** 2 admins (`admin`, `hr`), 5 employees, attendance & performance history
 
 ---
 
-## 📞 SUPPORT & QUESTIONS
+## 7. DB Connection Configuration
 
-For issues or questions:
-1. Check **Troubleshooting** section above
-2. Review database logs: `SELECT * FROM pg_stat_activity;`
-3. Check application console output for error messages
-4. Verify all JAR dependencies are correctly added
+`DbConfig` uses environment variables (or system properties):
+
+| Variable | Default | Notes |
+|---|---|---|
+| `DB_URL` | `jdbc:postgresql://localhost:5432/payroll_db` | |
+| `DB_USER` | `postgres` | |
+| `DB_PASS` | *(none)* | Must be set for your machine |
+
+**Windows PowerShell**
+```powershell
+$env:DB_URL  = "jdbc:postgresql://localhost:5432/payroll_db"
+$env:DB_USER = "postgres"
+$env:DB_PASS = "your_postgres_password"
+```
+
+**Windows CMD**
+```cmd
+set DB_URL=jdbc:postgresql://localhost:5432/payroll_db
+set DB_USER=postgres
+set DB_PASS=your_postgres_password
+```
+
+**IntelliJ IDEA**
+
+Run → Edit Configurations → Select `MainApplication` → Environment variables → Add:
+- `DB_URL`
+- `DB_USER`
+- `DB_PASS`
 
 ---
 
-## ✅ FINAL VALIDATION
+## 8. IntelliJ IDEA Configuration
 
-**Before submission, verify:**
+1. **Open the project**
+  - File → Open… → select `pms_complete` folder → OK.
 
-1. ✅ Database `payroll_db` exists and setup.sql ran successfully
-2. ✅ All 5 test employees can log in
-3. ✅ Admin can log in (admin/admin123)
-4. ✅ Attendance check-in/out works
-5. ✅ Payroll calculation completes without errors
-6. ✅ PDF payslip generates correctly in `reports/` folder
-7. ✅ No compilation errors
-8. ✅ All features accessible from menus
+2. **Mark source root**
+  - In the Project window, right-click `pms_complete/src` → Mark Directory As → **Sources Root**.
 
+3. **Add external libraries**
+  - File → Project Structure → Modules → Dependencies tab.
+  - Click `+` → JARs or directories.
+  - Select your `lib/` folder with all JARs → Apply → OK.
 
+4. **Enable Lombok**
+  - File → Settings → Plugins → search `Lombok` → Install → Restart IDE.
+  - File → Settings → Build, Execution, Deployment → Compiler → Annotation Processors.
+  - Tick **Enable annotation processing** → Apply → OK.
+
+---
+
+## 9. Running the Application
+
+1. Open `pms_complete/src/MainApplication.java`.
+2. Right-click the file → **Run 'MainApplication.main()'**.
+3. In the console, you should see:
+   ```
+   [DB] Connected to PostgreSQL successfully (jdbc:postgresql://localhost:5432/payroll_db).
+   ```
+4. The PMS banner and role selection menu:
+   ```
+   [1] Admin
+   [2] Employee
+   [0] Exit
+   ```
+
+If connection fails, check:
+- PostgreSQL service is running.
+- `payroll_db` exists.
+- `DB_URL`, `DB_USER`, `DB_PASS` are correct.
+
+---
+
+## 10. Test Accounts
+
+After executing `setup.sql`:
+
+**Admin accounts**
+
+| Username | Password |
+|---|---|
+| `admin` | `admin123` |
+| `hr` | `hr123` |
+
+**Employee accounts**
+
+| Email | Password |
+|---|---|
+| `alice@pms.com` | `alice123` |
+| `bob@pms.com` | `bob123` |
+| `carol@pms.com` | `carol123` |
+| `david@pms.com` | `david123` |
+| `emma@pms.com` | `emma123` |
+
+---
+
+## 11. Testing Guide (Manual End-to-End Tests)
+
+### 11.1 Pre-Test Checklist
+
+Before starting tests, confirm:
+
+- [ ] Java, PostgreSQL, pgAdmin installed.
+- [ ] Database `payroll_db` exists.
+- [ ] `setup.sql` executed successfully.
+- [ ] All required JARs are added in Project Structure → Modules → Dependencies.
+- [ ] `pms_complete/src` is marked as Sources Root.
+- [ ] `DB_URL`, `DB_USER`, `DB_PASS` are set.
+- [ ] `MainApplication` starts and shows role selection menu.
+
+### 11.2 Database Quick Checks (optional but recommended)
+
+In pgAdmin Query Tool:
+
+```sql
+SELECT * FROM admins;
+SELECT * FROM employees;
+SELECT * FROM performance;
+SELECT * FROM attendance;
+```
+
+You should see initial data (admins, employees, some attendance and performance).
+
+### 11.3 Admin Login and Navigation
+
+1. Run application.
+2. Choose role: `1` (Admin).
+3. Login with: `admin` / `admin123`
+
+**Expected:**
+- Welcome message: `"Welcome, admin! [SUPER_ADMIN]"`
+- Admin menu with options for employees, attendance, performance, payroll, etc.
+
+### 11.4 Employee Login
+
+1. From main menu, choose role: `2` (Employee).
+2. Login with: `alice@pms.com` / `alice123`
+
+**Expected:**
+- Welcome message for Alice.
+- Employee menu with: Check in / Check out, My attendance, My performance, My payslip, Change password, Leave request options.
+
+### 11.5 Attendance Test
+
+**As an employee:**
+1. Choose **Check In** → should succeed.
+2. Choose **Check In** again → should be rejected (`"already checked in today"`).
+3. Choose **Check Out** → should succeed and compute work/overtime hours.
+4. Choose **Check Out** again → should be rejected.
+5. Choose **My Attendance** → verify today's row appears.
+
+**Database verification:**
+```sql
+SELECT employee_id, date, check_in, check_out, work_hours, overtime_hours
+FROM attendance
+WHERE employee_id = 1
+ORDER BY date DESC;
+```
+
+### 11.6 Performance & Bonus Test
+
+**As admin:**
+1. Use Performance menu to add a new review:
+  - Select employee ID.
+  - Enter score and comments.
+2. View performance list for that employee.
+
+**Confirm:**
+- New review appears.
+- Average score updated.
+
+### 11.7 Payroll Calculation Test
+
+**As admin:**
+1. Use Payroll menu → **Calculate Payroll** (for one employee).
+2. Enter: valid employee ID, month and year.
+
+**Confirm:**
+- Overlapping payroll periods are prevented.
+- Successful calculation prints summary (base, bonus, deductions, total paid).
+
+**Database verification:**
+```sql
+SELECT * FROM payroll
+WHERE employee_id = 1
+ORDER BY payroll_id DESC
+LIMIT 1;
+```
+
+### 11.8 Payslip PDF Test (JasperReports)
+
+**As admin:**
+1. Use Payroll menu → **Generate Payslip**.
+2. Enter employee ID.
+3. From the list, choose a Payroll ID.
+
+**Expected:**
+- Console prints full payslip (via `Payslip.toString()`).
+- A PDF path is printed, e.g. `reports/payslip_emp1_2026-03-01.pdf`.
+
+**Open the generated PDF and confirm:**
+- Employee info.
+- Pay period & payment date.
+- Earnings: base salary, overtime pay, performance bonus.
+- Deductions: tax (10%), social security (2%).
+- Net pay.
+
+**As employee:**
+1. Login → Choose **My Payslip** → Select a payroll ID.
+2. A personal payslip PDF is also created in `reports/`.
+
+### 11.9 Password Change Test (Security)
+
+1. As an employee, login with original password.
+2. Use **Change Password** function.
+3. Log out, then log in with the new password.
+
+**DB check:** The `employees.password` field should now contain a PBKDF2 hash (starts with `pbkdf2:`).
+
+---
+
+## 12. Key Features Implementation (Where in Code)
+
+| Feature | Repositories / Services / Controllers |
+|---|---|
+| **Role-based login** | `MainApplication` – role selection; `UserDaoImpl` – `adminLogin`, `employeeLogin` with PBKDF2 + SHA-256 migration |
+| **Employee management** | `EmployeeRepository`, `EmployeeService`, `AdminController` |
+| **Attendance tracking** | `AttendanceRepository`, `AttendanceService`, `AttendanceController` |
+| **Performance & bonus** | `PerformanceRepository`, `BonusRepository`, `PerformanceService`, `BonusService`, `PayrollService`, `PerformanceController`, `PayrollController` |
+| **Payroll with stored procedure** | `database/setup.sql` → `calculate_payroll(...)`; `PayrollProcedure`; `PayrollService.calculatePayroll(...)` |
+| **Payslip PDF (JasperReports)** | Template: `project/report/templates/payslip.jrxml`; `JasperReportGenerator`; `PayrollService.buildPayslip(...)`; `PayrollController` |
+| **Security** | `PasswordUtil` – PBKDF2 + SHA-256; `UserDaoImpl` – hash verification & upgrade; `EmployeeRepository` – PBKDF2 for new passwords |
+
+---
+
+## 13. Final Checklist for Teacher (What Has Been Done)
+
+- [x] Role-based login (Admin + Employee) implemented.
+- [x] Employee CRUD and disabling implemented.
+- [x] Attendance tracking (check-in/out, work & overtime hours) implemented.
+- [x] Performance reviews and average score implemented.
+- [x] Salary, overtime, bonus, tax, and social security calculations implemented.
+- [x] Payroll insertion delegated to PostgreSQL stored procedure.
+- [x] Bonus table linked to payroll with transactional consistency.
+- [x] Payslip PDF generation using JasperReports template implemented.
+- [x] Employee self-service for attendance, performance, payslips, password change, and leave requests implemented.
+- [x] Passwords stored securely with PBKDF2 + salt, with migration from SHA-256.
+- [x] Project fully documented with setup, quickstart, and testing instructions.
+
+> **This project is complete and ready for submission.**
+
+## 14. Project Validation
+
+This section explains how we validated that the Payroll Management System (PMS) satisfies the functional and technical requirements.
+
+### 14.1 Functional Validation
+
+**Goal:** “Calculate payroll while analyzing employee performance and attendance.”
+
+We validated each required feature:
+
+- **Role-based login (Admin + Employee)**
+  - Tested valid and invalid logins for both roles.
+  - Verified that each role only sees its own menu options (no cross-access).
+
+- **Employee management**
+  - Created, updated, listed, searched, and disabled employees.
+  - Verified that disabled employees cannot log in.
+  - Checked `employees` table after each operation.
+
+- **Attendance tracking**
+  - Performed check-in and check-out scenarios:
+    - First check-in/checkout → success.
+    - Second check-in/checkout in same day → rejected.
+  - Verified attendance rows in `attendance` table (date, times, work_hours, overtime_hours).
+
+- **Performance and bonus**
+  - Added performance reviews with different scores.
+  - Verified they appear in `performance` table with correct reviewer.
+  - Checked that average score and bonus change as expected when recalculating payroll.
+
+- **Payroll calculation**
+  - Ran payroll for single employees and all employees for given month/year.
+  - Confirmed validations:
+    - No overlapping payroll periods.
+    - No negative total pay.
+  - Inspected `payroll` and `bonus` tables to confirm new rows and amounts.
+
+- **Payslip PDFs (JasperReports)**
+  - Generated payslips from the Admin side and Employee side.
+  - Opened generated PDFs in the `reports/` folder.
+  - Verified:
+    - Employee info, period, pay date.
+    - Base salary, overtime, bonus.
+    - Tax, social security, net pay.
+
+### 14.2 Database & Integrity Validation
+
+- **Schema and constraints**
+  - Confirmed all tables, foreign keys, and checks were created by `setup.sql`.
+  - Validated:
+    - Unique email per employee.
+    - One attendance row per employee per day.
+    - Score > 0 and ≤ 100 for performance.
+    - Non-negative salary, bonus, deductions, and total_paid.
+
+- **Stored procedure**
+  - Used `calculate_payroll(...)` through `PayrollService`.
+  - Intentionally tested error cases (invalid employee, bad dates) to ensure procedure rejects invalid input.
+
+### 14.3 Security Validation
+
+- **Passwords**
+  - Verified initial sample users (SHA-256) can log in.
+  - After first login, confirmed that:
+    - Hash in DB is upgraded to PBKDF2 format (`pbkdf2:` prefix).
+  - Created new employees and changed passwords:
+    - Checked that their hashes are immediately stored as PBKDF2.
+  - Tried wrong password logins to ensure correct rejection.
+
+- **Role isolation**
+  - Confirmed:
+    - Admin functions cannot be reached from the Employee menu.
+    - Employees cannot see or modify other employees’ data or payrolls.
+
+### 14.4 Usability Validation
+
+- **Console UX**
+  - Menus and prompts tested with normal and invalid input (e.g., wrong options).
+  - Error messages and success messages are clear and informative.
+  - Application handles repeated use (multiple logins, multiple calculations) without crashing.
+
+### 14.5 Final Validation Checklist
+
+Before final submission, we verified:
+
+- [x] Setup script `setup.sql` runs without errors and initializes sample data.
+- [x] Application connects to PostgreSQL using environment variables (`DB_URL`, `DB_USER`, `DB_PASS`).
+- [x] All teacher-required features are present and working:
+  - Role-based login (Admin/Employee)
+  - Employee management
+  - Attendance check-in/out
+  - Salary + overtime calculation
+  - Performance ratings and bonuses
+  - JasperReports PDF payslips
+- [x] No known runtime errors in full flow:
+  - Login → dashboard → attendance → performance → payroll → payslip PDF.
+- [x] Passwords are never stored in plain text and all new passwords use PBKDF2.
+- [x] Generated PDFs match the values stored in the database.
 
 

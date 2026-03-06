@@ -82,7 +82,7 @@ public class PayrollService {
                 return false;
             }
 
-            // Step 2: Save Bonus Record if bonus > 0 (within same transaction)
+            // Step 2: Save Bonus Record if bonus > 0 (within Same Transaction)
             if (bonus.compareTo(BigDecimal.ZERO) > 0) {
                 Payroll latest = payrollRepo.findLatestWithConnection(conn, employeeId);
                 if (latest != null) {

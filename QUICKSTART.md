@@ -1,191 +1,181 @@
 # 🚀 PMS QUICK START GUIDE
-## Get Running in 5 Minutes
+
+Run the Payroll Management System (PMS) in a few minutes.
+
+This guide is for **demo + testing**. For full documentation, see `README.md`.
 
 ---
 
-## 1️⃣ DATABASE SETUP (2 minutes)
+## 1) Database setup (PostgreSQL)
 
-### Option A: Using pgAdmin (Recommended)
-```
-1. Open pgAdmin
-2. Right-click "Databases" → Create → Database
-3. Name: payroll_db → Save
-4. Open payroll_db → Tools → Query Tool
-5. Open file: pms_complete/database/setup.sql
-6. Press F5 (Execute)
-7. Wait for: "✓ Setup complete!"
+### Option A: pgAdmin (recommended)
+
+1. Open **pgAdmin**.
+2. Right-click **Databases → Create → Database**.
+3. Name: `payroll_db` → **Save**.
+4. Select `payroll_db` → **Tools → Query Tool**.
+5. Open file: `pms_complete/pms_complete/database/setup.sql`.
+6. Execute (F5).
+7. Confirm message:
+
+```text
+✓ Setup complete! Database initialized with sample data.
 ```
 
-### Option B: Using Command Line
+### Option B: Command line (psql)
+
 ```bash
-# Create database
 psql -U postgres -c "CREATE DATABASE payroll_db;"
-
-# Run setup script
-psql -U postgres -d payroll_db -f "D:\Java Programing\pms_complete\pms_complete\database\setup.sql"
+psql -U postgres -d payroll_db -f "D:\java programingat istad\pms_complete\pms_complete\database\setup.sql"
 ```
 
 ---
 
-## 2️⃣ SET PASSWORD (30 seconds)
+## 2) Configure DB connection variables (required)
 
-**Windows (Command Prompt):**
+The app reads:
+
+- `DB_URL`  (default: `jdbc:postgresql://localhost:5432/payroll_db`)
+- `DB_USER` (default: `postgres`)
+- `DB_PASS` (required on your machine)
+
+### Windows PowerShell
+
+```powershell
+$env:DB_URL = "jdbc:postgresql://localhost:5432/payroll_db"
+$env:DB_USER = "postgres"
+$env:DB_PASS = "your_postgres_password"
+```
+
+### Windows CMD
+
 ```cmd
+set DB_URL=jdbc:postgresql://localhost:5432/payroll_db
+set DB_USER=postgres
 set DB_PASS=your_postgres_password
 ```
 
-**Windows (PowerShell):**
-```powershell
-$env:DB_PASS="your_postgres_password"
-```
+---
 
-**Linux/Mac:**
-```bash
-export DB_PASS=your_postgres_password
-```
+## 3) Add required JAR libraries
+
+In IntelliJ:
+
+1. File → **Project Structure** → **Modules** → **Dependencies**
+2. Click **+ → JARs or directories**
+3. Select your `lib/` folder (where you placed all JARs) → Apply → OK
+
+### Required JARs
+
+- `postgresql-42.x.x.jar`
+- `lombok.jar`
+- JasperReports stack (tested):
+  - `jasperreports-6.20.6.jar`
+  - `commons-beanutils-1.9.4.jar`
+  - `commons-collections4-4.2.jar`
+  - `commons-digester-2.1.jar`
+  - `commons-logging-1.2.jar`
+  - `openpdf-1.3.30.jar`
+  - `jackson-core-2.14.1.jar`
+  - `jackson-databind-2.14.1.jar`
+  - `jackson-annotations-2.14.1.jar`
+  - `jackson-dataformat-xml-2.14.1.jar`
+  - `ecj-3.21.0.jar`
 
 ---
 
-## 3️⃣ VERIFY LIBRARIES (1 minute)
+## 4) IntelliJ project setup (one-time)
 
-Open IntelliJ → File → Project Structure → Libraries
-
-**Required JARs:**
-- ✅ postgresql-42.7.1.jar
-- ✅ lombok.jar
-- ✅ itextpdf-5.5.13.3.jar
-
-**Missing a JAR?**
-- PostgreSQL: https://jdbc.postgresql.org/download/
-- Lombok: https://projectlombok.org/download
-- iText5: Search "itextpdf-5.5.13.3.jar download"
+1. Open the project folder in IntelliJ.
+2. Mark source root:
+   - Right-click `pms_complete/src` → **Mark Directory As → Sources Root**
+3. Enable Lombok:
+   - Install Lombok plugin
+   - Settings → Compiler → Annotation Processors → enable annotation processing
 
 ---
 
-## 4️⃣ RUN! (30 seconds)
+## 5) Run the application
 
-1. Open `MainApplication.java`
-2. Right-click → **Run 'MainApplication.main()'**
-3. See welcome screen? ✅ **YOU'RE READY!**
-
----
-
-## 🧪 QUICK TEST (1 minute)
-
-### Test Admin Login:
-```
-Select: 1 (Admin)
-Username: admin
-Password: admin123
-✅ Should see: "Welcome, admin! [SUPER_ADMIN]"
-Select: 5 (List All Employees)
-✅ Should see: 5 employees listed
-```
-
-### Test Employee Login:
-```
-Select: 2 (Employee)
-Email: alice@pms.com
-Password: alice123
-✅ Should see: "Welcome, Alice Johnson!"
-Select: 1 (Check In)
-✅ Should see: "Checked in at [time]"
-```
-
-### Test Payroll Calculation:
-```
-Login as admin
-Select: 4 (Calculate Payroll)
-Select: 1 (Calculate for one employee)
-Employee ID: 1
-Month: 3 (or current month)
-Year: 2026
-Confirm: y
-✅ Should see: Payroll summary with Base, Overtime, Bonus, Deductions, Total
-```
-
-### Test PDF Generation:
-```
-Login as admin
-Select: 5 (Generate Payslip)
-Employee ID: 1
-Select any payroll ID from list
-✅ Should see: "PDF saved → reports/payslip_emp1_[date].pdf"
-Open the PDF → Should show professional payslip ✅
-```
+1. Open `pms_complete/src/MainApplication.java`
+2. Run `MainApplication.main()`
+3. Expected output:
+   - `[DB] Connected to PostgreSQL successfully (...)`
+   - Role selection menu (Admin / Employee / Exit)
 
 ---
 
-## 🎯 LOGIN CHEATSHEET
+## 6) Login cheat sheet (from `setup.sql`)
 
-| Type     | Username/Email   | Password  |
-|----------|------------------|-----------|
-| Admin    | admin            | admin123  |
-| Admin    | hr               | hr123     |
-| Employee | alice@pms.com    | alice123  |
-| Employee | bob@pms.com      | bob123    |
-| Employee | carol@pms.com    | carol123  |
-| Employee | david@pms.com    | david123  |
-| Employee | emma@pms.com     | emma123   |
-
----
-
-## ❌ TROUBLESHOOTING
-
-### "Driver not found"
-→ Add `postgresql-42.7.1.jar` to libraries
-
-### "Connection failed"
-→ Check DB_PASS environment variable is set correctly
-
-### "Lombok errors"
-→ Install Lombok plugin: Settings → Plugins → Search "Lombok"
-
-### "No employees found"
-→ Re-run setup.sql script
-
-### "PDF generation failed"
-→ Verify `itextpdf-5.5.13.3.jar` is in libraries (NOT version 7.x)
+| Type | Username/Email | Password |
+|------|-----------------|----------|
+| Admin | `admin` | `admin123` |
+| Admin | `hr` | `hr123` |
+| Employee | `alice@pms.com` | `alice123` |
+| Employee | `bob@pms.com` | `bob123` |
+| Employee | `carol@pms.com` | `carol123` |
+| Employee | `david@pms.com` | `david123` |
+| Employee | `emma@pms.com` | `emma123` |
 
 ---
 
-## ✅ VERIFICATION CHECKLIST
+## 7) Full demo + test script (show teacher)
 
-Before demonstrating to teacher:
+### A) Admin demo (2–3 minutes)
 
-- [ ] Database `payroll_db` exists
-- [ ] Can login as admin (admin/admin123)
-- [ ] Can login as employee (alice@pms.com/alice123)
-- [ ] Employee check-in works
-- [ ] Payroll calculation works
-- [ ] PDF payslip generates correctly
-- [ ] Reports folder contains PDF files
+1. Login as **Admin**: `admin / admin123`
+2. **Manage Employees**:
+   - List employees (shows sample employees)
+3. **Performance**:
+   - Add a performance review for employee ID `1` (e.g. score `95`)
+4. **Calculate Payroll**:
+   - Calculate payroll for employee ID `1` for current month/year
+5. **Generate Payslip (PDF)**:
+   - Pick employee ID `1`
+   - Select a payroll record ID
+   - Confirm the app prints a PDF path under `reports/`
 
----
+### B) Employee demo (1 minute)
 
-## 🎓 DEMO FLOW (Show Teacher)
-
-**5-Minute Demo Script:**
-
-1. **Start App** → Show welcome screen
-2. **Admin Login** → admin/admin123
-3. **List Employees** → Show 5 employees
-4. **Performance Review** → Rate Alice (95 score)
-5. **Calculate Payroll** → For Alice, current month
-6. **Generate Payslip** → Show PDF with bonus
-7. **Logout → Employee Login** → alice@pms.com/alice123
-8. **Check In** → Show timestamp
-9. **View My Payslip** → Same payslip from employee view
-
-**⏱️ Total Time: ~3 minutes**
-**💯 Result: Teacher sees FULL feature set working perfectly!**
+1. Login as **Employee**: `alice@pms.com / alice123`
+2. **Check In**
+3. **Check Out**
+4. **My Payslip**:
+   - Select the same payroll record ID
+   - Confirm PDF generated
 
 ---
 
-## 📚 FULL DOCS
+## 8) Verification checklist (final)
 
-For complete documentation, see: `README.md`
+Before submitting:
+
+- [ ] Database `payroll_db` created
+- [ ] `setup.sql` executed successfully
+- [ ] DB variables set (`DB_PASS` correct)
+- [ ] App starts and connects to PostgreSQL
+- [ ] Admin login works
+- [ ] Employee login works
+- [ ] Check-in/out works (no duplicates)
+- [ ] Payroll calculation works (no overlapping period)
+- [ ] JasperReports payslip PDF is generated into `reports/`
 
 ---
 
-**🟢 PROJECT IS 100% READY FOR SUBMISSION**
+## 9) Troubleshooting
+
+### “Driver not found”
+- Add `postgresql-42.x.x.jar` to IntelliJ module dependencies.
+
+### “Connection failed”
+- Confirm PostgreSQL is running and `DB_PASS` is correct.
+- Confirm database name is `payroll_db`.
+
+### Lombok errors
+- Install Lombok plugin + enable annotation processing.
+
+### Payslip PDF generation failed (JasperReports)
+- Ensure all JasperReports stack JARs are in dependencies.
+- Confirm `payslip.jrxml` exists at:
+  - `pms_complete/src/project/report/templates/payslip.jrxml`
+

@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="itextpdf-5.5.13.3">
+  <library name="ecj-3.21.0">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../itextpdf-5.5.13.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../jar-project-pms/ecj-3.21.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

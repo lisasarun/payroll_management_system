@@ -4,31 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * Manages the single shared PostgreSQL connection.
- * SECURITY: Reads credentials from environment variables or system properties:
- *   - DB_URL  (default: jdbc:postgresql://localhost:5432/payroll_db)
- *   - DB_USER (default: postgres)
- *   - DB_PASS (NO REAL DEFAULT – use for DEV only)
- *
- * Setup examples:
- *   Windows (PowerShell):    $env:DB_PASS = "your_password"
- *   Windows (cmd):           set DB_PASS=your_password
- *   Linux/Mac:               export DB_PASS=your_password
- *   JVM system property:     java -DDB_PASS=your_password MainApplication
- */
+
 public class DbConfig {
 
-    private static final String URL     = getEnvOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/payroll_db");
+    private static final String URL     = getEnvOrDefault("DB_URL",  "jdbc:postgresql://202.178.125.77:3297/postgres");
     private static final String DB_USER = getEnvOrDefault("DB_USER", "postgres");
-    /**
-     * Development-only fallback password.
-     *
-     * IMPORTANT:
-     * - For your real database, always set DB_PASS via environment variable or -D system property.
-     * - This placeholder value is intentionally non-sensitive and should be changed on your machine.
-     */
-    private static final String DB_PASS = getEnvOrDefault("DB_PASS", "dev_password");
+    private static final String DB_PASS = getEnvOrDefault("DB_PASS", "pmqwerqwer");
 
     private static Connection conn;
 

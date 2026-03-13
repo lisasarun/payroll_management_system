@@ -32,6 +32,30 @@ public class InputUtil {
         return SC.nextLine().trim();
     }
 
+    /**
+     * Reads a password and validates it against a basic policy:
+     * - At least 8 characters
+     * - Contains at least one letter
+     * - Contains at least one digit
+     * - No whitespace characters
+     */
+    public static String readPasswordWithPolicy(String prompt) {
+        // Regex: at least 8 chars, at least one letter and one digit, no spaces
+        final String pattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@#$%^&+=!?.]{8,}$";
+        while (true) {
+            String pwd = readPassword(prompt);
+            if (pwd.isEmpty()) {
+                System.out.println("  Password cannot be empty.");
+                continue;
+            }
+            if (pwd.matches(pattern)) {
+                return pwd;
+            }
+            System.out.println("  Password must be at least 8 characters, contain letters and digits,");
+            System.out.println("  and may only use these symbols: @ # $ % ^ & + = ! ? . (no spaces).");
+        }
+    }
+
     public static int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -53,9 +77,13 @@ public class InputUtil {
             System.out.print(prompt);
             try {
                 BigDecimal v = new BigDecimal(SC.nextLine().trim());
-                if (v.compareTo(BigDecimal.ZERO) >= 0) return v;
-                System.out.println("  Amount cannot be negative.");
-            } catch (NumberFormatException e) { System.out.println("  Invalid amount."); }
+                if (v.compareTo(BigDecimal.ZERO) > 0) {
+                    return v;
+                }
+                System.out.println("  Amount must be greater than 0.");
+            } catch (NumberFormatException e) {
+                System.out.println("  Invalid amount.");
+            }
         }
     }
 

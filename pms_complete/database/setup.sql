@@ -1,11 +1,8 @@
 -- ============================================================
 --  PMS — Payroll Management System | PostgreSQL Setup
---  Version: 2.0 (Updated 2026-03-04)
 --  HOW TO RUN:
---    1. Open pgAdmin
---    2. Right-click "Databases" → Create → Database → name: payroll_db
---    3. Open payroll_db → Tools → Query Tool
---    4. Paste this entire file → Press F5 (Run)
+--  if you have IntelliJ IDEA Ultimate open Db
+--  Click + Data Soure -> PostgreSQl
 --
 --  LOGIN CREDENTIALS (after running this script):
 --    Admin   : admin / admin123

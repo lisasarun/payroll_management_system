@@ -40,7 +40,7 @@ public class AdminController {
         ViewUtil.printTitle("ADD EMPLOYEE");
         String fullName   = InputUtil.readString("  Full Name       : ");
         String email      = InputUtil.readEmail("  Email           : ");
-        String password   = InputUtil.readString("  Password        : ");
+        String password   = InputUtil.readPasswordWithPolicy("  Password        ");
         BigDecimal salary = InputUtil.readBigDecimal("  Base Salary ($) : ");
 
         Employee emp = new Employee();
@@ -50,10 +50,18 @@ public class AdminController {
         emp.setBaseSalary(salary);
         emp.setActive(true);
 
-        if (empService.addEmployee(emp))
+        if (empService.addEmployee(emp)) {
             ViewUtil.printSuccess("Employee added successfully.");
-        else
+            System.out.println();
+            System.out.println("  New Employee Details:");
+            System.out.println("  ---------------------");
+            System.out.println("  Full Name : " + emp.getFullName());
+            System.out.println("  Email     : " + emp.getEmail());
+            System.out.println("  Base Pay  : " + salary);
+            System.out.println();
+        } else {
             ViewUtil.printError("Failed to add employee (email may already exist).");
+        }
     }
 
     private void updateEmployee() {

@@ -6,7 +6,6 @@ import java.time.YearMonth;
 
 public class DateUtil {
 
-    /** Returns the number of working days (Mon - Fri) in a given month/year. */
     public static int getWorkingDaysInMonth(int month, int year) {
         YearMonth ym = YearMonth.of(year, month);
         int days = 0;
@@ -17,12 +16,10 @@ public class DateUtil {
         return days;
     }
 
-    /** First day of a given month. */
     public static LocalDate firstDayOfMonth(int month, int year) {
         return LocalDate.of(year, month, 1);
     }
 
-    /** Last day of a given month. */
     public static LocalDate lastDayOfMonth(int month, int year) {
         return YearMonth.of(year, month).atEndOfMonth();
     }

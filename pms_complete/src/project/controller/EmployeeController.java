@@ -5,18 +5,11 @@ import project.util.InputUtil;
 import project.util.PasswordUtil;
 import project.util.ViewUtil;
 
-/**
- * Handles employee self-service actions:
- *   - Change own password
- */
+
 public class EmployeeController {
 
     private final EmployeeRepository empRepo = new EmployeeRepository();
 
-    /**
-     * Allows an employee to change their own password.
-     * Verifies current password before allowing change.
-     */
     public void changePassword(int employeeId) {
         ViewUtil.printTitle("CHANGE PASSWORD");
 

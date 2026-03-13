@@ -15,11 +15,17 @@ import java.time.LocalDateTime;
 public class Bonus {
 
     private int bonusId;
+
     private int employeeId;
+
     private int payrollId;
+
     private BigDecimal amount;
+
     private String reason;
+
     private LocalDate awardedDate;
+
     private LocalDateTime createdAt;
 
 }

@@ -15,17 +15,29 @@ import java.time.LocalDateTime;
 public class Attendance {
 
     private int attendanceId;
+
     private int employeeId;
+
     private LocalDate date;
+
     private LocalDateTime checkIn;
+
     private LocalDateTime checkOut;
+
     private String status; // PRESENT, ABSENT, LATE, HALF_DAY, ON_LEAVE
+
     private BigDecimal workHours;
+
     private BigDecimal overtimeHours;
+
     private int lateMinutes;
+
     private int earlyLeaveMinutes;
+
     private String leaveType;
+
     private String note;
+
     private LocalDateTime createdAt;
 
 }

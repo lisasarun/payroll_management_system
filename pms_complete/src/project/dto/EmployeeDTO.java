@@ -15,14 +15,23 @@ import java.time.LocalDateTime;
 public class EmployeeDTO {
 
     private int employeeId;
+
     private String fullName;
+
     private String email;
+
     private boolean isActive;
+
     private BigDecimal baseSalary;
+
     private String position;
+
     private String department;
+
     private LocalDate hireDate;
+
     private LocalDateTime lastLogin;
+
     private LocalDateTime createdAt;
 
 }

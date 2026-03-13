@@ -9,17 +9,9 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-/**
- Calls the PostgreSQL stored procedure: calculate_payroll()
- Uses BigDecimal (not double) to avoid floating-point precision loss.
 
- SQL: CALL calculate_payroll(employee_id, period_start, period_end, bonus, deductions)
- */
 public class PayrollProcedure {
 
-    /**
-     * Execute Payroll procedure with a provided connection (for transactions).
-     */
     public static boolean calculateWithConnection(Connection conn,
                                                    int employeeId,
                                                    LocalDate periodStart,
@@ -41,9 +33,6 @@ public class PayrollProcedure {
         }
     }
 
-    /**
-     * Legacy method - creates own connection (deprecated, use calculateWithConnection).
-     */
     @Deprecated
     public static boolean calculate(int employeeId,
                                     LocalDate periodStart,

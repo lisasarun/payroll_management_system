@@ -8,16 +8,11 @@ import project.util.ViewUtil;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Controller for leave request operations.
- */
 public class LeaveRequestController {
 
     private final LeaveRequestService leaveService = new LeaveRequestService();
 
-    /**
-     * Employee submits a leave request.
-     */
+
     public void submitLeaveRequest(int employeeId) {
         ViewUtil.printTitle("SUBMIT LEAVE REQUEST");
 
@@ -40,9 +35,6 @@ public class LeaveRequestController {
         }
     }
 
-    /**
-     * Employee views their own leave requests.
-     */
     public void viewMyLeaveRequests(int employeeId) {
         ViewUtil.printTitle("MY LEAVE REQUESTS");
         List<LeaveRequestDTO> list = leaveService.getMyLeaveRequests(employeeId);
@@ -55,9 +47,6 @@ public class LeaveRequestController {
         list.forEach(this::printLeaveRequest);
     }
 
-    /**
-     * Admin reviews pending leave requests.
-     */
     public void reviewLeaveRequests(int adminId) {
         boolean running = true;
         while (running) {

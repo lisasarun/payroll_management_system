@@ -16,11 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Handles payroll calculation business logic.
- * Uses the PostgreSQL stored procedure (calculate_payroll) for payroll insertion
- * as required by the project specification.
- */
+
 public class PayrollService {
 
     private final PayrollRepository     payrollRepo = new PayrollRepository();
@@ -29,10 +25,7 @@ public class PayrollService {
     private final AttendanceRepository  attRepo     = new AttendanceRepository();
     private final BonusRepository       bonusRepo   = new BonusRepository();
 
-    /**
-     * Calculates and saves payroll for one employee for a given month/year.
-     * Uses the PostgreSQL stored procedure calculate_payroll() for the DB insert.
-     */
+
     public boolean calculatePayroll(int employeeId, int month, int year) {
         Employee emp = empRepo.findById(employeeId);
         if (emp == null) { System.out.println("  Employee not found."); return false; }
@@ -40,7 +33,7 @@ public class PayrollService {
         LocalDate from = DateUtil.firstDayOfMonth(month, year);
         LocalDate to   = DateUtil.lastDayOfMonth(month, year);
 
-        // Prevent duplicate/overlapping payroll periods
+
         for (Payroll p : payrollRepo.findByEmployee(employeeId)) {
             if (!(p.getPayPeriodEnd().isBefore(from) || p.getPayPeriodStart().isAfter(to))) {
                 System.out.println("  Payroll period overlaps with existing period: " +
@@ -49,29 +42,28 @@ public class PayrollService {
             }
         }
 
-        // Retrieve attendance records for overtime calculation
+
         List<Attendance> attList = attRepo.findByEmployeeAndPeriod(employeeId, from, to);
         BigDecimal base = emp.getBaseSalary() != null ? emp.getBaseSalary() : BigDecimal.ZERO;
         BigDecimal ot   = SalaryCalculator.calculateOvertimePay(base, attList);
 
-        // Performance-based bonus
+
         double avgScore  = perfRepo.getAverageScore(employeeId);
         BigDecimal bonus = SalaryCalculator.calculateBonus(base, avgScore);
 
-        // Deductions = tax (10% of gross) + social security (2% of base)
+
         BigDecimal gross      = base.add(ot).add(bonus);
         BigDecimal deductions = SalaryCalculator.totalDeductions(base, gross);
 
-        // ── TRANSACTION: fresh dedicated connection — never reuse the shared singleton ──
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(
                     project.config.DbConfig.getUrl(),
                     project.config.DbConfig.getDbUser(),
                     project.config.DbConfig.getDbPass());
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
 
-            // Step 1: Call stored procedure to save payroll
+
             boolean saved = PayrollProcedure.calculateWithConnection(
                     conn, employeeId, from, to, bonus, deductions
             );
@@ -82,7 +74,7 @@ public class PayrollService {
                 return false;
             }
 
-            // Step 2: Save Bonus Record if bonus > 0 (within Same Transaction)
+
             if (bonus.compareTo(BigDecimal.ZERO) > 0) {
                 Payroll latest = payrollRepo.findLatestWithConnection(conn, employeeId);
                 if (latest != null) {
@@ -101,7 +93,7 @@ public class PayrollService {
                 }
             }
 
-            conn.commit(); // Commit transaction - all or nothing
+            conn.commit();
             return true;
 
         } catch (Exception e) {
@@ -115,15 +107,12 @@ public class PayrollService {
         } finally {
             if (conn != null) {
                 try {
-                    conn.close(); // Close the dedicated connection when done
+                    conn.close();
                 } catch (SQLException ignored) {}
             }
         }
     }
 
-    /**
-     * Builds a Payslip object from stored payroll + employee data.
-     */
     public Payslip buildPayslip(int employeeId, int payrollId) {
         Employee emp = empRepo.findById(employeeId);
         Payroll  pay = payrollRepo.findById(payrollId);

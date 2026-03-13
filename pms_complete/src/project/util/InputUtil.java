@@ -32,13 +32,7 @@ public class InputUtil {
         return SC.nextLine().trim();
     }
 
-    /**
-     * Reads a password and validates it against a basic policy:
-     * - At least 8 characters
-     * - Contains at least one letter
-     * - Contains at least one digit
-     * - No whitespace characters
-     */
+
     public static String readPasswordWithPolicy(String prompt) {
         // Regex: at least 8 chars, at least one letter and one digit, no spaces
         final String pattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@#$%^&+=!?.]{8,}$";

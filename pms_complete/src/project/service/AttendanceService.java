@@ -69,10 +69,7 @@ public class AttendanceService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * FIX: Fetch all employees in one query using a Map, then enrich attendance DTOs.
-     * Avoids the N+1 query problem (one DB call per row).
-     */
+
     public List<AttendanceDTO> getAllPaged(int page, int size) {
         List<Attendance> records = attendanceRepo.findAll(page, size);
 

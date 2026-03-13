@@ -13,32 +13,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Generates a professional PDF payslip using JasperReports and the payslip.jrxml template.
- *
- * Required libraries (add JARs to your classpath):
- *   - jasperreports-*.jar
- *   - commons-beanutils, commons-collections, commons-digester, commons-logging
- *   - itext-2.x or other PDF provider required by your JasperReports version
- *
- * Template location:
- *   - Classpath: /project/report/templates/payslip.jrxml
- *
- * Output:
- *   - PDF is saved to the "reports/" folder in the project root.
- */
+
 public class JasperReportGenerator {
 
     private static final String OUTPUT_DIR     = "reports/";
     private static final String TEMPLATE_PATH  = "/project/report/templates/payslip.jrxml";
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
-    /**
-     * Generates a PDF payslip file using JasperReports.
-     *
-     * @param slip the payslip data
-     * @return path to the generated PDF, or null if failed
-     */
+
     public String generatePayslip(Payslip slip) {
         try {
             new File(OUTPUT_DIR).mkdirs();
@@ -92,9 +74,7 @@ public class JasperReportGenerator {
         }
     }
 
-    /**
-     * Tries to load the JRXML template from the classpath first, then from a relative file path.
-     */
+
     private InputStream loadTemplate() {
         // Classpath (recommended)
         InputStream in = JasperReportGenerator.class.getResourceAsStream(TEMPLATE_PATH);

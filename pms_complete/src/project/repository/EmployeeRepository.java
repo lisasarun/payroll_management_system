@@ -8,12 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Repository for employee CRUD operations.
- *
- * NEW passwords are hashed with PBKDF2 + salt via {@link PasswordUtil#hashSecure(String)}.
- * Legacy SHA-256 hashes are still supported for existing rows via PasswordUtil.verifyAny().
- */
+
 public class EmployeeRepository {
 
     private Employee mapRow(ResultSet rs) throws SQLException {

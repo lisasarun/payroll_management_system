@@ -14,16 +14,27 @@ import java.time.LocalDateTime;
 public class LeaveRequest {
 
     private int leaveRequestId;
+
     private int employeeId;
+
     private LocalDate startDate;
+
     private LocalDate endDate;
-    private String leaveType;       // SICK, VACATION, PERSONAL, EMERGENCY
+
+    private String leaveType;
+
     private String reason;
-    private String status;          // PENDING, APPROVED, REJECTED
-    private Integer reviewerId;     // admin who approved/rejected
+
+    private String status;
+
+    private Integer reviewerId;
+
     private String reviewNote;
+
     private LocalDate requestDate;
+
     private LocalDate reviewDate;
+
     private LocalDateTime createdAt;
 
 }

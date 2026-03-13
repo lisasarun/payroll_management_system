@@ -10,9 +10,7 @@ import java.util.List;
 
 public class BonusRepository {
 
-    /**
-     * Save bonus using provided Connection (for transactions).
-     */
+
     public boolean saveWithConnection(Connection c, Bonus b) {
         String sql = "INSERT INTO bonus (employee_id, payroll_id, amount, reason, awarded_date) VALUES (?,?,?,?,?)";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
@@ -33,9 +31,7 @@ public class BonusRepository {
         }
     }
 
-    /**
-     * Save bonus with auto-created connection (non-transactional).
-     */
+
     public boolean save(Bonus b) {
         try (Connection c = DbConfig.getConnection()) {
             return saveWithConnection(c, b);

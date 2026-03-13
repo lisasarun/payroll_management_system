@@ -66,11 +66,7 @@ public class PayrollRepository {
         return null;
     }
 
-    /**
-     * FIX: Use this inside transactions instead of findLatest().
-     * Reuses the caller's connection so it can read the uncommitted payroll
-     * row inserted by the stored procedure, without closing the transaction.
-     */
+
     public Payroll findLatestWithConnection(Connection conn, int employeeId) {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT * FROM payroll WHERE employee_id = ? ORDER BY pay_period_start DESC LIMIT 1")) {

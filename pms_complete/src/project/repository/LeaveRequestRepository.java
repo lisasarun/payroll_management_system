@@ -8,9 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Repository for leave_request table operations.
- */
+
 public class LeaveRequestRepository {
 
     public boolean save(LeaveRequest leave) {

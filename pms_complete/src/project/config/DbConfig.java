@@ -13,9 +13,7 @@ public class DbConfig {
 
     private static Connection conn;
 
-    /**
-     * Helper method to read environment variables with fallback defaults.
-     */
+
     private static String getEnvOrDefault(String key, String defaultValue) {
         String value = System.getenv(key);
         if (value != null && !value.isEmpty()) {

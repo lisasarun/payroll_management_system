@@ -13,11 +13,17 @@ import java.time.LocalDateTime;
 public class User {
 
     private int adminId;
+
     private String username;
+
     private String password;
+
     private String permissionLevel;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime lastLogin;
+
     private boolean isActive;
 
 }

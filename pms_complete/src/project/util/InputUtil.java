@@ -4,12 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.ResolverStyle;
 import java.util.Scanner;
 
 public class InputUtil {
 
     private static final Scanner SC = new Scanner(System.in);
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    // STRICT parsing: rejects impossible dates like 2026-02-31 (won't auto-correct to March)
+    private static final DateTimeFormatter DATE_FMT = new DateTimeFormatterBuilder()
+            .appendPattern("uuuu-MM-dd")
+            .toFormatter()
+            .withResolverStyle(ResolverStyle.STRICT);
 
     public static String readString(String prompt) {
         while (true) {
@@ -30,24 +36,6 @@ public class InputUtil {
         if (con != null) return new String(con.readPassword(prompt + ": "));
         System.out.print(prompt + " [visible]: ");
         return SC.nextLine().trim();
-    }
-
-
-    public static String readPasswordWithPolicy(String prompt) {
-
-        final String pattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@#$%^&+=!?.]{8,}$";
-        while (true) {
-            String pwd = readPassword(prompt);
-            if (pwd.isEmpty()) {
-                System.out.println("  Password cannot be empty.");
-                continue;
-            }
-            if (pwd.matches(pattern)) {
-                return pwd;
-            }
-            System.out.println("  Password must be at least 8 characters, contain letters and digits,");
-            System.out.println("  and may only use these symbols: @ # $ % ^ & + = ! ? . (no spaces).");
-        }
     }
 
     public static int readInt(String prompt) {
@@ -71,10 +59,13 @@ public class InputUtil {
             System.out.print(prompt);
             try {
                 BigDecimal v = new BigDecimal(SC.nextLine().trim());
-                if (v.compareTo(BigDecimal.ZERO) > 0) {
-                    return v;
+                // Business rule: base salary must be at least 100 (no 0 or very small values)
+                if (v.compareTo(BigDecimal.valueOf(100)) >= 0) return v;
+                if (v.compareTo(BigDecimal.ZERO) <= 0) {
+                    System.out.println("  Amount must be greater than 0.");
+                } else {
+                    System.out.println("  Base salary must be at least 100.00.");
                 }
-                System.out.println("  Amount must be greater than 0.");
             } catch (NumberFormatException e) {
                 System.out.println("  Invalid amount.");
             }
@@ -84,8 +75,31 @@ public class InputUtil {
     public static LocalDate readDate(String prompt) {
         while (true) {
             System.out.print(prompt + " (yyyy-MM-dd): ");
-            try { return LocalDate.parse(SC.nextLine().trim(), DATE_FMT); }
-            catch (DateTimeParseException e) { System.out.println("  Use format yyyy-MM-dd."); }
+            String raw = SC.nextLine().trim();
+            try {
+                return LocalDate.parse(raw, DATE_FMT);
+            } catch (DateTimeParseException e) {
+                // Covers both wrong format and impossible calendar dates like 2026-02-31
+                System.out.println("  Invalid date. Use yyyy-MM-dd (example: 2026-02-28).");
+            }
+        }
+    }
+
+    /** Read a date and restrict it to a specific year (e.g. only 2026). */
+    public static LocalDate readDateInYear(String prompt, int year) {
+        while (true) {
+            LocalDate d = readDate(prompt);
+            if (d.getYear() == year) return d;
+            System.out.println("  Invalid date. Year must be " + year + " (example: " + year + "-02-28).");
+        }
+    }
+
+    /** Read an end date that must be in the same year and not before the given start date. */
+    public static LocalDate readEndDateInYearNotBeforeStart(String prompt, int year, LocalDate startDate) {
+        while (true) {
+            LocalDate end = readDateInYear(prompt, year);
+            if (!end.isBefore(startDate)) return end;
+            System.out.println("  End date cannot be before start date.");
         }
     }
 
@@ -108,13 +122,113 @@ public class InputUtil {
         while (true) {
             System.out.print(prompt);
             String s = SC.nextLine().trim();
+            // FIX Issue #9: Stricter email validation (max 1 consecutive special char, no ++)
             if (s.matches("^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-])*\\.[a-zA-Z]{2,}$")) {
+                // Additional check: no consecutive special characters
                 if (!s.contains("..") && !s.contains("--") && !s.contains("__") &&
-                    !s.contains("++") && !s.contains(".-") && !s.contains("-.")) {
+                        !s.contains("++") && !s.contains(".-") && !s.contains("-.")) {
                     return s;
                 }
             }
             System.out.println("  Invalid email. Example: user@company.com");
+        }
+    }
+
+    /** Full name: only letters and spaces, 2–50 chars, name-like (no long consonant runs like "asrjri"). */
+    public static String readFullName(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = SC.nextLine().trim();
+            if (s.isEmpty()) {
+                System.out.println("  Name cannot be empty.");
+                continue;
+            }
+            if (s.length() < 2 || s.length() > 50) {
+                System.out.println("  Name must be 2–50 characters.");
+                continue;
+            }
+            if (!s.matches("^[a-zA-Z\\s]+$")) {
+                System.out.println("  Name must contain only letters and spaces (e.g. Sarun Lisa).");
+                continue;
+            }
+            if (hasTooManyConsecutiveConsonants(s)) {
+                System.out.println("  Name must look like a real name (e.g. sarunlisa), not random letters.");
+                continue;
+            }
+            return s;
+        }
+    }
+
+    /** Returns true if string has more than 3 consecutive consonants (rejects "asrjri"-style input). */
+    private static boolean hasTooManyConsecutiveConsonants(String s) {
+        String lower = s.toLowerCase().replaceAll("\\s+", "");
+        String consonants = "bcdfghjklmnpqrstvwxyz";
+        int count = 0;
+        for (int i = 0; i < lower.length(); i++) {
+            if (consonants.indexOf(lower.charAt(i)) >= 0) {
+                count++;
+                if (count > 3) return true;
+            } else {
+                count = 0;
+            }
+        }
+        return false;
+    }
+
+    /** Strong password: min 8 chars, at least one upper, one lower, one digit, one special character. */
+    public static String readStrongPassword(String prompt) {
+        while (true) {
+            System.out.print(prompt + " (min 8 chars, upper, lower, digit, special): ");
+            String s = SC.nextLine().trim();
+            if (s.isEmpty()) {
+                System.out.println("  Password cannot be empty.");
+                continue;
+            }
+            if (s.length() < 8) {
+                System.out.println("  Password must be at least 8 characters.");
+                continue;
+            }
+            if (!s.matches(".*[A-Z].*")) {
+                System.out.println("  Password must contain at least one uppercase letter.");
+                continue;
+            }
+            if (!s.matches(".*[a-z].*")) {
+                System.out.println("  Password must contain at least one lowercase letter.");
+                continue;
+            }
+            if (!s.matches(".*[0-9].*")) {
+                System.out.println("  Password must contain at least one digit.");
+                continue;
+            }
+            if (!s.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
+                System.out.println("  Password must contain at least one special character (!@#$%^&* etc.).");
+                continue;
+            }
+            return s;
+        }
+    }
+
+    /** Email: valid format and local part must match the given full name (e.g. sarunlisa -> sarunlisa@company.com). */
+    public static String readEmailMatchingName(String prompt, String fullName) {
+        String normalizedName = fullName.toLowerCase().replaceAll("\\s+", "");
+        if (normalizedName.isEmpty()) {
+            return readEmail(prompt);
+        }
+        while (true) {
+            System.out.print(prompt);
+            String s = SC.nextLine().trim();
+            if (!s.matches("^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-])*\\.[a-zA-Z]{2,}$") ||
+                    s.contains("..") || s.contains("--") || s.contains("__") ||
+                    s.contains("++") || s.contains(".-") || s.contains("-.")) {
+                System.out.println("  Invalid email. Example: " + normalizedName + "@company.com");
+                continue;
+            }
+            String localPart = s.split("@")[0].toLowerCase().replaceAll("[._-]", "");
+            if (!localPart.contains(normalizedName)) {
+                System.out.println("  Email must match the employee name (e.g. " + normalizedName + "@company.com).");
+                continue;
+            }
+            return s;
         }
     }
 

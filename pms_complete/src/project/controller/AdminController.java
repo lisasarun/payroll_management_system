@@ -18,6 +18,7 @@ public class AdminController {
     private final EmployeeService empService   = new EmployeeService();
     private final BonusService    bonusService = new BonusService();
 
+    //  MANAGE EMPLOYEES
 
     public void manageEmployees() {
         boolean running = true;
@@ -25,9 +26,18 @@ public class AdminController {
             ViewUtil.printManageEmployeeMenu();
             switch (InputUtil.readMenuChoice("")) {
                 case "1" -> addEmployee();
-                case "2" -> updateEmployee();
-                case "3" -> searchEmployee();
-                case "4" -> disableEmployee();
+                case "2" -> {
+                    showAllEmployeesForSelection();
+                    updateEmployee();
+                }
+                case "3" -> {
+                    showAllEmployeesForSelection();
+                    searchEmployee();
+                }
+                case "4" -> {
+                    showAllEmployeesForSelection();
+                    disableEmployee();
+                }
                 case "5" -> listEmployees();
                 case "0" -> running = false;
                 default  -> ViewUtil.printError("Invalid option.");
@@ -37,27 +47,22 @@ public class AdminController {
 
     private void addEmployee() {
         ViewUtil.printTitle("ADD EMPLOYEE");
-        String fullName   = InputUtil.readString("  Full Name       : ");
-        String email      = InputUtil.readEmail("  Email           : ");
-        String password   = InputUtil.readPasswordWithPolicy("  Password        ");
+        String fullName   = InputUtil.readFullName("  Full Name       : ");
+        String email      = InputUtil.readEmailMatchingName("  Email           : ", fullName);
+        String password   = InputUtil.readStrongPassword("  Password        ");
         BigDecimal salary = InputUtil.readBigDecimal("  Base Salary ($) : ");
 
         Employee emp = new Employee();
         emp.setFullName(fullName);
         emp.setEmail(email);
-        emp.setPassword(password);
+        emp.setPassword(password);   // EmployeeRepository.save() hashes this
         emp.setBaseSalary(salary);
         emp.setActive(true);
 
         if (empService.addEmployee(emp)) {
             ViewUtil.printSuccess("Employee added successfully.");
-            System.out.println();
-            System.out.println("  New Employee Details:");
-            System.out.println("  ---------------------");
-            System.out.println("  Full Name : " + emp.getFullName());
-            System.out.println("  Email     : " + emp.getEmail());
-            System.out.println("  Base Pay  : " + salary);
-            System.out.println();
+            // After successful add, show current employees so admin can see the new record
+            showAllEmployeesForSelection();
         } else {
             ViewUtil.printError("Failed to add employee (email may already exist).");
         }
@@ -82,9 +87,11 @@ public class AdminController {
         System.out.printf("  Salary     [%s]: ", dto.getBaseSalary());
         String salStr = InputUtil.readOptionalString("");
 
+        // Optional password reset
         System.out.print("  New Password (leave blank to keep): ");
         String newPass = InputUtil.readOptionalString("");
 
+        // Validate salary if entered
         BigDecimal salary = dto.getBaseSalary();
         if (!salStr.isEmpty()) {
             try {
@@ -105,6 +112,7 @@ public class AdminController {
         emp.setEmail(email.isEmpty()    ? dto.getEmail()    : email);
         emp.setBaseSalary(salary);
 
+        // Hash new Password if provided, then update
         if (!newPass.isEmpty()) {
             emp.setPassword(PasswordUtil.hash(newPass));
             if (empService.updateEmployeeWithPasswordChange(emp, dto.getEmail()))
@@ -145,25 +153,64 @@ public class AdminController {
         int size = 10;
         Pagination pg = new Pagination(1, size, total);
         boolean running = true;
+        String sortKey = selectEmployeeSortOption();
 
         while (running) {
-            List<EmployeeDTO> list = empService.getAllPaged(pg.getPage(), size);
+            List<EmployeeDTO> list = empService.getAllPagedSorted(pg.getPage(), size, sortKey);
             ViewUtil.printEmployeeTable(list, pg.getPage(), pg.getTotalPages());
 
             if (pg.getTotalPages() > 1) {
-                System.out.print("  Option [N/P/0]: ");
+                System.out.print("  Option [N/P/S/0]: ");
             } else {
-                System.out.print("  Press 0 to go back: ");
+                System.out.print("  Option [S/0]: ");
             }
 
             String ch = InputUtil.readMenuChoice("").toUpperCase();
             switch (ch) {
                 case "N" -> { if (pg.hasNext()) pg.next(); else ViewUtil.printInfo("Already on last page."); }
                 case "P" -> { if (pg.hasPrev()) pg.prev(); else ViewUtil.printInfo("Already on first page."); }
+                case "S" -> {
+                    sortKey = selectEmployeeSortOption();
+                    pg = new Pagination(1, size, total); // reset to first page when sort changes
+                }
                 case "0" -> running = false;
-                default  -> ViewUtil.printInfo("Enter N, P, or 0.");
+                default  -> ViewUtil.printInfo("Enter N, P, S or 0.");
             }
         }
+    }
+
+    /**
+     * Ask admin how to sort the employee list.
+     * 1 = Salary (Highest), 2 = Name, 3 = ID (default).
+     */
+    private String selectEmployeeSortOption() {
+        System.out.println();
+        System.out.println("  EMPLOYEE LIST SORT OPTIONS");
+        System.out.println("  [1] Sort by Salary (Highest)");
+        System.out.println("  [2] Sort by Name");
+        System.out.println("  [3] Sort by ID (default)");
+        int choice = InputUtil.readIntInRange("  Select sort option: ", 1, 3);
+        return switch (choice) {
+            case 1 -> "SALARY_DESC";
+            case 2 -> "NAME";
+            case 3 -> "ID";
+            default -> "ID";
+        };
+    }
+
+    /**
+     * Show a simple, non-interactive list of all employees (first page only)
+     * to help the admin choose an ID for update/search/disable.
+     */
+    private void showAllEmployeesForSelection() {
+        int total = empService.countAll();
+        if (total == 0) {
+            ViewUtil.printInfo("No employees found.");
+            return;
+        }
+        int size = Math.min(total, 20); // show up to 20 employees at once
+        List<EmployeeDTO> list = empService.getAllPaged(1, size);
+        ViewUtil.printEmployeeTable(list, 1, 1);
     }
 
     //  MANAGE BONUSES

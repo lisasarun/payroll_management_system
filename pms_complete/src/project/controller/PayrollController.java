@@ -41,11 +41,28 @@ public class PayrollController {
         if (emp == null) { ViewUtil.printError("Employee not found."); return; }
 
         System.out.println("  Employee: " + emp.getFullName());
-        int month = InputUtil.readIntInRange("  Month (1-12): ", 1, 12);
-        int year  = InputUtil.readInt("  Year        : ");
+        // Restrict payroll calculation to year 2026 only (any month in 2026)
+        int month  = InputUtil.readIntInRange("  Month (1-12, year  2026): ", 1, 12);
+        int year;
+        while (true) {
+            year = InputUtil.readInt("  Year  (must be 2026): ");
+            if (year == 2026) {
+                break;
+            }
+            ViewUtil.printError("Payroll can only be calculated for the year 2026.");
+        }
 
         System.out.printf("  Working days this month: %d%n",
                 DateUtil.getWorkingDaysInMonth(month, year));
+
+        // Show employees WITHOUT payroll for this period (useful if admin wants to see who still needs payroll)
+        java.time.LocalDate from = DateUtil.firstDayOfMonth(month, year);
+        java.time.LocalDate to   = DateUtil.lastDayOfMonth(month, year);
+        List<EmployeeDTO> noPayroll = empService.getWithoutPayroll(from, to);
+        if (!noPayroll.isEmpty()) {
+            System.out.println("\n  Employees without payroll for this period:");
+            ViewUtil.printEmployeeTable(noPayroll, 1, 1);
+        }
 
         if (!InputUtil.readConfirm("  Proceed with payroll calculation?")) {
             ViewUtil.printInfo("Cancelled."); return;
@@ -61,8 +78,27 @@ public class PayrollController {
     }
 
     private void calcForAll() {
-        int month = InputUtil.readIntInRange("  Month (1-12): ", 1, 12);
-        int year  = InputUtil.readInt("  Year        : ");
+        // Restrict payroll calculation to year 2026 only (any month in 2026)
+        int month  = InputUtil.readIntInRange("  Month (1-12, year  2026): ", 1, 12);
+        int year;
+        while (true) {
+            year = InputUtil.readInt("  Year  (must be 2026): ");
+            if (year == 2026) {
+                break;
+            }
+            ViewUtil.printError("Payroll can only be calculated for the year 2026.");
+        }
+
+        // Show which employees still don't have payroll for this period
+        java.time.LocalDate from = DateUtil.firstDayOfMonth(month, year);
+        java.time.LocalDate to   = DateUtil.lastDayOfMonth(month, year);
+        List<EmployeeDTO> noPayroll = empService.getWithoutPayroll(from, to);
+        if (noPayroll.isEmpty()) {
+            ViewUtil.printInfo("All employees already have payroll for this period.");
+        } else {
+            System.out.println("\n  Employees without payroll for this period:");
+            ViewUtil.printEmployeeTable(noPayroll, 1, 1);
+        }
 
         if (!InputUtil.readConfirm("  Calculate payroll for ALL active employees?")) {
             ViewUtil.printInfo("Cancelled."); return;

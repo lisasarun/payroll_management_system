@@ -41,21 +41,21 @@ public class Payslip {
     public String toString() {
         String line = "─".repeat(50);
         return "\n" + line + "\n" +
-               "              PAYSLIP\n" +
-               line + "\n" +
-               String.format("  Employee  : %s (ID: %d)%n", employeeName, employeeId) +
-               String.format("  Email     : %s%n", email) +
-               String.format("  Period    : %s to %s%n", payPeriodStart, payPeriodEnd) +
-               String.format("  Pay Date  : %s%n", paymentDate) +
-               line + "\n" +
-               String.format("  Base Salary    : $%,.2f%n", baseSalary) +
-               String.format("  Overtime Pay   : $%,.2f%n", overtimePay != null ? overtimePay : BigDecimal.ZERO) +
-               String.format("  Bonus          : $%,.2f%n", bonus != null ? bonus : BigDecimal.ZERO) +
-               line + "\n" +
-               String.format("  Tax (10%%)      : -$%,.2f%n", tax != null ? tax : BigDecimal.ZERO) +
-               String.format("  Social Sec(2%%): -$%,.2f%n", socialSecurity != null ? socialSecurity : BigDecimal.ZERO) +
-               line + "\n" +
-               String.format("  NET PAY        : $%,.2f%n", totalPaid) +
-               line + "\n";
+                "              PAYSLIP\n" +
+                line + "\n" +
+                String.format("  Employee  : %s (ID: %d)%n", employeeName, employeeId) +
+                String.format("  Email     : %s%n", email) +
+                String.format("  Period    : %s to %s%n", payPeriodStart, payPeriodEnd) +
+                String.format("  Pay Date  : %s%n", paymentDate) +
+                line + "\n" +
+                String.format("  Base Salary    : $%,.2f%n", baseSalary) +
+                String.format("  Overtime Pay   : $%,.2f%n", overtimePay != null ? overtimePay : BigDecimal.ZERO) +
+                String.format("  Bonus          : $%,.2f%n", bonus != null ? bonus : BigDecimal.ZERO) +
+                line + "\n" +
+                String.format("  Tax (10%%)      : -$%,.2f%n", tax != null ? tax : BigDecimal.ZERO) +
+                String.format("  Social Sec(2%%): -$%,.2f%n", socialSecurity != null ? socialSecurity : BigDecimal.ZERO) +
+                line + "\n" +
+                String.format("  NET PAY        : $%,.2f%n", totalPaid) +
+                line + "\n";
     }
 }

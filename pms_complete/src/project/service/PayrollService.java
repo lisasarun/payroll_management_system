@@ -134,7 +134,17 @@ public class PayrollService {
         ps.setEmail(emp.getEmail());
         ps.setPayPeriodStart(pay.getPayPeriodStart());
         ps.setPayPeriodEnd(pay.getPayPeriodEnd());
-        ps.setPaymentDate(pay.getPaymentDate() != null ? pay.getPaymentDate() : LocalDate.now());
+
+        // Clamp payment date so it always stays within the year 2026
+        LocalDate minAllowed = LocalDate.of(2026, 1, 1);
+        LocalDate maxAllowed = LocalDate.of(2026, 12, 31);
+        LocalDate paymentDate = pay.getPaymentDate() != null ? pay.getPaymentDate() : LocalDate.now();
+        if (paymentDate.isBefore(minAllowed)) {
+            paymentDate = minAllowed;
+        } else if (paymentDate.isAfter(maxAllowed)) {
+            paymentDate = maxAllowed;
+        }
+        ps.setPaymentDate(paymentDate);
         ps.setBaseSalary(base);
         ps.setOvertimePay(ot);
         ps.setBonus(bonus);

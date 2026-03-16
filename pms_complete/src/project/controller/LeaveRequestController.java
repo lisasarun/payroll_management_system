@@ -24,8 +24,9 @@ public class LeaveRequestController {
             return;
         }
 
-        LocalDate startDate = InputUtil.readDate("  Start Date     : ");
-        LocalDate endDate = InputUtil.readDate("  End Date       : ");
+        // Only allow dates within year 2026 (LocalDate.parse also blocks invalid dates like 2026-02-31)
+        LocalDate startDate = InputUtil.readDateInYear("  Start Date     : ", 2026);
+        LocalDate endDate   = InputUtil.readDateInYear("  End Date       : ", 2026);
         String reason = InputUtil.readString("  Reason         : ");
 
         if (leaveService.submitLeaveRequest(employeeId, startDate, endDate, leaveType, reason)) {

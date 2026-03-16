@@ -18,7 +18,6 @@ public class AdminController {
     private final EmployeeService empService   = new EmployeeService();
     private final BonusService    bonusService = new BonusService();
 
-    //  MANAGE EMPLOYEES
 
     public void manageEmployees() {
         boolean running = true;
@@ -46,7 +45,7 @@ public class AdminController {
         Employee emp = new Employee();
         emp.setFullName(fullName);
         emp.setEmail(email);
-        emp.setPassword(password);   // EmployeeRepository.save() hashes this
+        emp.setPassword(password);
         emp.setBaseSalary(salary);
         emp.setActive(true);
 
@@ -83,11 +82,9 @@ public class AdminController {
         System.out.printf("  Salary     [%s]: ", dto.getBaseSalary());
         String salStr = InputUtil.readOptionalString("");
 
-        // Optional password reset
         System.out.print("  New Password (leave blank to keep): ");
         String newPass = InputUtil.readOptionalString("");
 
-        // Validate salary if entered
         BigDecimal salary = dto.getBaseSalary();
         if (!salStr.isEmpty()) {
             try {
@@ -108,7 +105,6 @@ public class AdminController {
         emp.setEmail(email.isEmpty()    ? dto.getEmail()    : email);
         emp.setBaseSalary(salary);
 
-        // Hash new Password if provided, then update
         if (!newPass.isEmpty()) {
             emp.setPassword(PasswordUtil.hash(newPass));
             if (empService.updateEmployeeWithPasswordChange(emp, dto.getEmail()))

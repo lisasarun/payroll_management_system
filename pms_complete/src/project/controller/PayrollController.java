@@ -83,7 +83,6 @@ public class PayrollController {
         ViewUtil.printSuccess("Payroll calculated for " + success + " / " + total + " employees.");
     }
 
-    // Admin: generate and print payslip + save PDF
     public void generatePayslip() {
         ViewUtil.printTitle("GENERATE PAYSLIP");
         int empId = InputUtil.readInt("  Employee ID: ");
@@ -101,16 +100,13 @@ public class PayrollController {
         Payslip slip = payrollService.buildPayslip(empId, payrollId);
         if (slip == null) { ViewUtil.printError("Could not build payslip."); return; }
 
-        // Print to console
         System.out.println(slip);
 
-        // Save as PDF
         String pdfPath = reportGen.generatePayslip(slip);
         if (pdfPath != null)
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);
     }
 
-    // Employee: view own payslip + save PDF
     public void viewMyPayslip(int employeeId) {
         ViewUtil.printTitle("MY PAYSLIP");
         List<PayrollDTO> payrolls = payrollService.getByEmployee(employeeId);
@@ -124,10 +120,8 @@ public class PayrollController {
         Payslip slip = payrollService.buildPayslip(employeeId, payrollId);
         if (slip == null) { ViewUtil.printError("Payslip not available."); return; }
 
-        // Print to console
         System.out.println(slip);
 
-        // Save as PDF
         String pdfPath = reportGen.generatePayslip(slip);
         if (pdfPath != null)
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);

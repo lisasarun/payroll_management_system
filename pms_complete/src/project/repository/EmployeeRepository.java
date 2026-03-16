@@ -20,7 +20,6 @@ public class EmployeeRepository {
         e.setActive(rs.getBoolean("is_active"));
         e.setBaseSalary(rs.getBigDecimal("base_salary"));
 
-        // New fields
         e.setPosition(rs.getString("position"));
         e.setDepartment(rs.getString("department"));
 
@@ -115,7 +114,6 @@ public class EmployeeRepository {
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, emp.getFullName());
             ps.setString(2, emp.getEmail());
-            // Hash password using secure PBKDF2 for new employees
             ps.setString(3, PasswordUtil.hashSecure(emp.getPassword()));
             ps.setBigDecimal(4, emp.getBaseSalary());
             ps.setString(5, emp.getPosition());
@@ -141,7 +139,6 @@ public class EmployeeRepository {
         return false;
     }
 
-    /** Update name, email,salary. And password in one query (password already hashed by caller) */
     public boolean updateWithPassword(Employee emp) {
         String sql = "UPDATE employees SET full_name=?, email=?, base_salary=?, position=?, department=?, password=?, updated_at=NOW() WHERE employee_id=?";
         try (Connection c = DbConfig.getConnection();
@@ -162,7 +159,6 @@ public class EmployeeRepository {
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "UPDATE employees SET password = ? WHERE employee_id = ?")) {
-            // Use secure PBKDF2 hashing for password updates
             ps.setString(1, PasswordUtil.hashSecure(newPassword));
             ps.setInt(2, employeeId);
             return ps.executeUpdate() > 0;

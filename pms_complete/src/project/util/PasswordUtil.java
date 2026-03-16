@@ -14,7 +14,7 @@ public class PasswordUtil {
     private static final int PBKDF2_KEY_LENGTH = 256;
     private static final int SALT_LENGTH = 16;
 
-    private PasswordUtil() {} // utility class — no instances
+    private PasswordUtil() {}
 
     public static String hashSecure(String plainText) {
         if (plainText == null || plainText.isEmpty())

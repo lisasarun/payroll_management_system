@@ -7,13 +7,6 @@ import project.util.PasswordUtil;
 
 import java.sql.*;
 
-/**
- * Data Access Object implementation for login and user management.
- *
- * Password verification uses {@link PasswordUtil#verifyAny(String, String)} so that
- * both legacy SHA-256 hashes and new PBKDF2 hashes are accepted. When a legacy hash
- * is detected on successful login, it is transparently upgraded to PBKDF2.
- */
 public class UserDaoImpl implements UserDao {
 
     @Override
@@ -28,7 +21,6 @@ public class UserDaoImpl implements UserDao {
                 if (PasswordUtil.verifyAny(password, storedHash)) {
                     int adminId = rs.getInt("admin_id");
 
-                    // Transparent hash upgrade: SHA-256 -> PBKDF2
                     if (PasswordUtil.needsUpgrade(storedHash)) {
                         String newHash = PasswordUtil.hashSecure(password);
                         try (PreparedStatement up = conn.prepareStatement(
@@ -61,7 +53,6 @@ public class UserDaoImpl implements UserDao {
                 if (PasswordUtil.verifyAny(password, storedHash)) {
                     Employee emp = mapEmployee(rs);
 
-                    // Transparent hash upgrade for employees as well.
                     if (PasswordUtil.needsUpgrade(storedHash)) {
                         String newHash = PasswordUtil.hashSecure(password);
                         try (PreparedStatement up = conn.prepareStatement(

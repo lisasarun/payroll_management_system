@@ -11,23 +11,18 @@ public class MainApplication {
 
     private static final int MAX_ATTEMPTS = 3;
 
-    private static final UserDao               userDao      = new UserDaoImpl();
-    private static final AdminController       adminCtrl    = new AdminController();
-    private static final AttendanceController  attCtrl      = new AttendanceController();
-    private static final PerformanceController perfCtrl     = new PerformanceController();
-    private static final PayrollController     payrollCtrl  = new PayrollController();
-    private static final EmployeeController    empCtrl      = new EmployeeController();
+    private static final UserDao                userDao     = new UserDaoImpl();
+    private static final AdminController        adminCtrl   = new AdminController();
+    private static final AttendanceController   attCtrl     = new AttendanceController();
+    private static final PerformanceController  perfCtrl    = new PerformanceController();
+    private static final PayrollController      payrollCtrl = new PayrollController();
+    private static final EmployeeController     empCtrl     = new EmployeeController();
     private static final LeaveRequestController leaveCtrl   = new LeaveRequestController();
 
     public static void main(String[] args) {
-
         DbConfig.init();
-
         ViewUtil.printAppHeader();
-        System.out.println("  Welcome to PMS — Payroll Management System");
-        System.out.println("  Press 0 at any time to exit.\n");
 
-        // Main loop
         while (true) {
             String role = selectRole();
             if (role == null) break;
@@ -38,46 +33,43 @@ public class MainApplication {
                 default         -> false;
             };
 
-            if (!ok) ViewUtil.printError("Too many failed attempts. Returning to main menu.\n");
+            if (!ok) ViewUtil.printError("Access locked. Returning to main menu.");
         }
 
-        System.out.println("\n" + "═".repeat(72));
-        System.out.println("  Thank you for using PMS. Goodbye!");
-        System.out.println("═".repeat(72) + "\n");
+        ViewUtil.printSystemExit();
         DbConfig.close();
     }
 
     private static String selectRole() {
         while (true) {
-            System.out.println("─".repeat(50));
-            System.out.println("  Who are you logging in as?");
-            System.out.println("  [1] Admin");
-            System.out.println("  [2] Employee");
-            System.out.println("  [0] Exit");
-            System.out.println("─".repeat(50));
-            switch (InputUtil.readMenuChoice("  Select: ")) {
+            ViewUtil.printRoleSelection();
+            switch (InputUtil.readMenuChoice("")) {
                 case "1" -> { return "ADMIN"; }
                 case "2" -> { return "EMPLOYEE"; }
                 case "0" -> { return null; }
-                default  -> System.out.println("  Enter 1, 2, or 0.\n");
+                default  -> ViewUtil.printError("Enter 1, 2, or 0.");
             }
         }
     }
 
+
     private static boolean handleAdminLogin() {
         for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-            System.out.println("\n  --- ADMIN LOGIN ---");
-            String username = InputUtil.readString("  Username : ");
-            String password = InputUtil.readPassword("  Password");
+            ViewUtil.printAdminLoginBox();
+            String username = InputUtil.readString(" Username : ");
+            String password = InputUtil.readPassword(" Password : ");
+            ViewUtil.printLoginDivider();
 
             User admin = userDao.adminLogin(username, password);
             if (admin != null) {
-                System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
+                ViewUtil.printAccessGranted(admin.getUsername(), admin.getPermissionLevel());
                 runAdminDashboard(admin);
                 return true;
             }
+
             int left = MAX_ATTEMPTS - attempts - 1;
-            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
+            if (left > 0) ViewUtil.printLoginFailed(left);
+            else          ViewUtil.printLoginLocked();
         }
         return false;
     }
@@ -85,7 +77,7 @@ public class MainApplication {
     private static void runAdminDashboard(User admin) {
         boolean running = true;
         while (running) {
-            ViewUtil.printAdminMenu();
+            ViewUtil.printAdminMenu(admin.getUsername(), admin.getPermissionLevel());
             switch (InputUtil.readMenuChoice("")) {
                 case "1" -> adminCtrl.manageEmployees();
                 case "2" -> attCtrl.viewAllAttendance();
@@ -95,28 +87,31 @@ public class MainApplication {
                 case "6" -> adminCtrl.manageBonuses();
                 case "7" -> leaveCtrl.reviewLeaveRequests(admin.getAdminId());
                 case "0" -> {
-                    System.out.printf("%n  Goodbye, %s.%n", admin.getUsername());
+                    ViewUtil.printGoodbye(admin.getUsername());
                     running = false;
                 }
-                default -> System.out.println("  Invalid option.");
+                default -> ViewUtil.printError("Invalid option. Please try again.");
             }
         }
     }
 
     private static boolean handleEmployeeLogin() {
         for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-            System.out.println("\n  --- EMPLOYEE LOGIN ---");
-            String email    = InputUtil.readEmail("  Email    : ");
-            String password = InputUtil.readPassword("  Password");
+            ViewUtil.printEmployeeLoginBox();
+            String email    = InputUtil.readEmail(" Email    : ");
+            String password = InputUtil.readPassword(" Password : ");
+            ViewUtil.printLoginDivider();
 
             Employee emp = userDao.employeeLogin(email, password);
             if (emp != null) {
-                System.out.printf("%n  Welcome, %s!%n", emp.getFullName());
+                ViewUtil.printAccessGrantedEmp(emp.getFullName());
                 runEmployeeDashboard(emp);
                 return true;
             }
+
             int left = MAX_ATTEMPTS - attempts - 1;
-            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
+            if (left > 0) ViewUtil.printLoginFailed(left);
+            else          ViewUtil.printLoginLocked();
         }
         return false;
     }
@@ -124,7 +119,7 @@ public class MainApplication {
     private static void runEmployeeDashboard(Employee emp) {
         boolean running = true;
         while (running) {
-            ViewUtil.printEmployeeMenu();
+            ViewUtil.printEmployeeMenu(emp.getFullName());
             switch (InputUtil.readMenuChoice("")) {
                 case "1" -> attCtrl.checkIn(emp.getEmployeeId());
                 case "2" -> attCtrl.checkOut(emp.getEmployeeId());
@@ -135,10 +130,10 @@ public class MainApplication {
                 case "7" -> leaveCtrl.submitLeaveRequest(emp.getEmployeeId());
                 case "8" -> leaveCtrl.viewMyLeaveRequests(emp.getEmployeeId());
                 case "0" -> {
-                    System.out.printf("%n  Goodbye, %s!%n", emp.getFullName());
+                    ViewUtil.printGoodbye(emp.getFullName());
                     running = false;
                 }
-                default -> System.out.println("  Invalid option.");
+                default -> ViewUtil.printError("Invalid option. Please try again.");
             }
         }
     }

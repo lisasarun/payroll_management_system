@@ -26,7 +26,6 @@ public class EmployeeController {
             return;
         }
 
-        // Verify Current password
         var emp = empRepo.findById(employeeId);
         if (emp == null || !PasswordUtil.verify(current, emp.getPassword())) {
             ViewUtil.printError("Current password is incorrect.");

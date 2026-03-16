@@ -34,7 +34,7 @@ public class InputUtil {
 
 
     public static String readPasswordWithPolicy(String prompt) {
-        // Regex: at least 8 chars, at least one letter and one digit, no spaces
+
         final String pattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@#$%^&+=!?.]{8,}$";
         while (true) {
             String pwd = readPassword(prompt);
@@ -108,9 +108,7 @@ public class InputUtil {
         while (true) {
             System.out.print(prompt);
             String s = SC.nextLine().trim();
-            // FIX Issue #9: Stricter email validation (max 1 consecutive special char, no ++)
             if (s.matches("^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-])*\\.[a-zA-Z]{2,}$")) {
-                // Additional check: no consecutive special characters
                 if (!s.contains("..") && !s.contains("--") && !s.contains("__") &&
                     !s.contains("++") && !s.contains(".-") && !s.contains("-.")) {
                     return s;

@@ -28,7 +28,6 @@ public class JasperReportGenerator {
             String filename = OUTPUT_DIR + "payslip_emp"
                     + slip.getEmployeeId() + "_" + slip.getPayPeriodStart() + ".pdf";
 
-            // 1) Load and compile JRXML template
             InputStream templateStream = loadTemplate();
             if (templateStream == null) {
                 System.err.println("[Report] Could not find payslip.jrxml on classpath or file system.");
@@ -37,7 +36,6 @@ public class JasperReportGenerator {
 
             JasperReport jasperReport = JasperCompileManager.compileReport(templateStream);
 
-            // 2) Prepare parameters from Payslip model (see payslip.jrxml)
             Map<String, Object> params = new HashMap<>();
             params.put("EMPLOYEE_NAME", slip.getEmployeeName());
             params.put("EMPLOYEE_ID",   String.format("EMP-%03d", slip.getEmployeeId()));
@@ -56,11 +54,9 @@ public class JasperReportGenerator {
             params.put("SOC_SEC",     fmt(slip.getSocialSecurity()));
             params.put("NET_PAY",     fmt(slip.getTotalPaid()));
 
-            // 3) Minimal data source (we do not use fields in the template, only parameters)
             JRBeanCollectionDataSource dataSource =
                     new JRBeanCollectionDataSource(Collections.singletonList(slip));
 
-            // 4) Fill report and export to PDF
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, dataSource);
             JasperExportManager.exportReportToPdfFile(jasperPrint, filename);
 
@@ -76,11 +72,10 @@ public class JasperReportGenerator {
 
 
     private InputStream loadTemplate() {
-        // Classpath (recommended)
+
         InputStream in = JasperReportGenerator.class.getResourceAsStream(TEMPLATE_PATH);
         if (in != null) return in;
 
-        // Fallback: direct file path during development/IDE runs
         try {
             File file = new File("pms_complete/src/project/report/templates/payslip.jrxml");
             if (file.exists()) {

@@ -24,7 +24,7 @@ public class Attendance {
 
     private LocalDateTime checkOut;
 
-    private String status; // PRESENT, ABSENT, LATE, HALF_DAY, ON_LEAVE
+    private String status;
 
     private BigDecimal workHours;
 

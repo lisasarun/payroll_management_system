@@ -35,7 +35,6 @@ public class PerformanceController {
         ViewUtil.printTitle("ADD PERFORMANCE REVIEW");
         int id = InputUtil.readInt("  Employee ID   : ");
 
-        // BUG 2 FIX: store Result once, use it twice — no double DB call
         EmployeeDTO emp = empService.getById(id);
         if (emp == null) { ViewUtil.printError("Employee not found."); return; }
 

@@ -15,7 +15,6 @@ public class BonusRepository {
         String sql = "INSERT INTO bonus (employee_id, payroll_id, amount, reason, awarded_date) VALUES (?,?,?,?,?)";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, b.getEmployeeId());
-            // FIX: payroll_id is nullable — use NULL when not linked to a payroll
             if (b.getPayrollId() > 0) {
                 ps.setInt(2, b.getPayrollId());
             } else {
@@ -52,7 +51,6 @@ public class BonusRepository {
                 Bonus b = new Bonus();
                 b.setBonusId(rs.getInt("bonus_id"));
                 b.setEmployeeId(rs.getInt("employee_id"));
-                // FIX: payroll_id can be NULL — check wasNull() before using the int value
                 int payrollId = rs.getInt("payroll_id");
                 b.setPayrollId(rs.wasNull() ? 0 : payrollId);
                 b.setAmount(rs.getBigDecimal("amount"));

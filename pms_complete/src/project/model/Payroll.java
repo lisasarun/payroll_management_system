@@ -15,14 +15,23 @@ import java.time.LocalDateTime;
 public class Payroll {
 
     private int payrollId;
+
     private int employeeId;
+
     private LocalDate payPeriodStart;
+
     private LocalDate payPeriodEnd;
+
     private BigDecimal baseSalary;
+
     private BigDecimal bonus;
+
     private BigDecimal deductions;
+
     private BigDecimal totalPaid;
+
     private LocalDate paymentDate;
+
     private LocalDateTime createdAt;
 
 }

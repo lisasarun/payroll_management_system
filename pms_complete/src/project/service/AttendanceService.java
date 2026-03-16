@@ -19,7 +19,6 @@ public class AttendanceService {
     private final EmployeeRepository   employeeRepo   = new EmployeeRepository();
 
     public boolean checkIn(int employeeId) {
-        // FIX Issue #6: Validate business hours (7 AM - 11 PM)
         java.time.LocalTime now = java.time.LocalTime.now();
         if (now.isBefore(java.time.LocalTime.of(7, 0)) || now.isAfter(java.time.LocalTime.of(23, 0))) {
             System.out.println("  Check-in allowed only between 7:00 AM and 11:00 PM.");
@@ -73,7 +72,6 @@ public class AttendanceService {
     public List<AttendanceDTO> getAllPaged(int page, int size) {
         List<Attendance> records = attendanceRepo.findAll(page, size);
 
-        // Collect unique employee IDs and load them in batch
         Map<Integer, String> empNames = records.stream()
                 .map(Attendance::getEmployeeId)
                 .distinct()

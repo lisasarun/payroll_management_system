@@ -15,7 +15,7 @@ public class LeaveRequestRepository {
 
     public boolean save(LeaveRequest leave) {
         String sql = "INSERT INTO leave_request (employee_id, start_date, end_date, leave_type, " +
-                     "reason, status, request_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "reason, status, request_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, leave.getEmployeeId());
@@ -34,7 +34,7 @@ public class LeaveRequestRepository {
 
     public boolean updateStatus(int leaveRequestId, String status, int reviewerId, String reviewNote) {
         String sql = "UPDATE leave_request SET status = ?, reviewer_id = ?, review_note = ?, " +
-                     "review_date = ? WHERE leave_request_id = ?";
+                "review_date = ? WHERE leave_request_id = ?";
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, status);

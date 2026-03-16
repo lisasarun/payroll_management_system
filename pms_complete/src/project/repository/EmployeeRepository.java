@@ -77,15 +77,28 @@ public class EmployeeRepository {
     }
 
     public List<Employee> findAll(int page, int size) {
+        // Default ordering by ID (ascending)
+        return findAllOrdered(page, size, "ID");
+    }
+
+    public List<Employee> findAllOrdered(int page, int size, String sortKey) {
         List<Employee> list = new ArrayList<>();
-        String sql = "SELECT * FROM employees WHERE is_active = TRUE ORDER BY employee_id LIMIT ? OFFSET ?";
+        String orderBy;
+        switch (sortKey) {
+            case "SALARY_DESC"      -> orderBy = "base_salary DESC";
+            case "NAME"             -> orderBy = "full_name ASC";
+            case "ID" -> orderBy = "employee_id ASC";
+            default -> orderBy = "employee_id ASC";
+        }
+
+        String sql = "SELECT * FROM employees WHERE is_active = TRUE ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, size);
             ps.setInt(2, (page - 1) * size);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(mapRow(rs));
-        } catch (SQLException e) { System.err.println("[EmpRepo] findAll: " + e.getMessage()); }
+        } catch (SQLException e) { System.err.println("[EmpRepo] findAllOrdered: " + e.getMessage()); }
         return list;
     }
 
@@ -113,9 +126,36 @@ public class EmployeeRepository {
         return list;
     }
 
+    /**
+     * Find all active employees who DO NOT have any payroll in the given period.
+     */
+    public List<Employee> findActiveWithoutPayroll(java.time.LocalDate from, java.time.LocalDate to) {
+        List<Employee> list = new ArrayList<>();
+        String sql = """
+                    SELECT e.*
+                    FROM employees e
+                    WHERE e.is_active = TRUE
+                      AND NOT EXISTS (
+                          SELECT 1 FROM payroll p
+                          WHERE p.employee_id = e.employee_id
+                            AND p.pay_period_start <= ?
+                            AND p.pay_period_end   >= ?
+                      )
+                    ORDER BY e.employee_id
+                    """;
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setDate(1, Date.valueOf(to));
+            ps.setDate(2, Date.valueOf(from));
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { System.err.println("[EmpRepo] findActiveWithoutPayroll: " + e.getMessage()); }
+        return list;
+    }
+
     public boolean save(Employee emp) {
         String sql = "INSERT INTO employees (full_name, email, password, is_active, base_salary, position, department, hire_date, created_at, updated_at) " +
-                     "VALUES (?,?,?,TRUE,?,?,?,?,NOW(),NOW())";
+                "VALUES (?,?,?,TRUE,?,?,?,?,NOW(),NOW())";
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, emp.getFullName());

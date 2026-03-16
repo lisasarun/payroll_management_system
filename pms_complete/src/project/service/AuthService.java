@@ -6,9 +6,9 @@ import project.model.Employee;
 import project.model.User;
 
 /**
-  Stateful authentication service.
-  Tracks the currently logged-in admin or employee for the session.
-  Used by controllers that need to know who is currently logged in.
+ Stateful authentication service.
+ Tracks the currently logged-in admin or employee for the session.
+ Used by controllers that need to know who is currently logged in.
  */
 public class AuthService {
 

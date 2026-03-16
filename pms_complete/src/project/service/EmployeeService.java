@@ -57,13 +57,24 @@ public class EmployeeService {
     }
 
     public List<EmployeeDTO> getAllPaged(int page, int size) {
-        return repo.findAll(page, size).stream()
+        return getAllPagedSorted(page, size, "ID");
+    }
+
+    public List<EmployeeDTO> getAllPagedSorted(int page, int size, String sortKey) {
+        return repo.findAllOrdered(page, size, sortKey).stream()
                 .map(EntityMapper::toEmployeeDTO)
                 .collect(Collectors.toList());
     }
 
     public List<EmployeeDTO> search(String keyword, int page, int size) {
         return repo.searchByName(keyword, page, size).stream()
+                .map(EntityMapper::toEmployeeDTO)
+                .collect(Collectors.toList());
+    }
+
+    /** Active employees who don't have payroll in the given period. */
+    public List<EmployeeDTO> getWithoutPayroll(java.time.LocalDate from, java.time.LocalDate to) {
+        return repo.findActiveWithoutPayroll(from, to).stream()
                 .map(EntityMapper::toEmployeeDTO)
                 .collect(Collectors.toList());
     }

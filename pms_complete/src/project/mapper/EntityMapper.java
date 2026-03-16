@@ -6,8 +6,8 @@ import project.model.*;
 import java.math.BigDecimal;
 
 /**
-  Manual mapper between Model <=> DTO.
-  No MapStruct — pure setter/getter mapping as required by project rules.
+ Manual mapper between Model <=> DTO.
+ No MapStruct — pure setter/getter mapping as required by project rules.
  */
 public class EntityMapper {
 

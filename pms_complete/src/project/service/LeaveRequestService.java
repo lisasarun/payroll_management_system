@@ -33,6 +33,19 @@ public class LeaveRequestService {
             return false;
         }
 
+        // Validation #2: Only allow leave inside year 2026
+        if (startDate.getYear() != 2026 || endDate.getYear() != 2026) {
+            System.out.println("  Leave requests are only allowed in the year 2026.");
+            return false;
+        }
+
+        // Validation #3: Max duration = 7 days (1 week)
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        if (daysBetween > 7) {
+            System.out.println("  Leave request cannot exceed 7 days.");
+            return false;
+        }
+
         // FIX Issue #3: Cannot request leave for today or past dates
         if (startDate.isBefore(LocalDate.now().plusDays(1))) {
             System.out.println("  Cannot request leave for today or past dates. Request at least 1 day in advance.");
@@ -41,9 +54,9 @@ public class LeaveRequestService {
 
         // FIX Issue #5: Cannot request leave for weekends
         if (startDate.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
-            startDate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY ||
-            endDate.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
-            endDate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+                startDate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY ||
+                endDate.getDayOfWeek() == java.time.DayOfWeek.SATURDAY ||
+                endDate.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
             System.out.println("  Cannot request leave for weekends (Saturdays/Sundays are non-working days).");
             return false;
         }

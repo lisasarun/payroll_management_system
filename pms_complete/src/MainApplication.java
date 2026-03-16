@@ -30,8 +30,8 @@ public class MainApplication {
         DbConfig.init();
 
         ViewUtil.printAppHeader();
-        System.out.println("  Welcome to PMS — Payroll Management System");
-        System.out.println("  Press Ctrl+C at any time to exit.\n");
+        System.out.println("  Welcome to Payroll Management System");
+        System.out.println("  Press 0 at any time to exit.\n");
 
         // Main loop
         while (true) {

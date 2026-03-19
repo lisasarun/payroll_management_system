@@ -6,8 +6,10 @@ import project.model.Payslip;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,14 +21,15 @@ public class JasperReportGenerator {
     private static final String OUTPUT_DIR     = "reports/";
     private static final String TEMPLATE_PATH  = "/project/report/templates/payslip.jrxml";
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy");
+    private static final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
 
     public String generatePayslip(Payslip slip) {
         try {
             new File(OUTPUT_DIR).mkdirs();
 
-            String filename = OUTPUT_DIR + "payslip_emp"
-                    + slip.getEmployeeId() + "_" + slip.getPayPeriodStart() + ".pdf";
+            // Use a unique filename to avoid Windows file-lock issues when a previous PDF is still open.
+            String filename = buildUniqueFilename(slip);
 
             InputStream templateStream = loadTemplate();
             if (templateStream == null) {
@@ -58,7 +61,19 @@ public class JasperReportGenerator {
                     new JRBeanCollectionDataSource(Collections.singletonList(slip));
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, dataSource);
-            JasperExportManager.exportReportToPdfFile(jasperPrint, filename);
+            try {
+                JasperExportManager.exportReportToPdfFile(jasperPrint, filename);
+            } catch (JRRuntimeException ex) {
+                // Common on Windows: the target file is locked by a PDF viewer.
+                // Retry once with a fresh unique filename.
+                if (isFileLockIssue(ex)) {
+                    String retry = buildUniqueFilename(slip);
+                    JasperExportManager.exportReportToPdfFile(jasperPrint, retry);
+                    filename = retry;
+                } else {
+                    throw ex;
+                }
+            }
 
             System.out.println("  ✔ JasperReports payslip PDF saved → " + filename);
             return filename;
@@ -84,6 +99,34 @@ public class JasperReportGenerator {
         } catch (Exception ignored) {
         }
         return null;
+    }
+
+    private String buildUniqueFilename(Payslip slip) {
+        String ts = LocalDateTime.now().format(TS_FMT);
+        String base = OUTPUT_DIR + "payslip_emp" + slip.getEmployeeId()
+                + "_" + slip.getPayPeriodStart()
+                + "_" + ts;
+        String candidate = base + ".pdf";
+
+        // Extra safety: if file already exists, append a counter.
+        int counter = 1;
+        while (new File(candidate).exists()) {
+            candidate = base + "_" + counter + ".pdf";
+            counter++;
+        }
+        return candidate;
+    }
+
+    private boolean isFileLockIssue(Throwable ex) {
+        // Walk causes and check for "used by another process" / FileNotFoundException patterns.
+        Throwable cur = ex;
+        while (cur != null) {
+            if (cur instanceof FileNotFoundException) return true;
+            String msg = cur.getMessage();
+            if (msg != null && msg.toLowerCase().contains("being used by another process")) return true;
+            cur = cur.getCause();
+        }
+        return false;
     }
 
     private String fmt(BigDecimal v) {

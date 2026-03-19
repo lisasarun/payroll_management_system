@@ -10,6 +10,8 @@ import project.util.DateUtil;
 import project.util.InputUtil;
 import project.util.ViewUtil;
 
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class PayrollController {
@@ -17,6 +19,8 @@ public class PayrollController {
     private final PayrollService       payrollService = new PayrollService();
     private final EmployeeService      empService     = new EmployeeService();
     private final JasperReportGenerator reportGen     = new JasperReportGenerator();
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void calculatePayroll() {
         boolean running = true;
@@ -129,18 +133,26 @@ public class PayrollController {
         if (payrolls.isEmpty()) { ViewUtil.printInfo("No payroll records found."); return; }
 
         System.out.println("\n  Payroll records for " + emp.getFullName() + ":");
-        payrolls.forEach(p -> System.out.printf("  [%d] %s to %s  —  $%,.2f%n",
-                p.getPayrollId(), p.getPayPeriodStart(), p.getPayPeriodEnd(), p.getTotalPaid()));
+        // Payroll ID is displayed here (READ-ONLY): user can select it, but never edit it.
+        printPayrollTable(payrolls);
 
-        int payrollId = InputUtil.readInt("\n  Enter Payroll ID: ");
+        // Payroll ID is used here for report generation.
+        // We validate the ID exists in the list before building the payslip.
+        int payrollId = readExistingPayrollId(payrolls, "\n  Enter Payroll ID: ");
         Payslip slip = payrollService.buildPayslip(empId, payrollId);
         if (slip == null) { ViewUtil.printError("Could not build payslip."); return; }
 
         System.out.println(slip);
 
         String pdfPath = reportGen.generatePayslip(slip);
-        if (pdfPath != null)
+        if (pdfPath != null) {
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);
+            ViewUtil.printInfo("Payslip is ready. You can open the PDF now.");
+            InputUtil.readMenuChoice("  Press Enter to continue...");
+        } else {
+            ViewUtil.printError("PDF generation failed. If you had the PDF open, close it and try again.");
+            InputUtil.readMenuChoice("  Press Enter to continue...");
+        }
     }
 
     public void viewMyPayslip(int employeeId) {
@@ -149,17 +161,63 @@ public class PayrollController {
         if (payrolls.isEmpty()) { ViewUtil.printInfo("No payroll records yet."); return; }
 
         System.out.println("  Your payroll records:");
-        payrolls.forEach(p -> System.out.printf("  [%d] %s to %s  —  Total: $%,.2f%n",
-                p.getPayrollId(), p.getPayPeriodStart(), p.getPayPeriodEnd(), p.getTotalPaid()));
+        // Payroll ID is displayed here (READ-ONLY): user can select it, but never edit it.
+        printPayrollTable(payrolls);
 
-        int payrollId = InputUtil.readInt("\n  Enter Payroll ID: ");
+        // Payroll ID is used here for report generation.
+        // We validate the ID exists in the list before building the payslip.
+        int payrollId = readExistingPayrollId(payrolls, "\n  Enter Payroll ID: ");
         Payslip slip = payrollService.buildPayslip(employeeId, payrollId);
         if (slip == null) { ViewUtil.printError("Payslip not available."); return; }
 
         System.out.println(slip);
 
         String pdfPath = reportGen.generatePayslip(slip);
-        if (pdfPath != null)
+        if (pdfPath != null) {
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);
+            ViewUtil.printInfo("Payslip is ready. You can open the PDF now.");
+            InputUtil.readMenuChoice("  Press Enter to continue...");
+        } else {
+            ViewUtil.printError("PDF generation failed. If you had the PDF open, close it and try again.");
+            InputUtil.readMenuChoice("  Press Enter to continue...");
+        }
+    }
+
+    /**
+     * UI helper: prints payroll records in a clean aligned table.
+     * Columns required by spec:
+     * - Payroll ID (READ-ONLY)
+     * - Employee ID
+     * - Salary (we display Total Paid)
+     * - Date (Payment Date)
+     */
+    private void printPayrollTable(List<PayrollDTO> payrolls) {
+        System.out.printf("%n  %-10s %-10s %-14s %-12s%n", "PayrollID", "EmpID", "Salary", "Pay Date");
+        System.out.println("  " + "-".repeat(52));
+        for (PayrollDTO p : payrolls) {
+            System.out.printf("  %-10d %-10d %-14s %-12s%n",
+                    p.getPayrollId(),
+                    p.getEmployeeId(),
+                    money(p.getTotalPaid()),
+                    p.getPaymentDate() != null ? p.getPaymentDate().format(DATE_FMT) : "—");
+        }
+        System.out.println("  " + "-".repeat(52));
+    }
+
+    /**
+     * Reads a Payroll ID from the user and validates it exists in the given list.
+     * Used for actions that require a payroll record (payslip generation / future update/delete).
+     */
+    private int readExistingPayrollId(List<PayrollDTO> payrolls, String prompt) {
+        while (true) {
+            int id = InputUtil.readInt(prompt);
+            boolean exists = payrolls.stream().anyMatch(p -> p.getPayrollId() == id);
+            if (exists) return id;
+            ViewUtil.printError("Payroll ID not found in the list above. Please enter a valid Payroll ID.");
+        }
+    }
+
+    private String money(BigDecimal v) {
+        return v == null ? "$0.00" : String.format("$%,.2f", v);
     }
 }

@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class InputUtil {
 
     private static final Scanner SC = new Scanner(System.in);
-    // STRICT parsing: rejects impossible dates like 2026-02-31 (won't auto-correct to March)
+    // STRICT parsing: rejects impossible dates like 2026-02-31 (won't Auto-correct to March)
     private static final DateTimeFormatter DATE_FMT = new DateTimeFormatterBuilder()
             .appendPattern("uuuu-MM-dd")
             .toFormatter()
@@ -59,7 +59,7 @@ public class InputUtil {
             System.out.print(prompt);
             try {
                 BigDecimal v = new BigDecimal(SC.nextLine().trim());
-                // Business rule: base salary must be at least 100 (no 0 or very small values)
+                // Business rule: base salary must be at least 100 (N/A 0 or very small values)
                 if (v.compareTo(BigDecimal.valueOf(100)) >= 0) return v;
                 if (v.compareTo(BigDecimal.ZERO) <= 0) {
                     System.out.println("  Amount must be greater than 0.");
@@ -79,13 +79,13 @@ public class InputUtil {
             try {
                 return LocalDate.parse(raw, DATE_FMT);
             } catch (DateTimeParseException e) {
-                // Covers both wrong format and impossible calendar dates like 2026-02-31
+                // Covers both Wrong format and impossible calendar dates like 2026-02-31
                 System.out.println("  Invalid date. Use yyyy-MM-dd (example: 2026-02-28).");
             }
         }
     }
 
-    /** Read a date and restrict it to a specific year (e.g. only 2026). */
+    /** Read a date and restrict it to a specific year (ect only 2026). */
     public static LocalDate readDateInYear(String prompt, int year) {
         while (true) {
             LocalDate d = readDate(prompt);
@@ -159,7 +159,7 @@ public class InputUtil {
         }
     }
 
-    /** Returns true if string has more than 3 consecutive consonants (rejects "asrjri"-style input). */
+    /** Returns true if String has more than 3 consecutive consonants (rejects "asrjri"-style input). */
     private static boolean hasTooManyConsecutiveConsonants(String s) {
         String lower = s.toLowerCase().replaceAll("\\s+", "");
         String consonants = "bcdfghjklmnpqrstvwxyz";
@@ -208,7 +208,7 @@ public class InputUtil {
         }
     }
 
-    /** Email: valid format and local part must match the given full name (e.g. sarunlisa -> sarunlisa@company.com). */
+    /** Email: valid format and local part must match the given full name (Ex: Sarunlisa -> sarunlisa@company.com). */
     public static String readEmailMatchingName(String prompt, String fullName) {
         String normalizedName = fullName.toLowerCase().replaceAll("\\s+", "");
         if (normalizedName.isEmpty()) {

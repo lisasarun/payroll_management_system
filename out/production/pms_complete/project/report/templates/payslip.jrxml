@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport
+        xmlns="http://jasperreports.sourceforge.net/jasperreports"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+                            http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+        name="payslip"
+        pageWidth="595"
+        pageHeight="842"
+        columnWidth="515"
+        leftMargin="40"
+        rightMargin="40"
+        topMargin="30"
+        bottomMargin="30">
+
+    <!-- Parameters expected by JasperReportGenerator.java -->
+    <parameter name="EMPLOYEE_NAME" class="java.lang.String"/>
+    <parameter name="EMPLOYEE_ID"   class="java.lang.String"/>
+    <parameter name="EMAIL"         class="java.lang.String"/>
+    <parameter name="PERIOD"        class="java.lang.String"/>
+    <parameter name="PAY_DATE"      class="java.lang.String"/>
+    <parameter name="BASE_SALARY"   class="java.lang.String"/>
+    <parameter name="OVERTIME"      class="java.lang.String"/>
+    <parameter name="BONUS"         class="java.lang.String"/>
+    <parameter name="TAX"           class="java.lang.String"/>
+    <parameter name="SOC_SEC"       class="java.lang.String"/>
+    <parameter name="NET_PAY"       class="java.lang.String"/>
+
+    <!-- Simple title band -->
+    <title>
+        <band height="70">
+            <rectangle>
+                <reportElement x="0" y="0" width="515" height="60" backcolor="#1E3C72" mode="Opaque"/>
+            </rectangle>
+
+            <staticText>
+                <reportElement x="0" y="8" width="515" height="24" forecolor="#FFFFFF"/>
+                <textElement textAlignment="Center">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[PAYROLL MANAGEMENT SYSTEM]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="0" y="34" width="515" height="20" forecolor="#B4D2FF"/>
+                <textElement textAlignment="Center">
+                    <font size="11"/>
+                </textElement>
+                <text><![CDATA[EMPLOYEE PAYSLIP]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <!-- Use the summary band for all content -->
+    <summary>
+        <band height="500">
+
+            <!-- EMPLOYEE INFORMATION -->
+            <staticText>
+                <reportElement x="0" y="10" width="515" height="18" forecolor="#1E3C72"/>
+                <textElement>
+                    <font size="11" isBold="true"/>
+                </textElement>
+                <text><![CDATA[EMPLOYEE INFORMATION]]></text>
+            </staticText>
+
+            <line>
+                <reportElement x="0" y="30" width="515" height="1" forecolor="#CCCCCC"/>
+            </line>
+
+            <!-- Labels -->
+            <staticText>
+                <reportElement x="0" y="40" width="150" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Employee Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="0" y="60" width="150" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Employee ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="0" y="80" width="150" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Email]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="0" y="100" width="150" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Pay Period]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="0" y="120" width="150" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Payment Date]]></text>
+            </staticText>
+
+            <!-- Values -->
+            <textField>
+                <reportElement x="155" y="40" width="360" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{EMPLOYEE_NAME}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="155" y="60" width="360" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{EMPLOYEE_ID}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="155" y="80" width="360" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{EMAIL}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="155" y="100" width="360" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{PERIOD}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="155" y="120" width="360" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{PAY_DATE}]]></textFieldExpression>
+            </textField>
+
+            <!-- EARNINGS SECTION -->
+            <staticText>
+                <reportElement x="0" y="160" width="515" height="18" forecolor="#1E3C72"/>
+                <textElement>
+                    <font size="11" isBold="true"/>
+                </textElement>
+                <text><![CDATA[EARNINGS]]></text>
+            </staticText>
+
+            <line>
+                <reportElement x="0" y="180" width="515" height="1" forecolor="#CCCCCC"/>
+            </line>
+
+            <!-- Earnings header -->
+            <staticText>
+                <reportElement x="0" y="190" width="300" height="16" backcolor="#1E3C72" forecolor="#FFFFFF" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Description]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="305" y="190" width="210" height="16" backcolor="#1E3C72" forecolor="#FFFFFF" mode="Opaque"/>
+                <textElement textAlignment="Right">
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Amount]]></text>
+            </staticText>
+
+            <!-- Base Salary -->
+            <staticText>
+                <reportElement x="0" y="210" width="300" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Base Salary]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="305" y="210" width="210" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{BASE_SALARY}]]></textFieldExpression>
+            </textField>
+
+            <!-- Overtime -->
+            <staticText>
+                <reportElement x="0" y="230" width="300" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Overtime Pay]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="305" y="230" width="210" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{OVERTIME}]]></textFieldExpression>
+            </textField>
+
+            <!-- Bonus -->
+            <staticText>
+                <reportElement x="0" y="250" width="300" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Performance Bonus]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="305" y="250" width="210" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{BONUS}]]></textFieldExpression>
+            </textField>
+
+            <!-- DEDUCTIONS SECTION -->
+            <staticText>
+                <reportElement x="0" y="290" width="515" height="18" forecolor="#A02828"/>
+                <textElement>
+                    <font size="11" isBold="true"/>
+                </textElement>
+                <text><![CDATA[DEDUCTIONS]]></text>
+            </staticText>
+
+            <line>
+                <reportElement x="0" y="310" width="515" height="1" forecolor="#CCCCCC"/>
+            </line>
+
+            <!-- Deductions header -->
+            <staticText>
+                <reportElement x="0" y="320" width="300" height="16" backcolor="#1E3C72" forecolor="#FFFFFF" mode="Opaque"/>
+                <textElement>
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Description]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="305" y="320" width="210" height="16" backcolor="#1E3C72" forecolor="#FFFFFF" mode="Opaque"/>
+                <textElement textAlignment="Right">
+                    <font size="9" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Amount]]></text>
+            </staticText>
+
+            <!-- Tax -->
+            <staticText>
+                <reportElement x="0" y="340" width="300" height="16"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Income Tax (10%)]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="305" y="340" width="210" height="16"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{TAX}]]></textFieldExpression>
+            </textField>
+
+            <!-- Social Security -->
+            <staticText>
+                <reportElement x="0" y="360" width="300" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement>
+                    <font size="9"/>
+                </textElement>
+                <text><![CDATA[Social Security (2%)]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="305" y="360" width="210" height="16" backcolor="#F5F5F5" mode="Opaque"/>
+                <textElement textAlignment="Right">
+                    <font size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{SOC_SEC}]]></textFieldExpression>
+            </textField>
+
+            <!-- NET PAY BANNER -->
+            <rectangle>
+                <reportElement x="0" y="395" width="515" height="40" backcolor="#1E3C72" mode="Opaque"/>
+            </rectangle>
+
+            <staticText>
+                <reportElement x="10" y="407" width="200" height="18" forecolor="#FFFFFF"/>
+                <textElement>
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[NET PAY]]></text>
+            </staticText>
+
+            <textField>
+                <reportElement x="305" y="407" width="200" height="18" forecolor="#FFFFFF"/>
+                <textElement textAlignment="Right">
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{NET_PAY}]]></textFieldExpression>
+            </textField>
+
+            <!-- Footer note -->
+            <staticText>
+                <reportElement x="0" y="445" width="515" height="14" forecolor="#999999"/>
+                <textElement textAlignment="Center">
+                    <font size="8"/>
+                </textElement>
+                <text><![CDATA[This is a computer-generated payslip and does not require a signature.]]></text>
+            </staticText>
+
+        </band>
+    </summary>
+
+</jasperReport>

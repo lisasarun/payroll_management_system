@@ -67,4 +67,16 @@ public class PerformanceRepository {
         } catch (SQLException e) { System.err.println("[PerfRepo] avgScore: " + e.getMessage()); }
         return 0.0;
     }
+
+    /** Returns the set of employee IDs that have at least one performance review. */
+    public java.util.Set<Integer> findEmployeeIdsWithReviews() {
+        java.util.Set<Integer> ids = new java.util.HashSet<>();
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT DISTINCT employee_id FROM performance")) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) ids.add(rs.getInt(1));
+        } catch (SQLException e) { System.err.println("[PerfRepo] findEmployeeIdsWithReviews: " + e.getMessage()); }
+        return ids;
+    }
 }

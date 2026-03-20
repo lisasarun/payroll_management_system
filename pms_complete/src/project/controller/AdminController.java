@@ -78,41 +78,44 @@ public class AdminController {
         System.out.println("  Employee : " + dto.getFullName());
         System.out.println("  Leave blank to keep current value.");
 
+        // Full Name — validate if provided (same rules as addEmployee)
         System.out.printf("  Full Name  [%s]: ", dto.getFullName());
-        String name = InputUtil.readOptionalString("");
+        String nameInput = InputUtil.readOptionalString("");
+        String name = dto.getFullName();
+        if (!nameInput.isEmpty()) {
+            name = InputUtil.validateFullName(nameInput);
+            if (name == null) return; // validation printed the error
+        }
 
+        // Email — validate if provided (must match the (possibly updated) full name)
         System.out.printf("  Email      [%s]: ", dto.getEmail());
-        String email = InputUtil.readOptionalString("");
+        String emailInput = InputUtil.readOptionalString("");
+        String email = dto.getEmail();
+        if (!emailInput.isEmpty()) {
+            email = InputUtil.validateEmailMatchingName(emailInput, name);
+            if (email == null) return; // validation printed the error
+        }
 
+        // Salary — validate if provided (same rules as addEmployee)
         System.out.printf("  Salary     [%s]: ", dto.getBaseSalary());
         String salStr = InputUtil.readOptionalString("");
+        BigDecimal salary = dto.getBaseSalary();
+        if (!salStr.isEmpty()) {
+            salary = InputUtil.validateSalary(salStr);
+            if (salary == null) return; // validation printed the error
+        }
 
         // Optional password reset
         System.out.print("  New Password (leave blank to keep): ");
         String newPass = InputUtil.readOptionalString("");
 
-        // Validate salary if entered
-        BigDecimal salary = dto.getBaseSalary();
-        if (!salStr.isEmpty()) {
-            try {
-                salary = new BigDecimal(salStr);
-                if (salary.compareTo(BigDecimal.ZERO) < 0) {
-                    ViewUtil.printError("Salary cannot be negative.");
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                ViewUtil.printError("Invalid salary amount.");
-                return;
-            }
-        }
-
         Employee emp = new Employee();
         emp.setEmployeeId(id);
-        emp.setFullName(name.isEmpty()  ? dto.getFullName() : name);
-        emp.setEmail(email.isEmpty()    ? dto.getEmail()    : email);
+        emp.setFullName(name);
+        emp.setEmail(email);
         emp.setBaseSalary(salary);
 
-        // Hash new Password if provided, then update
+        // Hash new password if provided, then update
         if (!newPass.isEmpty()) {
             emp.setPassword(PasswordUtil.hash(newPass));
             if (empService.updateEmployeeWithPasswordChange(emp, dto.getEmail()))
@@ -150,7 +153,7 @@ public class AdminController {
         int total = empService.countAll();
         if (total == 0) { ViewUtil.printInfo("No employees found."); return; }
 
-        int size = 10;
+        int size = 5;
         Pagination pg = new Pagination(1, size, total);
         boolean running = true;
         String sortKey = selectEmployeeSortOption();
@@ -199,8 +202,7 @@ public class AdminController {
     }
 
     /**
-     * Show a simple, non-interactive list of all employees (first page only)
-     * to help the admin choose an ID for update/search/disable.
+     * Paginated employee list (5 per page) for admin to pick an ID before update/search/disable.
      */
     private void showAllEmployeesForSelection() {
         int total = empService.countAll();
@@ -208,9 +210,26 @@ public class AdminController {
             ViewUtil.printInfo("No employees found.");
             return;
         }
-        int size = Math.min(total, 20); // show up to 20 employees at once
-        List<EmployeeDTO> list = empService.getAllPaged(1, size);
-        ViewUtil.printEmployeeTable(list, 1, 1);
+        int size = 5;
+        Pagination pg = new Pagination(1, size, total);
+        while (true) {
+            List<EmployeeDTO> list = empService.getAllPaged(pg.getPage(), size);
+            ViewUtil.printEmployeeTable(list, pg.getPage(), pg.getTotalPages());
+
+            if (pg.getTotalPages() > 1) {
+                System.out.print("  Navigate [N/P] or press Enter to continue: ");
+            } else {
+                System.out.print("  Press Enter to continue: ");
+            }
+            String ch = InputUtil.readMenuChoice("").toUpperCase();
+            if (ch.equals("N")) {
+                if (pg.hasNext()) pg.next(); else ViewUtil.printInfo("Already on last page.");
+            } else if (ch.equals("P")) {
+                if (pg.hasPrev()) pg.prev(); else ViewUtil.printInfo("Already on first page.");
+            } else {
+                break; // Enter or anything else → proceed
+            }
+        }
     }
 
     //  MANAGE BONUSES

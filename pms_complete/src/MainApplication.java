@@ -8,8 +8,8 @@ import project.util.InputUtil;
 import project.util.ViewUtil;
 
 /**
-  PMS — Payroll Management System
-  Entry point. Initialises DB connection, drives role-based login,
+ PMS — Payroll Management System
+ Entry point. Initialises DB connection, drives role-based login,
  and routes to Admin or Employee dashboard.
  */
 public class MainApplication {
@@ -30,7 +30,7 @@ public class MainApplication {
         DbConfig.init();
 
         ViewUtil.printAppHeader();
-        System.out.println("  Welcome to Payroll Management System");
+        System.out.println("  Welcome to PMS — Payroll Management System");
         System.out.println("  Press 0 at any time to exit.\n");
 
         // Main loop
@@ -38,10 +38,13 @@ public class MainApplication {
             String role = selectRole();
             if (role == null) break;
 
-            switch (role) {
+            boolean ok = switch (role) {
                 case "ADMIN"    -> handleAdminLogin();
                 case "EMPLOYEE" -> handleEmployeeLogin();
-            }
+                default         -> false;
+            };
+
+            if (!ok) ViewUtil.printError("Too many failed attempts. Returning to main menu.\n");
         }
 
         // Clean shutdown
@@ -71,21 +74,22 @@ public class MainApplication {
     }
 
     //  Admin login + dashboard
-
+//
     private static boolean handleAdminLogin() {
-        System.out.println("\n  --- ADMIN LOGIN ---");
-        String username = InputUtil.readString("  Username : ");
-        String password = InputUtil.readPassword("  Password");
+        for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
+            System.out.println("\n  --- ADMIN LOGIN ---");
+            String username = InputUtil.readString("  Username : ");
+            String password = InputUtil.readPassword("  Password");
 
-        User admin = userDao.adminLogin(username, password);
-        if (admin != null) {
-            System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
-            runAdminDashboard(admin);
-            return true;
+            User admin = userDao.adminLogin(username, password);
+            if (admin != null) {
+                System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
+                runAdminDashboard(admin);
+                return true;
+            }
+            int left = MAX_ATTEMPTS - attempts - 1;
+            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
         }
-        
-        // Invalid credentials - return to main menu
-        System.out.println("  Invalid credentials. Returning to main menu.\n");
         return false;
     }
 
@@ -113,19 +117,20 @@ public class MainApplication {
     // Employee login + dashboard
 
     private static boolean handleEmployeeLogin() {
-        System.out.println("\n  --- EMPLOYEE LOGIN ---");
-        String email    = InputUtil.readEmail("  Email    : ");
-        String password = InputUtil.readPassword("  Password");
+        for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
+            System.out.println("\n  --- EMPLOYEE LOGIN ---");
+            String email    = InputUtil.readEmail("  Email    : ");
+            String password = InputUtil.readPassword("  Password");
 
-        Employee emp = userDao.employeeLogin(email, password);
-        if (emp != null) {
-            System.out.printf("%n  Welcome, %s!%n", emp.getFullName());
-            runEmployeeDashboard(emp);
-            return true;
+            Employee emp = userDao.employeeLogin(email, password);
+            if (emp != null) {
+                System.out.printf("%n  Welcome, %s!%n", emp.getFullName());
+                runEmployeeDashboard(emp);
+                return true;
+            }
+            int left = MAX_ATTEMPTS - attempts - 1;
+            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
         }
-        
-        // Invalid credentials - return to main menu
-        System.out.println("  Invalid credentials. Returning to main menu.\n");
         return false;
     }
 

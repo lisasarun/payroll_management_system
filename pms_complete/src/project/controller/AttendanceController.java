@@ -18,19 +18,19 @@ public class AttendanceController {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void checkIn(int employeeId) {
+        System.out.println(); // Add newline before showing check-in screen
         ViewUtil.printTitle("CHECK IN");
         if (attService.checkIn(employeeId))
             ViewUtil.printSuccess("Checked in at " + java.time.LocalDateTime.now().format(FMT));
-        else
-            ViewUtil.printError("Check-in failed or already done today.");
+        // Service layer already prints specific error messages
     }
 
     public void checkOut(int employeeId) {
+        System.out.println(); // Add newline before showing check-out screen
         ViewUtil.printTitle("CHECK OUT");
         if (attService.checkOut(employeeId))
             ViewUtil.printSuccess("Checked out at " + java.time.LocalDateTime.now().format(FMT));
-        else
-            ViewUtil.printError("Check-out failed. Did you check in today?");
+        // Service layer already prints specific error messages
     }
 
     public void viewMyAttendance(int employeeId) {

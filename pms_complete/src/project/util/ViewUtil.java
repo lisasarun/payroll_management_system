@@ -27,7 +27,11 @@ public class ViewUtil {
     }
 
     public static void printSuccess(String msg) { System.out.println("  ✔ " + msg); }
-    public static void printError(String msg)   { System.err.println("  ✘ " + msg); }
+    public static void printError(String msg)   { 
+        System.out.flush(); // Flush stdout first to ensure proper ordering
+        System.err.println("  ✘ " + msg); 
+        System.err.flush(); // Flush stderr immediately
+    }
     public static void printInfo(String msg)    { System.out.println("  ℹ " + msg); }
 
     public static void printAdminMenu() {

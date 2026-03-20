@@ -14,6 +14,7 @@ public class LeaveRequestController {
 
 
     public void submitLeaveRequest(int employeeId) {
+        System.out.println(); // Add newline before showing leave request screen
         ViewUtil.printTitle("SUBMIT LEAVE REQUEST");
 
         System.out.println("  Leave Types: SICK, VACATION, PERSONAL, EMERGENCY");
@@ -27,7 +28,7 @@ public class LeaveRequestController {
         // Only allow dates within year 2026 (LocalDate.parse also blocks invalid dates like 2026-02-31)
         LocalDate startDate = InputUtil.readDateInYear("  Start Date     : ", 2026);
         LocalDate endDate   = InputUtil.readDateInYear("  End Date       : ", 2026);
-        String reason = InputUtil.readString("  Reason         : ");
+        String reason = InputUtil.readLeaveReason("  Reason         ");
 
         if (leaveService.submitLeaveRequest(employeeId, startDate, endDate, leaveType, reason)) {
             ViewUtil.printSuccess("Leave request submitted successfully.");

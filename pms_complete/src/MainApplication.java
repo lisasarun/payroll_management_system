@@ -38,13 +38,10 @@ public class MainApplication {
             String role = selectRole();
             if (role == null) break;
 
-            boolean ok = switch (role) {
+            switch (role) {
                 case "ADMIN"    -> handleAdminLogin();
                 case "EMPLOYEE" -> handleEmployeeLogin();
-                default         -> false;
-            };
-
-            if (!ok) ViewUtil.printError("Too many failed attempts. Returning to main menu.\n");
+            }
         }
 
         // Clean shutdown
@@ -76,20 +73,19 @@ public class MainApplication {
     //  Admin login + dashboard
 
     private static boolean handleAdminLogin() {
-        for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-            System.out.println("\n  --- ADMIN LOGIN ---");
-            String username = InputUtil.readString("  Username : ");
-            String password = InputUtil.readPassword("  Password");
+        System.out.println("\n  --- ADMIN LOGIN ---");
+        String username = InputUtil.readString("  Username : ");
+        String password = InputUtil.readPassword("  Password");
 
-            User admin = userDao.adminLogin(username, password);
-            if (admin != null) {
-                System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
-                runAdminDashboard(admin);
-                return true;
-            }
-            int left = MAX_ATTEMPTS - attempts - 1;
-            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
+        User admin = userDao.adminLogin(username, password);
+        if (admin != null) {
+            System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
+            runAdminDashboard(admin);
+            return true;
         }
+        
+        // Invalid credentials - return to main menu
+        System.out.println("  Invalid credentials. Returning to main menu.\n");
         return false;
     }
 
@@ -117,20 +113,19 @@ public class MainApplication {
     // Employee login + dashboard
 
     private static boolean handleEmployeeLogin() {
-        for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-            System.out.println("\n  --- EMPLOYEE LOGIN ---");
-            String email    = InputUtil.readEmail("  Email    : ");
-            String password = InputUtil.readPassword("  Password");
+        System.out.println("\n  --- EMPLOYEE LOGIN ---");
+        String email    = InputUtil.readEmail("  Email    : ");
+        String password = InputUtil.readPassword("  Password");
 
-            Employee emp = userDao.employeeLogin(email, password);
-            if (emp != null) {
-                System.out.printf("%n  Welcome, %s!%n", emp.getFullName());
-                runEmployeeDashboard(emp);
-                return true;
-            }
-            int left = MAX_ATTEMPTS - attempts - 1;
-            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
+        Employee emp = userDao.employeeLogin(email, password);
+        if (emp != null) {
+            System.out.printf("%n  Welcome, %s!%n", emp.getFullName());
+            runEmployeeDashboard(emp);
+            return true;
         }
+        
+        // Invalid credentials - return to main menu
+        System.out.println("  Invalid credentials. Returning to main menu.\n");
         return false;
     }
 

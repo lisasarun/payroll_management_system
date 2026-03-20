@@ -12,6 +12,7 @@ public class DbConfig {
     private static final String DB_PASS = getEnvOrDefault("DB_PASS", "pmqwerqwer");
 
     private static Connection conn;
+    private static boolean firstConnection = true;  // Track first connection
 
 
     private static String getEnvOrDefault(String key, String defaultValue) {
@@ -42,11 +43,16 @@ public class DbConfig {
             Class.forName("org.postgresql.Driver");
             conn = DriverManager.getConnection(URL, DB_USER, DB_PASS);
             conn.setAutoCommit(true);
-            if ("dev_password".equals(DB_PASS)) {
-                System.err.println("[DB] WARNING: Using development placeholder password 'dev_password'.");
-                System.err.println("[DB]          Set DB_PASS environment variable for your real PostgreSQL password.");
+            
+            // Only show messages on first connection
+            if (firstConnection) {
+                if ("dev_password".equals(DB_PASS)) {
+                    System.err.println("[DB] WARNING: Using development placeholder password 'dev_password'.");
+                    System.err.println("[DB]          Set DB_PASS environment variable for your real PostgreSQL password.");
+                }
+                System.out.println("[DB] Connected to PostgreSQL successfully (" + URL + ").");
+                firstConnection = false;
             }
-            System.out.println("[DB] Connected to PostgreSQL successfully (" + URL + ").");
         } catch (ClassNotFoundException e) {
             System.err.println("[DB] Driver not found — add postgresql JAR to libraries.");
         } catch (SQLException e) {

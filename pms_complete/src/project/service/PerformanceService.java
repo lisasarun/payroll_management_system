@@ -51,4 +51,18 @@ public class PerformanceService {
     public double getAverageScore(int employeeId) {
         return perfRepo.getAverageScore(employeeId);
     }
+
+    /** Returns all active employees who have never received a performance review. */
+    public List<project.dto.EmployeeDTO> getEmployeesWithoutReview() {
+        java.util.Set<Integer> reviewed = perfRepo.findEmployeeIdsWithReviews();
+        return empRepo.findAllOrdered(1, Integer.MAX_VALUE, "ID").stream()
+                .filter(e -> !reviewed.contains(e.getEmployeeId()))
+                .map(project.mapper.EntityMapper::toEmployeeDTO)
+                .collect(Collectors.toList());
+    }
+
+    /** Returns the set of employee IDs that have at least one review. */
+    public java.util.Set<Integer> getEmployeeIdsWithReviews() {
+        return perfRepo.findEmployeeIdsWithReviews();
+    }
 }

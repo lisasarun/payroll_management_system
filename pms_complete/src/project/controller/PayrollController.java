@@ -41,21 +41,13 @@ public class PayrollController {
         if (emp == null) { ViewUtil.printError("Employee not found."); return; }
 
         System.out.println("  Employee: " + emp.getFullName());
-        // Restrict payroll calculation to year 2026 only (any month in 2026)
-        int month  = InputUtil.readIntInRange("  Month (1-12, year  2026): ", 1, 12);
-        int year;
-        while (true) {
-            year = InputUtil.readInt("  Year  (must be 2026): ");
-            if (year == 2026) {
-                break;
-            }
-            ViewUtil.printError("Payroll can only be calculated for the year 2026.");
-        }
+        java.time.LocalDate date = InputUtil.readDateInYear("  Pay Period Date (yyyy-MM-dd, year must be 2026)", 2026);
+        int month = date.getMonthValue();
+        int year  = date.getYear();
 
         System.out.printf("  Working days this month: %d%n",
                 DateUtil.getWorkingDaysInMonth(month, year));
 
-        // Show employees WITHOUT payroll for this period (useful if admin wants to see who still needs payroll)
         java.time.LocalDate from = DateUtil.firstDayOfMonth(month, year);
         java.time.LocalDate to   = DateUtil.lastDayOfMonth(month, year);
         List<EmployeeDTO> noPayroll = empService.getWithoutPayroll(from, to);
@@ -78,18 +70,10 @@ public class PayrollController {
     }
 
     private void calcForAll() {
-        // Restrict payroll calculation to year 2026 only (any month in 2026)
-        int month  = InputUtil.readIntInRange("  Month (1-12, year  2026): ", 1, 12);
-        int year;
-        while (true) {
-            year = InputUtil.readInt("  Year  (must be 2026): ");
-            if (year == 2026) {
-                break;
-            }
-            ViewUtil.printError("Payroll can only be calculated for the year 2026.");
-        }
+        java.time.LocalDate date = InputUtil.readDateInYear("  Pay Period Date (yyyy-MM-dd, year must be 2026)", 2026);
+        int month = date.getMonthValue();
+        int year  = date.getYear();
 
-        // Show which employees still don't have payroll for this period
         java.time.LocalDate from = DateUtil.firstDayOfMonth(month, year);
         java.time.LocalDate to   = DateUtil.lastDayOfMonth(month, year);
         List<EmployeeDTO> noPayroll = empService.getWithoutPayroll(from, to);
@@ -122,6 +106,25 @@ public class PayrollController {
     // Admin: generate and print payslip + save PDF
     public void generatePayslip() {
         ViewUtil.printTitle("GENERATE PAYSLIP");
+
+        // Show paginated employee list so admin can pick an ID
+        int total = empService.countAll();
+        if (total == 0) { ViewUtil.printInfo("No employees found."); return; }
+        int size = 5;
+        project.model.Pagination pg = new project.model.Pagination(1, size, total);
+        while (true) {
+            List<EmployeeDTO> page = empService.getAllPaged(pg.getPage(), size);
+            ViewUtil.printEmployeeTable(page, pg.getPage(), pg.getTotalPages());
+            if (pg.getTotalPages() > 1)
+                System.out.print("  Navigate [N/P] or press Enter to select: ");
+            else
+                System.out.print("  Press Enter to continue: ");
+            String nav = InputUtil.readMenuChoice("").toUpperCase();
+            if (nav.equals("N")) { if (pg.hasNext()) pg.next(); else ViewUtil.printInfo("Already on last page."); }
+            else if (nav.equals("P")) { if (pg.hasPrev()) pg.prev(); else ViewUtil.printInfo("Already on first page."); }
+            else break;
+        }
+
         int empId = InputUtil.readInt("  Employee ID: ");
         EmployeeDTO emp = empService.getById(empId);
         if (emp == null) { ViewUtil.printError("Employee not found."); return; }
@@ -137,10 +140,8 @@ public class PayrollController {
         Payslip slip = payrollService.buildPayslip(empId, payrollId);
         if (slip == null) { ViewUtil.printError("Could not build payslip."); return; }
 
-        // Print to console
         System.out.println(slip);
 
-        // Save as PDF
         String pdfPath = reportGen.generatePayslip(slip);
         if (pdfPath != null)
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);

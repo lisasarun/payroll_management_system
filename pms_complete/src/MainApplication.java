@@ -8,8 +8,8 @@ import project.util.InputUtil;
 import project.util.ViewUtil;
 
 /**
-  PMS — Payroll Management System
-  Entry point. Initialises DB connection, drives role-based login,
+ PMS — Payroll Management System
+ Entry point. Initialises DB connection, drives role-based login,
  and routes to Admin or Employee dashboard.
  */
 public class MainApplication {
@@ -30,7 +30,7 @@ public class MainApplication {
         DbConfig.init();
 
         ViewUtil.printAppHeader();
-        System.out.println("  Welcome to Payroll Management System");
+        System.out.println("  Welcome to PMS — Payroll Management System");
         System.out.println("  Press 0 at any time to exit.\n");
 
         // Main loop
@@ -74,13 +74,19 @@ public class MainApplication {
     }
 
     //  Admin login + dashboard
-
+//
     private static boolean handleAdminLogin() {
         for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
             System.out.println("\n  --- ADMIN LOGIN ---");
-            String username = InputUtil.readString("  Username : ");
-            String password = InputUtil.readPassword("  Password");
-
+    String username = InputUtil.readString("  Username : ");
+    // Validate password length before checking credentials.
+    // This prevents wasting a login attempt when the password format is wrong.
+    String password;
+            while (true) {
+        password = InputUtil.readPassword("  Password");
+        if (password.length() <= 20) break;
+        System.out.println("  Password must be maximum 20 characters.");
+    }
             User admin = userDao.adminLogin(username, password);
             if (admin != null) {
                 System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
@@ -92,6 +98,11 @@ public class MainApplication {
         }
         return false;
     }
+
+    //  Admin login + dashboard
+
+
+
 
     private static void runAdminDashboard(User admin) {
         boolean running = true;

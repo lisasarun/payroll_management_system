@@ -44,7 +44,7 @@ public class AttendanceController {
         int total = attService.countAll();
         if (total == 0) { ViewUtil.printInfo("No attendance records found."); return; }
 
-        int size = 15;
+        int size = 5;
         Pagination pg = new Pagination(1, size, total);
         boolean running = true;
 

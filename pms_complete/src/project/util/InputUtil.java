@@ -232,6 +232,70 @@ public class InputUtil {
         }
     }
 
+    /**
+     * One-shot full name validator (used when the field is optional in update forms).
+     * Returns the trimmed name on success, or null + prints an error on failure.
+     */
+    public static String validateFullName(String s) {
+        s = s.trim();
+        if (s.length() < 2 || s.length() > 50) {
+            System.out.println("  ✘ Name must be 2–50 characters.");
+            return null;
+        }
+        if (!s.matches("^[a-zA-Z\\s]+$")) {
+            System.out.println("  ✘ Name must contain only letters and spaces (e.g. Sarun Lisa).");
+            return null;
+        }
+        if (hasTooManyConsecutiveConsonants(s)) {
+            System.out.println("  ✘ Name must look like a real name, not random letters.");
+            return null;
+        }
+        return s;
+    }
+
+    /**
+     * One-shot email validator that also checks it matches the given full name.
+     * Returns the email on success, or null + prints an error on failure.
+     */
+    public static String validateEmailMatchingName(String s, String fullName) {
+        s = s.trim();
+        if (!s.matches("^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-])*\\.[a-zA-Z]{2,}$") ||
+                s.contains("..") || s.contains("--") || s.contains("__") ||
+                s.contains("++") || s.contains(".-") || s.contains("-.")) {
+            System.out.println("  ✘ Invalid email format. Example: name@company.com");
+            return null;
+        }
+        String normalizedName = fullName.toLowerCase().replaceAll("\\s+", "");
+        String localPart = s.split("@")[0].toLowerCase().replaceAll("[._-]", "");
+        if (!normalizedName.isEmpty() && !localPart.contains(normalizedName)) {
+            System.out.println("  ✘ Email must match the employee name (e.g. " + normalizedName + "@company.com).");
+            return null;
+        }
+        return s;
+    }
+
+    /**
+     * One-shot salary validator (same rules as readBigDecimal).
+     * Returns the BigDecimal on success, or null + prints an error on failure.
+     */
+    public static BigDecimal validateSalary(String s) {
+        try {
+            BigDecimal v = new BigDecimal(s.trim());
+            if (v.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("  ✘ Salary must be greater than 0.");
+                return null;
+            }
+            if (v.compareTo(BigDecimal.valueOf(100)) < 0) {
+                System.out.println("  ✘ Base salary must be at least 100.00.");
+                return null;
+            }
+            return v;
+        } catch (NumberFormatException e) {
+            System.out.println("  ✘ Invalid salary amount.");
+            return null;
+        }
+    }
+
     public static double readScore(String prompt) {
         while (true) {
             System.out.print(prompt + " (0.00-100.00): ");

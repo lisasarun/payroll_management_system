@@ -9,14 +9,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Repository for loading reference data (positions, departments)
- */
+
 public class ReferenceDataRepository {
 
-    /**
-     * Get all valid positions from position_salary_rules table
-     */
+
     public List<String> getAllPositions() {
         List<String> positions = new ArrayList<>();
         String sql = "SELECT position FROM position_salary_rules ORDER BY position";

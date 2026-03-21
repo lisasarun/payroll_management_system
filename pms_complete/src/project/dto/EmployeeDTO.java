@@ -5,9 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * Data Transfer Object for Employee entity
- */
+
 @Data
 @Builder
 @NoArgsConstructor

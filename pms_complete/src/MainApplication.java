@@ -7,11 +7,7 @@ import project.model.User;
 import project.util.InputUtil;
 import project.util.ViewUtil;
 
-/**
- PMS — Payroll Management System
- Entry point. Initialises DB connection, drives role-based login,
- and routes to Admin or Employee dashboard.
- */
+
 public class MainApplication {
 
     private static final UserDao               userDao      = new UserDaoImpl();

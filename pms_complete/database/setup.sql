@@ -7,13 +7,13 @@
 --  Click + Data Soure -> PostgreSQl
 --
 --  LOGIN CREDENTIALS (after running this script):
---    Admin   : admin / admin123
---    Admin   : hr    / hr123
---    Employee: alice@pms.com / alice123 (Software Engineer)
---    Employee: bob@pms.com   / bob123   (Marketing Specialist)
---    Employee: carol@pms.com / carol123 (Senior Developer)
---    Employee: david@pms.com / david123 (HR Coordinator)
---    Employee: emma@pms.com  / emma123  (Financial Analyst)
+--    Admin   : Sokha / Sokha@123
+--    Admin   : Vanna / Vanna@123
+--    Employee: chantha@pms.com  / Chantha@123  (Chantha Dara)
+--    Employee: piseth@pms.com   / Piseth@123   (Piseth Rith)
+--    Employee: sreynang@pms.com / Sreynang@123 (Sreynang Chann)
+--    Employee: bopha@pms.com    / Bopha@123    (Bopha Sok)
+--    Employee: vicheka@pms.com  / Vicheka@123  (Vicheka Lim)
 -- ============================================================
 
 DROP TABLE IF EXISTS leave_request CASCADE;
@@ -256,24 +256,24 @@ INSERT INTO departments (department_name, description) VALUES
     ('IT Support', 'Technical support and IT infrastructure');
 
 -- Admin accounts
--- admin123 -> 240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
--- hr123    -> 070a3b5e8d4bd5c46acccb91c9c54614c0cd649e78c4c4719e3a64270bae5ddf
+-- Sokha@123 -> da09a75ad858c51b180c0aa6eccf1bd1465c5462e6de2ee8d81c216c97ce8799
+-- Vanna@123 -> ed6d032129aa3ba43709a36374c16314129b4ae2ae1e05f38e2b419d28fef6ad
 INSERT INTO admins (username, password, permission_level) VALUES
-    ('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'SUPER_ADMIN'),
-    ('hr',    '070a3b5e8d4bd5c46acccb91c9c54614c0cd649e78c4c4719e3a64270bae5ddf', 'HR_MANAGER');
+    ('Sokha', 'da09a75ad858c51b180c0aa6eccf1bd1465c5462e6de2ee8d81c216c97ce8799', 'SUPER_ADMIN'),
+    ('Vanna', 'ed6d032129aa3ba43709a36374c16314129b4ae2ae1e05f38e2b419d28fef6ad', 'HR_MANAGER');
 
 -- Employee accounts (passwords are SHA-256 hashes)
--- alice123 -> 4e40e8ffe0ee32fa53e139147ed559229a5930f89c2204706fc174beb36210b3
--- bob123   -> 8d059c3640b97180dd2ee453e20d34ab0cb0f2eccbe87d01915a8e578a202b11
--- carol123 -> 6868b751d7c664a9492079bfb2858c86cc95f9480270413e334ed09fe94cf10d
--- david123 -> 0f14089313b20c1723ec1d660b0aaa4f473cf5b321cd370f2d48b7bcf9a7b234
--- emma123  -> 52293754fdbea92ab6c69cd64e644deed1552f40ccd3c1cef9d4d63c754d13e3
+-- Chantha@123  -> 71c29f0e57ead50848bee1cd578947fa9c2ddd6dd765e50a7d530c5e724f3b84
+-- Piseth@123   -> d35b134cf8b4d00667d7eca705ab8ccecb94bdda4769468dc1e5cf4ef95b16cf
+-- Sreynang@123 -> a6619b7bad4162f0832e07f10a9f541b92cc6cf2856c6fc4422538a2bc27ddb1
+-- Bopha@123    -> 15717da99859f3909da7acd20493f9fb1f815627a9b7ea44ce9d803087087b27
+-- Vicheka@123  -> c3e5958923288d1ce56f3c5ff74315760a7cbb8aedd29a3807fdda2c9df12993
 INSERT INTO employees (full_name, email, password, is_active, base_salary, position, department, hire_date) VALUES
-    ('Alice Johnson', 'alice@pms.com', '4e40e8ffe0ee32fa53e139147ed559229a5930f89c2204706fc174beb36210b3', TRUE, 3000.00, 'Software Engineer', 'Engineering', CURRENT_DATE - 365),
-    ('Bob Smith',     'bob@pms.com',   '8d059c3640b97180dd2ee453e20d34ab0cb0f2eccbe87d01915a8e578a202b11', TRUE, 2500.00, 'Marketing Specialist', 'Marketing', CURRENT_DATE - 180),
-    ('Carol Davis',   'carol@pms.com', '6868b751d7c664a9492079bfb2858c86cc95f9480270413e334ed09fe94cf10d', TRUE, 3500.00, 'Senior Developer', 'Engineering', CURRENT_DATE - 730),
-    ('David Wilson',  'david@pms.com', '0f14089313b20c1723ec1d660b0aaa4f473cf5b321cd370f2d48b7bcf9a7b234', TRUE, 2800.00, 'HR Coordinator', 'Human Resources', CURRENT_DATE - 90),
-    ('Emma Thompson', 'emma@pms.com',  '52293754fdbea92ab6c69cd64e644deed1552f40ccd3c1cef9d4d63c754d13e3', TRUE, 3200.00, 'Financial Analyst', 'Finance', CURRENT_DATE - 540);
+    ('Chantha Dara',   'chantha@pms.com',  '71c29f0e57ead50848bee1cd578947fa9c2ddd6dd765e50a7d530c5e724f3b84', TRUE, 3000.00, 'Software Engineer', 'Engineering', CURRENT_DATE - 365),
+    ('Piseth Rith',    'piseth@pms.com',   'd35b134cf8b4d00667d7eca705ab8ccecb94bdda4769468dc1e5cf4ef95b16cf', TRUE, 2500.00, 'Marketing Specialist', 'Marketing', CURRENT_DATE - 180),
+    ('Sreynang Chann', 'sreynang@pms.com', 'a6619b7bad4162f0832e07f10a9f541b92cc6cf2856c6fc4422538a2bc27ddb1', TRUE, 3500.00, 'Senior Developer', 'Engineering', CURRENT_DATE - 730),
+    ('Bopha Sok',      'bopha@pms.com',    '15717da99859f3909da7acd20493f9fb1f815627a9b7ea44ce9d803087087b27', TRUE, 2800.00, 'HR Coordinator', 'Human Resources', CURRENT_DATE - 90),
+    ('Vicheka Lim',    'vicheka@pms.com',  'c3e5958923288d1ce56f3c5ff74315760a7cbb8aedd29a3807fdda2c9df12993', TRUE, 3200.00, 'Financial Analyst', 'Finance', CURRENT_DATE - 540);
 
 -- Sample performance reviews
 INSERT INTO performance (employee_id, review_date, score, comments, reviewer_id) VALUES

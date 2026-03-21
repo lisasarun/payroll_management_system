@@ -96,6 +96,18 @@ public class EmployeeRepository {
         return list;
     }
 
+    public List<Employee> findByActiveStatus(boolean isActive) {
+        List<Employee> list = new ArrayList<>();
+        String sql = "SELECT * FROM employees WHERE is_active = ? ORDER BY employee_id ASC";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setBoolean(1, isActive);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { System.err.println("[EmpRepo] findByActiveStatus: " + e.getMessage()); }
+        return list;
+    }
+
     public int countAll() {
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(
@@ -117,6 +129,29 @@ public class EmployeeRepository {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) list.add(mapRow(rs));
         } catch (SQLException e) { System.err.println("[EmpRepo] search: " + e.getMessage()); }
+        return list;
+    }
+
+    /**
+     * Search employees by position or department (case-insensitive).
+     * @param keyword Search term to match against position or department
+     * @param page Page number (starting from 1)
+     * @param size Number of results per page
+     * @return List of matching employees
+     */
+    public List<Employee> searchByPositionOrDepartment(String keyword, int page, int size) {
+        List<Employee> list = new ArrayList<>();
+        String sql = "SELECT * FROM employees WHERE (position ILIKE ? OR department ILIKE ?) AND is_active = TRUE ORDER BY employee_id LIMIT ? OFFSET ?";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            String pattern = "%" + keyword + "%";
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            ps.setInt(3, size);
+            ps.setInt(4, (page - 1) * size);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { System.err.println("[EmpRepo] searchByPositionOrDepartment: " + e.getMessage()); }
         return list;
     }
 
@@ -160,7 +195,19 @@ public class EmployeeRepository {
             ps.setString(6, emp.getDepartment());
             ps.setDate(7, emp.getHireDate() != null ? Date.valueOf(emp.getHireDate()) : Date.valueOf(java.time.LocalDate.now()));
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) { System.err.println("[EmpRepo] save: " + e.getMessage()); }
+        } catch (SQLException e) { 
+            System.err.println("[EmpRepo] save failed: " + e.getMessage());
+            // Check for foreign key constraint violations
+            if (e.getMessage().contains("foreign key") || e.getMessage().contains("violates")) {
+                if (e.getMessage().contains("position")) {
+                    System.out.println("  ✘ Invalid position. Position must exist in position_salary_rules table.");
+                    System.out.println("  Valid positions: Junior Developer, Senior Developer, Software Engineer, HR Coordinator, Marketing Specialist, Financial Analyst, Manager");
+                } else if (e.getMessage().contains("department")) {
+                    System.out.println("  ✘ Invalid department. Department must exist in departments table.");
+                    System.out.println("  Valid departments: Engineering, Human Resources, Marketing, Finance, Operations, Sales, IT Support");
+                }
+            }
+        }
         return false;
     }
 
@@ -175,7 +222,19 @@ public class EmployeeRepository {
             ps.setString(5, emp.getDepartment());
             ps.setInt(6, emp.getEmployeeId());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) { System.err.println("[EmpRepo] update: " + e.getMessage()); }
+        } catch (SQLException e) { 
+            System.err.println("[EmpRepo] update: " + e.getMessage());
+            // Check for foreign key constraint violations
+            if (e.getMessage().contains("foreign key") || e.getMessage().contains("violates")) {
+                if (e.getMessage().contains("position")) {
+                    System.out.println("  ✘ Invalid position. Position must exist in position_salary_rules table.");
+                    System.out.println("  Valid positions: Junior Developer, Senior Developer, Software Engineer, HR Coordinator, Marketing Specialist, Financial Analyst, Manager");
+                } else if (e.getMessage().contains("department")) {
+                    System.out.println("  ✘ Invalid department. Department must exist in departments table.");
+                    System.out.println("  Valid departments: Engineering, Human Resources, Marketing, Finance, Operations, Sales, IT Support");
+                }
+            }
+        }
         return false;
     }
 
@@ -191,7 +250,17 @@ public class EmployeeRepository {
             ps.setString(6, emp.getPassword()); // already hashed by caller
             ps.setInt(7, emp.getEmployeeId());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) { System.err.println("[EmpRepo] updateWithPassword: " + e.getMessage()); }
+        } catch (SQLException e) { 
+            System.err.println("[EmpRepo] updateWithPassword: " + e.getMessage());
+            // Check for foreign key constraint violations
+            if (e.getMessage().contains("foreign key") || e.getMessage().contains("violates")) {
+                if (e.getMessage().contains("position")) {
+                    System.out.println("  ✘ Invalid position. Position must exist in position_salary_rules table.");
+                } else if (e.getMessage().contains("department")) {
+                    System.out.println("  ✘ Invalid department. Department must exist in departments table.");
+                }
+            }
+        }
         return false;
     }
 
@@ -209,10 +278,20 @@ public class EmployeeRepository {
     public boolean disable(int employeeId) {
         try (Connection c = DbConfig.getConnection();
              PreparedStatement ps = c.prepareStatement(
-                     "UPDATE employees SET is_active = FALSE WHERE employee_id = ?")) {
+                     "UPDATE employees SET is_active = FALSE WHERE employee_id = ? AND is_active = TRUE")) {
             ps.setInt(1, employeeId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { System.err.println("[EmpRepo] disable: " + e.getMessage()); }
+        return false;
+    }
+
+    public boolean enable(int employeeId) {
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(
+                     "UPDATE employees SET is_active = TRUE WHERE employee_id = ? AND is_active = FALSE")) {
+            ps.setInt(1, employeeId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { System.err.println("[EmpRepo] enable: " + e.getMessage()); }
         return false;
     }
 }

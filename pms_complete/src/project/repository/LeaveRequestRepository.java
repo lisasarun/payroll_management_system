@@ -124,4 +124,94 @@ public class LeaveRequestRepository {
 
         return lr;
     }
+
+    /**
+     * Check if employee has overlapping leave requests for the given date range.
+     * Only checks PENDING and APPROVED status to prevent conflicts.
+     */
+    public boolean hasOverlappingLeave(int employeeId, LocalDate startDate, LocalDate endDate) {
+        String sql = "SELECT COUNT(*) FROM leave_request " +
+                "WHERE employee_id = ? AND status IN ('PENDING', 'APPROVED') " +
+                "AND ((start_date <= ? AND end_date >= ?) " +  // New request overlaps existing
+                "OR (start_date <= ? AND end_date >= ?) " +     // Existing overlaps new start
+                "OR (start_date >= ? AND end_date <= ?))";      // Existing within new range
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setDate(2, Date.valueOf(endDate));
+            ps.setDate(3, Date.valueOf(startDate));
+            ps.setDate(4, Date.valueOf(startDate));
+            ps.setDate(5, Date.valueOf(startDate));
+            ps.setDate(6, Date.valueOf(startDate));
+            ps.setDate(7, Date.valueOf(endDate));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            System.err.println("[LeaveRequestRepo] hasOverlappingLeave: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Check if employee already has a request with same date range and type.
+     */
+    public boolean hasDuplicateRequest(int employeeId, LocalDate startDate, LocalDate endDate, String leaveType) {
+        String sql = "SELECT COUNT(*) FROM leave_request " +
+                "WHERE employee_id = ? AND start_date = ? AND end_date = ? " +
+                "AND leave_type = ? AND status = 'PENDING'";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setDate(2, Date.valueOf(startDate));
+            ps.setDate(3, Date.valueOf(endDate));
+            ps.setString(4, leaveType);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            System.err.println("[LeaveRequestRepo] hasDuplicateRequest: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Count pending leave requests for an employee.
+     */
+    public int countPendingRequests(int employeeId) {
+        String sql = "SELECT COUNT(*) FROM leave_request WHERE employee_id = ? AND status = 'PENDING'";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            System.err.println("[LeaveRequestRepo] countPendingRequests: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /**
+     * Calculate total leave days for an employee in a specific month.
+     * Only counts APPROVED leaves.
+     */
+    public int getTotalLeaveDaysInMonth(int employeeId, int year, int month) {
+        String sql = "SELECT SUM(end_date - start_date + 1) AS total_days " +
+                "FROM leave_request " +
+                "WHERE employee_id = ? AND status = 'APPROVED' " +
+                "AND EXTRACT(YEAR FROM start_date) = ? " +
+                "AND EXTRACT(MONTH FROM start_date) = ?";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setInt(2, year);
+            ps.setInt(3, month);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int days = rs.getInt("total_days");
+                return rs.wasNull() ? 0 : days;
+            }
+        } catch (SQLException e) {
+            System.err.println("[LeaveRequestRepo] getTotalLeaveDaysInMonth: " + e.getMessage());
+        }
+        return 0;
+    }
 }

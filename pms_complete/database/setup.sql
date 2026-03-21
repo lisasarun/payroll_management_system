@@ -1,3 +1,5 @@
+-- I want to implement role-based features for ADMIN and EMPLOYEE.
+-- Please help me design and implement logic for both roles.
 -- ============================================================
 --  PMS — Payroll Management System | PostgreSQL Setup
 --  HOW TO RUN:
@@ -21,6 +23,30 @@ DROP TABLE IF EXISTS performance   CASCADE;
 DROP TABLE IF EXISTS attendance    CASCADE;
 DROP TABLE IF EXISTS employees     CASCADE;
 DROP TABLE IF EXISTS admins        CASCADE;
+DROP TABLE IF EXISTS departments   CASCADE;
+DROP TABLE IF EXISTS position_salary_rules CASCADE;
+
+-- ============================================================
+-- POSITION_SALARY_RULES TABLE
+-- Defines minimum and maximum base salary per position
+-- ============================================================
+CREATE TABLE position_salary_rules (
+    position            VARCHAR(100) PRIMARY KEY,
+    min_salary          DECIMAL(12,2) NOT NULL CHECK (min_salary >= 0),
+    max_salary          DECIMAL(12,2) NOT NULL CHECK (max_salary >= min_salary),
+    created_at          TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT valid_salary_range CHECK (max_salary > min_salary)
+);
+
+-- ============================================================
+-- DEPARTMENTS TABLE
+-- Defines valid departments in the organization
+-- ============================================================
+CREATE TABLE departments (
+    department_name     VARCHAR(100) PRIMARY KEY,
+    description         TEXT,
+    created_at          TIMESTAMP DEFAULT NOW()
+);
 
 -- ============================================================
 -- ADMINS TABLE
@@ -46,12 +72,12 @@ CREATE TABLE employees (
     full_name     VARCHAR(100)  NOT NULL,
     email         VARCHAR(100)  UNIQUE NOT NULL
         CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    password      VARCHAR(512)  NOT NULL, -- Increased for PBKDF2 hash storage
+    password      VARCHAR(512)  NOT NULL,
     is_active     BOOLEAN       NOT NULL DEFAULT TRUE,
     base_salary   DECIMAL(12,2) NOT NULL DEFAULT 0
         CHECK (base_salary >= 0),
-    position      VARCHAR(100),
-    department    VARCHAR(100),
+    position      VARCHAR(100)  REFERENCES position_salary_rules(position) ON UPDATE CASCADE,
+    department    VARCHAR(100)  REFERENCES departments(department_name) ON UPDATE CASCADE,
     hire_date     DATE          DEFAULT CURRENT_DATE,
     last_login    TIMESTAMP,
     created_at    TIMESTAMP     NOT NULL DEFAULT NOW(),
@@ -208,6 +234,26 @@ $$;
 -- Default admin and employee accounts for testing
 -- Passwords stored as SHA-256 hashes (legacy format)
 -- ============================================================
+
+-- Position salary rules (MUST be inserted first - referenced by employees)
+INSERT INTO position_salary_rules (position, min_salary, max_salary) VALUES
+    ('Junior Developer', 500.00, 1500.00),
+    ('Senior Developer', 2000.00, 5000.00),
+    ('Software Engineer', 1000.00, 3000.00),
+    ('HR Coordinator', 800.00, 2000.00),
+    ('Marketing Specialist', 700.00, 1800.00),
+    ('Financial Analyst', 1200.00, 3000.00),
+    ('Manager', 3000.00, 8000.00);
+
+-- Departments (MUST be inserted first - referenced by employees)
+INSERT INTO departments (department_name, description) VALUES
+    ('Engineering', 'Software development and technical teams'),
+    ('Human Resources', 'Employee relations, recruitment, and HR management'),
+    ('Marketing', 'Marketing campaigns, branding, and communications'),
+    ('Finance', 'Financial planning, accounting, and analysis'),
+    ('Operations', 'Business operations and process management'),
+    ('Sales', 'Sales teams and customer acquisition'),
+    ('IT Support', 'Technical support and IT infrastructure');
 
 -- Admin accounts
 -- admin123 -> 240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9

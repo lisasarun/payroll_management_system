@@ -14,8 +14,6 @@ import project.util.ViewUtil;
  */
 public class MainApplication {
 
-    private static final int MAX_ATTEMPTS = 3;
-
     private static final UserDao               userDao      = new UserDaoImpl();
     private static final AdminController       adminCtrl    = new AdminController();
     private static final AttendanceController  attCtrl      = new AttendanceController();
@@ -38,13 +36,11 @@ public class MainApplication {
             String role = selectRole();
             if (role == null) break;
 
-            boolean ok = switch (role) {
+            switch (role) {
                 case "ADMIN"    -> handleAdminLogin();
                 case "EMPLOYEE" -> handleEmployeeLogin();
-                default         -> false;
+                default         -> { }
             };
-
-            if (!ok) ViewUtil.printError("Too many failed attempts. Returning to main menu.\n");
         }
 
         // Clean shutdown
@@ -76,20 +72,17 @@ public class MainApplication {
     //  Admin login + dashboard
 //
     private static boolean handleAdminLogin() {
-        for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-            System.out.println("\n  --- ADMIN LOGIN ---");
-            String username = InputUtil.readString("  Username : ");
-            String password = InputUtil.readPassword("  Password");
+        System.out.println("\n  --- ADMIN LOGIN ---");
+        String username = InputUtil.readAdminUsername("  Username : ");
+        String password = InputUtil.readPassword("  Password");
 
-            User admin = userDao.adminLogin(username, password);
-            if (admin != null) {
-                System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
-                runAdminDashboard(admin);
-                return true;
-            }
-            int left = MAX_ATTEMPTS - attempts - 1;
-            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
+        User admin = userDao.adminLogin(username, password);
+        if (admin != null) {
+            System.out.printf("%n  Welcome, %s! [%s]%n", admin.getUsername(), admin.getPermissionLevel());
+            runAdminDashboard(admin);
+            return true;
         }
+        System.out.println("  Invalid credentials. Returning to role selection.\n");
         return false;
     }
 
@@ -117,20 +110,24 @@ public class MainApplication {
     // Employee login + dashboard
 
     private static boolean handleEmployeeLogin() {
-        for (int attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
-            System.out.println("\n  --- EMPLOYEE LOGIN ---");
-            String email    = InputUtil.readEmail("  Email    : ");
-            String password = InputUtil.readPassword("  Password");
+        System.out.println("\n  --- EMPLOYEE LOGIN ---");
+        String email    = InputUtil.readEmail("  Email    : ");
+        String password = InputUtil.readPassword("  Password");
 
-            Employee emp = userDao.employeeLogin(email, password);
-            if (emp != null) {
-                System.out.printf("%n  Welcome, %s!%n", emp.getFullName());
-                runEmployeeDashboard(emp);
-                return true;
-            }
-            int left = MAX_ATTEMPTS - attempts - 1;
-            if (left > 0) System.out.printf("  Invalid credentials. %d attempt(s) left.%n%n", left);
+        Employee emp = userDao.employeeLogin(email, password);
+        if (emp != null) {
+            System.out.printf("%n  Welcome, %s!%n", emp.getFullName());
+            runEmployeeDashboard(emp);
+            return true;
         }
+
+        Employee byEmail = userDao.findEmployeeByEmail(email);
+        if (byEmail != null && !byEmail.isActive()) {
+            System.out.println("  Employee account is disabled.\n");
+            return false;
+        }
+
+        System.out.println("  Invalid credentials. Returning to role selection.\n");
         return false;
     }
 
@@ -147,6 +144,7 @@ public class MainApplication {
                 case "6" -> empCtrl.changePassword(emp.getEmployeeId());
                 case "7" -> leaveCtrl.submitLeaveRequest(emp.getEmployeeId());
                 case "8" -> leaveCtrl.viewMyLeaveRequests(emp.getEmployeeId());
+                case "9" -> ViewUtil.printEmployeeProfile(emp);
                 case "0" -> {
                     System.out.printf("%n  Goodbye, %s!%n", emp.getFullName());
                     running = false;

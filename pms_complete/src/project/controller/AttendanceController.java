@@ -76,7 +76,13 @@ public class AttendanceController {
 
     public void viewEmployeeAttendance() {
         int id = InputUtil.readInt("  Employee ID: ");
-        if (empService.getById(id) == null) { ViewUtil.printError("Employee not found."); return; }
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
+        
+        if (empService.getById(id) == null) { ViewUtil.printError("Employee not found or disabled."); return; }
         List<AttendanceDTO> list = attService.getByEmployee(id);
         if (list.isEmpty()) { ViewUtil.printInfo("No attendance records."); return; }
         ViewUtil.printAttendanceTable(list);

@@ -175,10 +175,16 @@ public class UserDaoImpl implements UserDao {
         e.setPassword(rs.getString("password"));
         e.setActive(rs.getBoolean("is_active"));
         e.setBaseSalary(rs.getBigDecimal("base_salary"));
+        e.setPosition(rs.getString("position"));
+        e.setDepartment(rs.getString("department"));
+        Date hd = rs.getDate("hire_date");
+        if (hd != null) e.setHireDate(hd.toLocalDate());
         Timestamp li = rs.getTimestamp("last_login");
         if (li != null) e.setLastLogin(li.toLocalDateTime());
         Timestamp ca = rs.getTimestamp("created_at");
         if (ca != null) e.setCreatedAt(ca.toLocalDateTime());
+        Timestamp ua = rs.getTimestamp("updated_at");
+        if (ua != null) e.setUpdatedAt(ua.toLocalDateTime());
         return e;
     }
 }

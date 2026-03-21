@@ -30,7 +30,15 @@ public class PerformanceRepository {
             ps.setString(4, p.getComments());
             ps.setInt(5, p.getReviewerId());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) { System.err.println("[PerfRepo] save: " + e.getMessage()); }
+        } catch (SQLException e) { 
+            System.err.println("[PerfRepo] save: " + e.getMessage());
+            // Check for constraint violations
+            if (e.getMessage().contains("check constraint")) {
+                if (e.getMessage().contains("score")) {
+                    System.out.println("  ✘ Score must be greater than 0 and up to 100.");
+                }
+            }
+        }
         return false;
     }
 
@@ -78,5 +86,85 @@ public class PerformanceRepository {
             while (rs.next()) ids.add(rs.getInt(1));
         } catch (SQLException e) { System.err.println("[PerfRepo] findEmployeeIdsWithReviews: " + e.getMessage()); }
         return ids;
+    }
+
+    /**
+     * Check if an employee already has a performance review today.
+     * @param employeeId The employee ID to check
+     * @return true if employee has a review today, false otherwise
+     */
+    public boolean hasReviewToday(int employeeId) {
+        String sql = "SELECT 1 FROM performance WHERE employee_id = ? AND review_date = CURRENT_DATE";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) { 
+            System.err.println("[PerfRepo] hasReviewToday: " + e.getMessage()); 
+        }
+        return false;
+    }
+
+    /**
+     * Update an existing performance review.
+     * @param performanceId The review ID to update
+     * @param score New score
+     * @param comments New comments
+     * @return true if successful
+     */
+    public boolean update(int performanceId, double score, String comments) {
+        String sql = "UPDATE performance SET score = ?, comments = ? WHERE performance_id = ?";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setBigDecimal(1, java.math.BigDecimal.valueOf(score));
+            ps.setString(2, comments);
+            ps.setInt(3, performanceId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { 
+            System.err.println("[PerfRepo] update: " + e.getMessage());
+            // Check for constraint violations
+            if (e.getMessage().contains("check constraint")) {
+                if (e.getMessage().contains("score")) {
+                    System.out.println("  ✘ Score must be greater than 0 and up to 100.");
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Delete a performance review.
+     * @param performanceId The review ID to delete
+     * @return true if successful
+     */
+    public boolean delete(int performanceId) {
+        String sql = "DELETE FROM performance WHERE performance_id = ?";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, performanceId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { 
+            System.err.println("[PerfRepo] delete: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Find a performance review by ID.
+     * @param performanceId The review ID
+     * @return Performance object or null if not found
+     */
+    public Performance findById(int performanceId) {
+        String sql = "SELECT * FROM performance WHERE performance_id = ?";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, performanceId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return mapRow(rs);
+        } catch (SQLException e) { 
+            System.err.println("[PerfRepo] findById: " + e.getMessage());
+        }
+        return null;
     }
 }

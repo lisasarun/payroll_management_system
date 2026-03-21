@@ -10,6 +10,7 @@ import project.util.DateUtil;
 import project.util.InputUtil;
 import project.util.ViewUtil;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -41,8 +42,14 @@ public class PayrollController {
 
     private void calcForOne() {
         int id = InputUtil.readInt("  Employee ID: ");
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
+        
         EmployeeDTO emp = empService.getById(id);
-        if (emp == null) { ViewUtil.printError("Employee not found."); return; }
+        if (emp == null) { ViewUtil.printError("Employee not found or disabled."); return; }
 
         System.out.println("  Employee: " + emp.getFullName());
         java.time.LocalDate date = InputUtil.readDateInYear("  Pay Period Date (yyyy-MM-dd, year must be 2026)", 2026);
@@ -129,8 +136,14 @@ public class PayrollController {
         }
 
         int empId = InputUtil.readInt("  Employee ID: ");
+        
+        if (empId <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
+        
         EmployeeDTO emp = empService.getById(empId);
-        if (emp == null) { ViewUtil.printError("Employee not found."); return; }
+        if (emp == null) { ViewUtil.printError("Employee not found or disabled."); return; }
 
         List<PayrollDTO> payrolls = payrollService.getByEmployee(empId);
         if (payrolls.isEmpty()) { ViewUtil.printInfo("No payroll records found."); return; }
@@ -150,7 +163,14 @@ public class PayrollController {
         String pdfPath = reportGen.generatePayslip(slip);
         if (pdfPath != null) {
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);
-            ViewUtil.printInfo("Payslip is ready. You can open the PDF now.");
+            
+            // Auto-open the PDF
+            if (openPdf(pdfPath)) {
+                ViewUtil.printInfo("Payslip PDF opened successfully.");
+            } else {
+                ViewUtil.printInfo("Could not auto-open PDF. Please open manually: " + pdfPath);
+            }
+            
             InputUtil.readMenuChoice("  Press Enter to continue...");
         } else {
             ViewUtil.printError("PDF generation failed. If you had the PDF open, close it and try again.");
@@ -159,6 +179,7 @@ public class PayrollController {
     }
 
     public void viewMyPayslip(int employeeId) {
+        System.out.println(); // Add newline before showing payslip screen
         ViewUtil.printTitle("MY PAYSLIP");
         List<PayrollDTO> payrolls = payrollService.getByEmployee(employeeId);
         if (payrolls.isEmpty()) { ViewUtil.printInfo("No payroll records yet."); return; }
@@ -178,11 +199,62 @@ public class PayrollController {
         String pdfPath = reportGen.generatePayslip(slip);
         if (pdfPath != null) {
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);
-            ViewUtil.printInfo("Payslip is ready. You can open the PDF now.");
+            
+            // Auto-open the PDF
+            if (openPdf(pdfPath)) {
+                ViewUtil.printInfo("Payslip PDF opened successfully.");
+            } else {
+                ViewUtil.printInfo("Could not auto-open PDF. Please open manually: " + pdfPath);
+            }
+            
             InputUtil.readMenuChoice("  Press Enter to continue...");
         } else {
             ViewUtil.printError("PDF generation failed. If you had the PDF open, close it and try again.");
             InputUtil.readMenuChoice("  Press Enter to continue...");
+        }
+    }
+
+    /**
+     * Opens a PDF file using the system's default PDF viewer.
+     * Returns true if successful, false otherwise.
+     */
+    private boolean openPdf(String pdfPath) {
+        try {
+            File pdfFile = new File(pdfPath);
+            if (!pdfFile.exists()) {
+                return false;
+            }
+
+            // Use Desktop API to open with default application
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+                if (desktop.isSupported(java.awt.Desktop.Action.OPEN)) {
+                    desktop.open(pdfFile);
+                    return true;
+                }
+            }
+
+            // Fallback: Try OS-specific commands
+            String os = System.getProperty("os.name").toLowerCase();
+            ProcessBuilder pb;
+            
+            if (os.contains("win")) {
+                // Windows: use 'start' command
+                pb = new ProcessBuilder("cmd", "/c", "start", "\"\"", pdfPath);
+            } else if (os.contains("mac")) {
+                // macOS: use 'open' command
+                pb = new ProcessBuilder("open", pdfPath);
+            } else {
+                // Linux: try 'xdg-open'
+                pb = new ProcessBuilder("xdg-open", pdfPath);
+            }
+            
+            pb.start();
+            return true;
+            
+        } catch (Exception e) {
+            System.err.println("[PayrollCtrl] Failed to open PDF: " + e.getMessage());
+            return false;
         }
     }
 

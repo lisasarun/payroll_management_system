@@ -4,7 +4,9 @@ import project.model.Attendance;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SalaryCalculator {
 
@@ -15,10 +17,22 @@ public class SalaryCalculator {
     private static final double TAX_RATE        = 0.10;
     private static final double SOC_SEC_RATE    = 0.02;
 
+    // Position salary rules: position -> [min, max]
+    private static final Map<String, int[]> SALARY_RULES = new HashMap<>();
+
     static {
         if (WORK_DAYS <= 0 || HOURS_PER_DAY <= 0) {
             throw new IllegalStateException("Invalid salary calculation constants: WORK_DAYS and HOURS_PER_DAY must be positive");
         }
+
+        // Initialize salary rules for each position
+        SALARY_RULES.put("Junior Developer", new int[]{500, 1500});
+        SALARY_RULES.put("Senior Developer", new int[]{2000, 5000});
+        SALARY_RULES.put("Software Engineer", new int[]{1000, 3000});
+        SALARY_RULES.put("HR Coordinator", new int[]{800, 2000});
+        SALARY_RULES.put("Marketing Specialist", new int[]{700, 1800});
+        SALARY_RULES.put("Financial Analyst", new int[]{1200, 3000});
+        SALARY_RULES.put("Manager", new int[]{3000, 8000});
     }
 
     public static BigDecimal hourlyRate(BigDecimal baseSalary) {
@@ -61,5 +75,45 @@ public class SalaryCalculator {
 
     public static BigDecimal calculateTotalPay(BigDecimal base, BigDecimal ot, BigDecimal bonus, BigDecimal deductions) {
         return base.add(ot).add(bonus).subtract(deductions).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Validates if the given salary is within the allowed range for the position.
+     * @param position The employee's position
+     * @param salary The base salary to validate
+     * @return true if salary is within range, false otherwise
+     */
+    public static boolean isValidSalaryForPosition(String position, BigDecimal salary) {
+        if (position == null || salary == null) return false;
+        
+        int[] range = SALARY_RULES.get(position);
+        if (range == null) return true; // No rules for this position, allow any salary
+        
+        BigDecimal minSalary = BigDecimal.valueOf(range[0]);
+        BigDecimal maxSalary = BigDecimal.valueOf(range[1]);
+        
+        return salary.compareTo(minSalary) >= 0 && salary.compareTo(maxSalary) <= 0;
+    }
+
+    /**
+     * Gets the allowed salary range for a position as a formatted string.
+     * @param position The position to query
+     * @return Formatted range string like "$500 – $1500", or null if no rules exist
+     */
+    public static String getSalaryRange(String position) {
+        if (position == null) return null;
+        
+        int[] range = SALARY_RULES.get(position);
+        if (range == null) return null;
+        
+        return String.format("$%,d – $%,d", range[0], range[1]);
+    }
+
+    /**
+     * Gets all available positions with salary rules.
+     * @return Map of position names to their salary ranges [min, max]
+     */
+    public static Map<String, int[]> getAllPositionRules() {
+        return new HashMap<>(SALARY_RULES);
     }
 }

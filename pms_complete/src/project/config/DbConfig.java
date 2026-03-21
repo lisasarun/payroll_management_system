@@ -50,7 +50,6 @@ public class DbConfig {
                     System.err.println("[DB] WARNING: Using development placeholder password 'dev_password'.");
                     System.err.println("[DB]          Set DB_PASS environment variable for your real PostgreSQL password.");
                 }
-                System.out.println("[DB] Connected to PostgreSQL successfully (" + URL + ").");
                 firstConnection = false;
             }
         } catch (ClassNotFoundException e) {

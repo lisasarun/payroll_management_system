@@ -36,9 +36,14 @@ public class PerformanceController {
     private void addReview(int reviewerId) {
         ViewUtil.printTitle("ADD PERFORMANCE REVIEW");
         int id = InputUtil.readInt("  Employee ID   : ");
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
 
         EmployeeDTO emp = empService.getById(id);
-        if (emp == null) { ViewUtil.printError("Employee not found."); return; }
+        if (emp == null) { ViewUtil.printError("Employee not found or disabled."); return; }
 
         System.out.println("  Employee: " + emp.getFullName());
         double score = InputUtil.readScore("  Score");
@@ -116,7 +121,7 @@ public class PerformanceController {
 
     private void viewEmployeePerformanceById(int id) {
         EmployeeDTO emp = empService.getById(id);
-        if (emp == null) { ViewUtil.printError("Employee not found."); return; }
+        if (emp == null) { ViewUtil.printError("Employee not found or disabled."); return; }
 
         java.util.List<PerformanceDTO> list = perfService.getByEmployee(id);
         ViewUtil.printTitle("PERFORMANCE — " + emp.getFullName());

@@ -11,24 +11,28 @@ public class EmployeeController {
     private final EmployeeRepository empRepo = new EmployeeRepository();
 
     public void changePassword(int employeeId) {
+        System.out.println(); // Add newline before showing change password screen
         ViewUtil.printTitle("CHANGE PASSWORD");
 
+        // Validate current password first before proceeding
+        var emp = empRepo.findById(employeeId);
+        if (emp == null) {
+            ViewUtil.printError("Employee not found.");
+            return;
+        }
+
         String current = InputUtil.readPassword("  Current Password");
-        String newPass  = InputUtil.readPassword("  New Password    ");
-        String confirm  = InputUtil.readPassword("  Confirm New     ");
+        if (!PasswordUtil.verifyAny(current, emp.getPassword())) {
+            ViewUtil.printError("Current password is incorrect.");
+            return;
+        }
+
+        // Now ask for new password with strong validation
+        String newPass  = InputUtil.readStrongPassword("  New Password    ");
+        String confirm  = InputUtil.readStrongPassword("  Confirm New     ");
 
         if (!newPass.equals(confirm)) {
             ViewUtil.printError("Passwords do not match.");
-            return;
-        }
-        if (newPass.length() < 6) {
-            ViewUtil.printError("Password must be at least 6 characters.");
-            return;
-        }
-
-        var emp = empRepo.findById(employeeId);
-        if (emp == null || !PasswordUtil.verify(current, emp.getPassword())) {
-            ViewUtil.printError("Current password is incorrect.");
             return;
         }
 

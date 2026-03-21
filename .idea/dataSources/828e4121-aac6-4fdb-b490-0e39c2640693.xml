@@ -4151,7 +4151,7 @@ true posixrules
       <PgRoutineKind>pg-procedure</PgRoutineKind>
       <Rows>0.0</Rows>
       <SourceTextLength>1317</SourceTextLength>
-      <StateNumber>918</StateNumber>
+      <StateNumber>1178</StateNumber>
       <LanguageName>plpgsql</LanguageName>
       <OwnerName>postgres</OwnerName>
     </routine>
@@ -4220,1105 +4220,1243 @@ true posixrules
     </sequence>
     <table id="270" parent="261" name="admins">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16564</ObjectId>
-      <StateNumber>914</StateNumber>
+      <ObjectId>17254</ObjectId>
+      <StateNumber>1174</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="271" parent="261" name="attendance">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16597</ObjectId>
-      <StateNumber>913</StateNumber>
+      <ObjectId>17297</ObjectId>
+      <StateNumber>1173</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
     <table id="272" parent="261" name="bonus">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16669</ObjectId>
-      <StateNumber>916</StateNumber>
+      <ObjectId>17369</ObjectId>
+      <StateNumber>1176</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <table id="273" parent="261" name="employees">
+    <table id="273" parent="261" name="departments">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16579</ObjectId>
-      <StateNumber>913</StateNumber>
+      <ObjectId>17245</ObjectId>
+      <StateNumber>1172</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <table id="274" parent="261" name="leave_request">
+    <table id="274" parent="261" name="employees">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16691</ObjectId>
-      <StateNumber>917</StateNumber>
+      <ObjectId>17269</ObjectId>
+      <StateNumber>1172</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <table id="275" parent="261" name="payroll">
+    <table id="275" parent="261" name="leave_request">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16646</ObjectId>
-      <StateNumber>915</StateNumber>
+      <ObjectId>17391</ObjectId>
+      <StateNumber>1177</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <table id="276" parent="261" name="performance">
+    <table id="276" parent="261" name="payroll">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16624</ObjectId>
-      <StateNumber>914</StateNumber>
+      <ObjectId>17346</ObjectId>
+      <StateNumber>1175</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>postgres</OwnerName>
     </table>
-    <view id="277" parent="261" name="v_active_employees">
+    <table id="277" parent="261" name="performance">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>17324</ObjectId>
+      <StateNumber>1174</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>postgres</OwnerName>
+    </table>
+    <table id="278" parent="261" name="position_salary_rules">
+      <DetailsLevel>2</DetailsLevel>
+      <ObjectId>17236</ObjectId>
+      <StateNumber>1172</StateNumber>
+      <AccessMethodId>2</AccessMethodId>
+      <OwnerName>postgres</OwnerName>
+    </table>
+    <view id="279" parent="261" name="v_active_employees">
       <DetailsLevel>3</DetailsLevel>
-      <ObjectId>16730</ObjectId>
+      <ObjectId>17430</ObjectId>
       <SourceTextLength>506</SourceTextLength>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <OwnerName>postgres</OwnerName>
     </view>
-    <view id="278" parent="261" name="v_payroll_summary">
+    <view id="280" parent="261" name="v_payroll_summary">
       <DetailsLevel>3</DetailsLevel>
-      <ObjectId>16735</ObjectId>
+      <ObjectId>17435</ObjectId>
       <SourceTextLength>343</SourceTextLength>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <OwnerName>postgres</OwnerName>
     </view>
-    <argument id="279" parent="262" name="p_employee_id">
+    <argument id="281" parent="262" name="p_employee_id">
       <Position>1</Position>
       <StoredType>integer|0s</StoredType>
     </argument>
-    <argument id="280" parent="262" name="p_period_start">
+    <argument id="282" parent="262" name="p_period_start">
       <Position>2</Position>
       <StoredType>date|0s</StoredType>
     </argument>
-    <argument id="281" parent="262" name="p_period_end">
+    <argument id="283" parent="262" name="p_period_end">
       <Position>3</Position>
       <StoredType>date|0s</StoredType>
     </argument>
-    <argument id="282" parent="262" name="p_bonus">
+    <argument id="284" parent="262" name="p_bonus">
       <Position>4</Position>
       <StoredType>numeric|0s</StoredType>
     </argument>
-    <argument id="283" parent="262" name="p_deductions">
+    <argument id="285" parent="262" name="p_deductions">
       <Position>5</Position>
       <StoredType>numeric|0s</StoredType>
     </argument>
-    <check id="284" parent="270" name="admins_permission_level_check">
+    <check id="286" parent="270" name="admins_permission_level_check">
       <ColNames>permission_level</ColNames>
-      <ObjectId>16571</ObjectId>
+      <ObjectId>17261</ObjectId>
       <Predicate>(permission_level)::text = ANY ((ARRAY[&apos;SUPER_ADMIN&apos;::character varying, &apos;HR_MANAGER&apos;::character varying, &apos;ADMIN&apos;::character varying])::text[])</Predicate>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
     </check>
-    <column id="285" parent="270" name="admin_id">
+    <column id="287" parent="270" name="admin_id">
       <DefaultExpression>nextval(&apos;admins_admin_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16563</SequenceId>
+      <SequenceId>17253</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="286" parent="270" name="username">
+    <column id="288" parent="270" name="username">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="287" parent="270" name="password">
+    <column id="289" parent="270" name="password">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <StoredType>varchar(512)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="288" parent="270" name="permission_level">
+    <column id="290" parent="270" name="permission_level">
       <DefaultExpression>&apos;ADMIN&apos;::character varying</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <StoredType>varchar(30)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="289" parent="270" name="created_at">
+    <column id="291" parent="270" name="created_at">
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="290" parent="270" name="last_login">
+    <column id="292" parent="270" name="last_login">
       <Position>6</Position>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="291" parent="270" name="is_active">
+    <column id="293" parent="270" name="is_active">
       <DefaultExpression>true</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>7</Position>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <index id="292" parent="270" name="admins_pkey">
+    <index id="294" parent="270" name="admins_pkey">
       <ColNames>admin_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16574</ObjectId>
+      <ObjectId>17264</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>911</StateNumber>
+      <StateNumber>1171</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="293" parent="270" name="admins_username_key">
+    <index id="295" parent="270" name="admins_username_key">
       <ColNames>username</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16576</ObjectId>
-      <StateNumber>911</StateNumber>
+      <ObjectId>17266</ObjectId>
+      <StateNumber>1171</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="294" parent="270" name="idx_admins_username">
+    <index id="296" parent="270" name="idx_admins_username">
       <ColNames>username</ColNames>
-      <ObjectId>16715</ObjectId>
-      <StateNumber>923</StateNumber>
+      <ObjectId>17415</ObjectId>
+      <StateNumber>1185</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="295" parent="270" name="admins_pkey">
+    <key id="297" parent="270" name="admins_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16575</ObjectId>
+      <ObjectId>17265</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>911</StateNumber>
-      <UnderlyingIndexId>16574</UnderlyingIndexId>
+      <StateNumber>1171</StateNumber>
+      <UnderlyingIndexId>17264</UnderlyingIndexId>
     </key>
-    <key id="296" parent="270" name="admins_username_key">
+    <key id="298" parent="270" name="admins_username_key">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16577</ObjectId>
-      <StateNumber>911</StateNumber>
-      <UnderlyingIndexId>16576</UnderlyingIndexId>
+      <ObjectId>17267</ObjectId>
+      <StateNumber>1171</StateNumber>
+      <UnderlyingIndexId>17266</UnderlyingIndexId>
     </key>
-    <check id="297" parent="271" name="check_times">
+    <check id="299" parent="271" name="check_times">
       <ColNames>check_out
 check_in</ColNames>
-      <ObjectId>16611</ObjectId>
+      <ObjectId>17311</ObjectId>
       <Predicate>(check_out IS NULL) OR (check_out &gt;= check_in)</Predicate>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
     </check>
-    <check id="298" parent="271" name="attendance_status_check">
+    <check id="300" parent="271" name="attendance_status_check">
       <ColNames>status</ColNames>
-      <ObjectId>16606</ObjectId>
+      <ObjectId>17306</ObjectId>
       <Predicate>(status)::text = ANY ((ARRAY[&apos;PRESENT&apos;::character varying, &apos;ABSENT&apos;::character varying, &apos;LATE&apos;::character varying, &apos;HALF_DAY&apos;::character varying, &apos;ON_LEAVE&apos;::character varying])::text[])</Predicate>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
     </check>
-    <check id="299" parent="271" name="attendance_early_leave_minutes_check">
+    <check id="301" parent="271" name="attendance_early_leave_minutes_check">
       <ColNames>early_leave_minutes</ColNames>
-      <ObjectId>16610</ObjectId>
+      <ObjectId>17310</ObjectId>
       <Predicate>early_leave_minutes &gt;= 0</Predicate>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
     </check>
-    <check id="300" parent="271" name="attendance_late_minutes_check">
+    <check id="302" parent="271" name="attendance_late_minutes_check">
       <ColNames>late_minutes</ColNames>
-      <ObjectId>16609</ObjectId>
+      <ObjectId>17309</ObjectId>
       <Predicate>late_minutes &gt;= 0</Predicate>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
     </check>
-    <check id="301" parent="271" name="attendance_overtime_hours_check">
+    <check id="303" parent="271" name="attendance_overtime_hours_check">
       <ColNames>overtime_hours</ColNames>
-      <ObjectId>16608</ObjectId>
+      <ObjectId>17308</ObjectId>
       <Predicate>overtime_hours &gt;= (0)::numeric</Predicate>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
     </check>
-    <check id="302" parent="271" name="attendance_work_hours_check">
+    <check id="304" parent="271" name="attendance_work_hours_check">
       <ColNames>work_hours</ColNames>
-      <ObjectId>16607</ObjectId>
+      <ObjectId>17307</ObjectId>
       <Predicate>work_hours &gt;= (0)::numeric</Predicate>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
     </check>
-    <column id="303" parent="271" name="attendance_id">
+    <column id="305" parent="271" name="attendance_id">
       <DefaultExpression>nextval(&apos;attendance_attendance_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16596</SequenceId>
+      <SequenceId>17296</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="304" parent="271" name="employee_id">
+    <column id="306" parent="271" name="employee_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="305" parent="271" name="date">
+    <column id="307" parent="271" name="date">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="306" parent="271" name="check_in">
+    <column id="308" parent="271" name="check_in">
       <Position>4</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="307" parent="271" name="check_out">
+    <column id="309" parent="271" name="check_out">
       <Position>5</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="308" parent="271" name="status">
+    <column id="310" parent="271" name="status">
       <DefaultExpression>&apos;PRESENT&apos;::character varying</DefaultExpression>
       <Position>6</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="309" parent="271" name="work_hours">
+    <column id="311" parent="271" name="work_hours">
       <Position>7</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>numeric(5,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="310" parent="271" name="overtime_hours">
+    <column id="312" parent="271" name="overtime_hours">
       <DefaultExpression>0</DefaultExpression>
       <Position>8</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>numeric(5,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="311" parent="271" name="late_minutes">
+    <column id="313" parent="271" name="late_minutes">
       <DefaultExpression>0</DefaultExpression>
       <Position>9</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="312" parent="271" name="early_leave_minutes">
+    <column id="314" parent="271" name="early_leave_minutes">
       <DefaultExpression>0</DefaultExpression>
       <Position>10</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="313" parent="271" name="leave_type">
+    <column id="315" parent="271" name="leave_type">
       <Position>11</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="314" parent="271" name="note">
+    <column id="316" parent="271" name="note">
       <Position>12</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="315" parent="271" name="created_at">
+    <column id="317" parent="271" name="created_at">
       <DefaultExpression>now()</DefaultExpression>
       <Position>13</Position>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="316" parent="271" name="attendance_employee_id_fkey">
+    <foreign-key id="318" parent="271" name="attendance_employee_id_fkey">
       <ColNames>employee_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16618</ObjectId>
+      <ObjectId>17318</ObjectId>
       <OnDelete>cascade</OnDelete>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16579</RefTableId>
+      <RefTableId>17269</RefTableId>
     </foreign-key>
-    <index id="317" parent="271" name="attendance_pkey">
+    <index id="319" parent="271" name="attendance_pkey">
       <ColNames>attendance_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16614</ObjectId>
+      <ObjectId>17314</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>913</StateNumber>
+      <StateNumber>1173</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="318" parent="271" name="uq_attendance">
+    <index id="320" parent="271" name="uq_attendance">
       <ColNames>employee_id
 date</ColNames>
-      <ObjectId>16616</ObjectId>
-      <StateNumber>913</StateNumber>
+      <ObjectId>17316</ObjectId>
+      <StateNumber>1173</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="319" parent="271" name="idx_attendance_employee">
+    <index id="321" parent="271" name="idx_attendance_employee">
       <ColNames>employee_id</ColNames>
-      <ObjectId>16718</ObjectId>
-      <StateNumber>926</StateNumber>
+      <ObjectId>17418</ObjectId>
+      <StateNumber>1188</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="320" parent="271" name="idx_attendance_date">
+    <index id="322" parent="271" name="idx_attendance_date">
       <ColNames>date</ColNames>
-      <ObjectId>16719</ObjectId>
-      <StateNumber>927</StateNumber>
+      <ObjectId>17419</ObjectId>
+      <StateNumber>1189</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="321" parent="271" name="idx_attendance_status">
+    <index id="323" parent="271" name="idx_attendance_status">
       <ColNames>status</ColNames>
-      <ObjectId>16720</ObjectId>
-      <StateNumber>928</StateNumber>
+      <ObjectId>17420</ObjectId>
+      <StateNumber>1190</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="322" parent="271" name="attendance_pkey">
+    <key id="324" parent="271" name="attendance_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16615</ObjectId>
+      <ObjectId>17315</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>913</StateNumber>
-      <UnderlyingIndexId>16614</UnderlyingIndexId>
+      <StateNumber>1173</StateNumber>
+      <UnderlyingIndexId>17314</UnderlyingIndexId>
     </key>
-    <key id="323" parent="271" name="uq_attendance">
-      <ObjectId>16617</ObjectId>
-      <StateNumber>913</StateNumber>
-      <UnderlyingIndexId>16616</UnderlyingIndexId>
+    <key id="325" parent="271" name="uq_attendance">
+      <ObjectId>17317</ObjectId>
+      <StateNumber>1173</StateNumber>
+      <UnderlyingIndexId>17316</UnderlyingIndexId>
     </key>
-    <check id="324" parent="272" name="bonus_amount_check">
+    <check id="326" parent="272" name="bonus_amount_check">
       <ColNames>amount</ColNames>
-      <ObjectId>16675</ObjectId>
+      <ObjectId>17375</ObjectId>
       <Predicate>amount &gt; (0)::numeric</Predicate>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
     </check>
-    <column id="325" parent="272" name="bonus_id">
+    <column id="327" parent="272" name="bonus_id">
       <DefaultExpression>nextval(&apos;bonus_bonus_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16668</SequenceId>
+      <SequenceId>17368</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="326" parent="272" name="employee_id">
+    <column id="328" parent="272" name="employee_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="327" parent="272" name="payroll_id">
+    <column id="329" parent="272" name="payroll_id">
       <Position>3</Position>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="328" parent="272" name="amount">
+    <column id="330" parent="272" name="amount">
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <StoredType>numeric(12,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="329" parent="272" name="reason">
+    <column id="331" parent="272" name="reason">
       <Position>5</Position>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="330" parent="272" name="awarded_date">
+    <column id="332" parent="272" name="awarded_date">
       <DefaultExpression>CURRENT_DATE</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="331" parent="272" name="created_at">
+    <column id="333" parent="272" name="created_at">
       <DefaultExpression>now()</DefaultExpression>
       <Position>7</Position>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="332" parent="272" name="bonus_employee_id_fkey">
+    <foreign-key id="334" parent="272" name="bonus_employee_id_fkey">
       <ColNames>employee_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16680</ObjectId>
+      <ObjectId>17380</ObjectId>
       <OnDelete>cascade</OnDelete>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16579</RefTableId>
+      <RefTableId>17269</RefTableId>
     </foreign-key>
-    <foreign-key id="333" parent="272" name="bonus_payroll_id_fkey">
+    <foreign-key id="335" parent="272" name="bonus_payroll_id_fkey">
       <ColNames>payroll_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16685</ObjectId>
+      <ObjectId>17385</ObjectId>
       <OnDelete>set-null</OnDelete>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16646</RefTableId>
+      <RefTableId>17346</RefTableId>
     </foreign-key>
-    <index id="334" parent="272" name="bonus_pkey">
+    <index id="336" parent="272" name="bonus_pkey">
       <ColNames>bonus_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16678</ObjectId>
+      <ObjectId>17378</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>916</StateNumber>
+      <StateNumber>1176</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="335" parent="272" name="idx_bonus_employee">
+    <index id="337" parent="272" name="idx_bonus_employee">
       <ColNames>employee_id</ColNames>
-      <ObjectId>16725</ObjectId>
-      <StateNumber>933</StateNumber>
+      <ObjectId>17425</ObjectId>
+      <StateNumber>1195</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="336" parent="272" name="idx_bonus_payroll">
+    <index id="338" parent="272" name="idx_bonus_payroll">
       <ColNames>payroll_id</ColNames>
-      <ObjectId>16726</ObjectId>
-      <StateNumber>934</StateNumber>
+      <ObjectId>17426</ObjectId>
+      <StateNumber>1196</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="337" parent="272" name="bonus_pkey">
+    <key id="339" parent="272" name="bonus_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16679</ObjectId>
+      <ObjectId>17379</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>916</StateNumber>
-      <UnderlyingIndexId>16678</UnderlyingIndexId>
+      <StateNumber>1176</StateNumber>
+      <UnderlyingIndexId>17378</UnderlyingIndexId>
     </key>
-    <check id="338" parent="273" name="employees_email_check">
+    <column id="340" parent="273" name="department_name">
+      <NotNull>1</NotNull>
+      <Position>1</Position>
+      <StateNumber>1170</StateNumber>
+      <StoredType>varchar(100)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="341" parent="273" name="description">
+      <Position>2</Position>
+      <StateNumber>1170</StateNumber>
+      <StoredType>text|0s</StoredType>
+      <TypeId>25</TypeId>
+    </column>
+    <column id="342" parent="273" name="created_at">
+      <DefaultExpression>now()</DefaultExpression>
+      <Position>3</Position>
+      <StateNumber>1170</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <index id="343" parent="273" name="departments_pkey">
+      <ColNames>department_name</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>17251</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>1170</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <key id="344" parent="273" name="departments_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>17252</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>1170</StateNumber>
+      <UnderlyingIndexId>17251</UnderlyingIndexId>
+    </key>
+    <check id="345" parent="274" name="employees_email_check">
       <ColNames>email</ColNames>
-      <ObjectId>16588</ObjectId>
+      <ObjectId>17278</ObjectId>
       <Predicate>(email)::text ~* &apos;^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$&apos;::text</Predicate>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
     </check>
-    <check id="339" parent="273" name="employees_base_salary_check">
+    <check id="346" parent="274" name="employees_base_salary_check">
       <ColNames>base_salary</ColNames>
-      <ObjectId>16589</ObjectId>
+      <ObjectId>17279</ObjectId>
       <Predicate>base_salary &gt;= (0)::numeric</Predicate>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
     </check>
-    <column id="340" parent="273" name="employee_id">
+    <column id="347" parent="274" name="employee_id">
       <DefaultExpression>nextval(&apos;employees_employee_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16578</SequenceId>
+      <SequenceId>17268</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="341" parent="273" name="full_name">
+    <column id="348" parent="274" name="full_name">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="342" parent="273" name="email">
+    <column id="349" parent="274" name="email">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="343" parent="273" name="password">
+    <column id="350" parent="274" name="password">
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>varchar(512)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="344" parent="273" name="is_active">
+    <column id="351" parent="274" name="is_active">
       <DefaultExpression>true</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="345" parent="273" name="base_salary">
+    <column id="352" parent="274" name="base_salary">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>numeric(12,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="346" parent="273" name="position">
+    <column id="353" parent="274" name="position">
       <Position>7</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="347" parent="273" name="department">
+    <column id="354" parent="274" name="department">
       <Position>8</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="348" parent="273" name="hire_date">
+    <column id="355" parent="274" name="hire_date">
       <DefaultExpression>CURRENT_DATE</DefaultExpression>
       <Position>9</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="349" parent="273" name="last_login">
+    <column id="356" parent="274" name="last_login">
       <Position>10</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="350" parent="273" name="created_at">
+    <column id="357" parent="274" name="created_at">
       <DefaultExpression>now()</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>11</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="351" parent="273" name="updated_at">
+    <column id="358" parent="274" name="updated_at">
       <DefaultExpression>now()</DefaultExpression>
       <Position>12</Position>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <index id="352" parent="273" name="employees_pkey">
+    <foreign-key id="359" parent="274" name="employees_position_fkey">
+      <ColNames>position</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>17286</ObjectId>
+      <OnUpdate>cascade</OnUpdate>
+      <StateNumber>1172</StateNumber>
+      <RefKeyColPositions>1</RefKeyColPositions>
+      <RefTableId>17236</RefTableId>
+    </foreign-key>
+    <foreign-key id="360" parent="274" name="employees_department_fkey">
+      <ColNames>department</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>17291</ObjectId>
+      <OnUpdate>cascade</OnUpdate>
+      <StateNumber>1172</StateNumber>
+      <RefKeyColPositions>1</RefKeyColPositions>
+      <RefTableId>17245</RefTableId>
+    </foreign-key>
+    <index id="361" parent="274" name="employees_pkey">
       <ColNames>employee_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16592</ObjectId>
+      <ObjectId>17282</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>912</StateNumber>
+      <StateNumber>1172</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="353" parent="273" name="employees_email_key">
+    <index id="362" parent="274" name="employees_email_key">
       <ColNames>email</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16594</ObjectId>
-      <StateNumber>912</StateNumber>
+      <ObjectId>17284</ObjectId>
+      <StateNumber>1172</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="354" parent="273" name="idx_employees_email">
+    <index id="363" parent="274" name="idx_employees_email">
       <ColNames>email</ColNames>
-      <ObjectId>16716</ObjectId>
-      <StateNumber>924</StateNumber>
+      <ObjectId>17416</ObjectId>
+      <StateNumber>1186</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <index id="355" parent="273" name="idx_employees_is_active">
+    <index id="364" parent="274" name="idx_employees_is_active">
       <ColNames>is_active</ColNames>
-      <ObjectId>16717</ObjectId>
-      <StateNumber>925</StateNumber>
+      <ObjectId>17417</ObjectId>
+      <StateNumber>1187</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="356" parent="273" name="employees_pkey">
+    <key id="365" parent="274" name="employees_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16593</ObjectId>
+      <ObjectId>17283</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>912</StateNumber>
-      <UnderlyingIndexId>16592</UnderlyingIndexId>
+      <StateNumber>1172</StateNumber>
+      <UnderlyingIndexId>17282</UnderlyingIndexId>
     </key>
-    <key id="357" parent="273" name="employees_email_key">
+    <key id="366" parent="274" name="employees_email_key">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16595</ObjectId>
-      <StateNumber>912</StateNumber>
-      <UnderlyingIndexId>16594</UnderlyingIndexId>
+      <ObjectId>17285</ObjectId>
+      <StateNumber>1172</StateNumber>
+      <UnderlyingIndexId>17284</UnderlyingIndexId>
     </key>
-    <check id="358" parent="274" name="leave_request_leave_type_check">
+    <check id="367" parent="275" name="leave_request_leave_type_check">
       <ColNames>leave_type</ColNames>
-      <ObjectId>16698</ObjectId>
+      <ObjectId>17398</ObjectId>
       <Predicate>(leave_type)::text = ANY ((ARRAY[&apos;SICK&apos;::character varying, &apos;VACATION&apos;::character varying, &apos;PERSONAL&apos;::character varying, &apos;EMERGENCY&apos;::character varying])::text[])</Predicate>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
     </check>
-    <check id="359" parent="274" name="leave_request_status_check">
+    <check id="368" parent="275" name="leave_request_status_check">
       <ColNames>status</ColNames>
-      <ObjectId>16699</ObjectId>
+      <ObjectId>17399</ObjectId>
       <Predicate>(status)::text = ANY ((ARRAY[&apos;PENDING&apos;::character varying, &apos;APPROVED&apos;::character varying, &apos;REJECTED&apos;::character varying])::text[])</Predicate>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
     </check>
-    <check id="360" parent="274" name="check_leave_dates">
+    <check id="369" parent="275" name="check_leave_dates">
       <ColNames>end_date
 start_date</ColNames>
-      <ObjectId>16700</ObjectId>
+      <ObjectId>17400</ObjectId>
       <Predicate>end_date &gt;= start_date</Predicate>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
     </check>
-    <column id="361" parent="274" name="leave_request_id">
+    <column id="370" parent="275" name="leave_request_id">
       <DefaultExpression>nextval(&apos;leave_request_leave_request_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16690</SequenceId>
+      <SequenceId>17390</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="362" parent="274" name="employee_id">
+    <column id="371" parent="275" name="employee_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="363" parent="274" name="start_date">
+    <column id="372" parent="275" name="start_date">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="364" parent="274" name="end_date">
+    <column id="373" parent="275" name="end_date">
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="365" parent="274" name="leave_type">
+    <column id="374" parent="275" name="leave_type">
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="366" parent="274" name="reason">
+    <column id="375" parent="275" name="reason">
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="367" parent="274" name="status">
+    <column id="376" parent="275" name="status">
       <DefaultExpression>&apos;PENDING&apos;::character varying</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>7</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>varchar(20)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="368" parent="274" name="reviewer_id">
+    <column id="377" parent="275" name="reviewer_id">
       <Position>8</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="369" parent="274" name="review_note">
+    <column id="378" parent="275" name="review_note">
       <Position>9</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="370" parent="274" name="request_date">
+    <column id="379" parent="275" name="request_date">
       <DefaultExpression>CURRENT_DATE</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>10</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="371" parent="274" name="review_date">
+    <column id="380" parent="275" name="review_date">
       <Position>11</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="372" parent="274" name="created_at">
+    <column id="381" parent="275" name="created_at">
       <DefaultExpression>now()</DefaultExpression>
       <Position>12</Position>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="373" parent="274" name="leave_request_employee_id_fkey">
+    <foreign-key id="382" parent="275" name="leave_request_employee_id_fkey">
       <ColNames>employee_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16705</ObjectId>
+      <ObjectId>17405</ObjectId>
       <OnDelete>cascade</OnDelete>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16579</RefTableId>
+      <RefTableId>17269</RefTableId>
     </foreign-key>
-    <foreign-key id="374" parent="274" name="leave_request_reviewer_id_fkey">
+    <foreign-key id="383" parent="275" name="leave_request_reviewer_id_fkey">
       <ColNames>reviewer_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16710</ObjectId>
-      <StateNumber>917</StateNumber>
+      <ObjectId>17410</ObjectId>
+      <StateNumber>1177</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16564</RefTableId>
+      <RefTableId>17254</RefTableId>
     </foreign-key>
-    <index id="375" parent="274" name="leave_request_pkey">
+    <index id="384" parent="275" name="leave_request_pkey">
       <ColNames>leave_request_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16703</ObjectId>
+      <ObjectId>17403</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>917</StateNumber>
+      <StateNumber>1177</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="376" parent="274" name="idx_leave_request_employee">
+    <index id="385" parent="275" name="idx_leave_request_employee">
       <ColNames>employee_id</ColNames>
-      <ObjectId>16727</ObjectId>
-      <StateNumber>935</StateNumber>
+      <ObjectId>17427</ObjectId>
+      <StateNumber>1197</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="377" parent="274" name="idx_leave_request_dates">
+    <index id="386" parent="275" name="idx_leave_request_dates">
       <ColNames>start_date
 end_date</ColNames>
-      <ObjectId>16729</ObjectId>
-      <StateNumber>937</StateNumber>
+      <ObjectId>17429</ObjectId>
+      <StateNumber>1199</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="378" parent="274" name="idx_leave_request_status">
+    <index id="387" parent="275" name="idx_leave_request_status">
       <ColNames>status</ColNames>
-      <ObjectId>16728</ObjectId>
-      <StateNumber>936</StateNumber>
+      <ObjectId>17428</ObjectId>
+      <StateNumber>1198</StateNumber>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="379" parent="274" name="leave_request_pkey">
+    <key id="388" parent="275" name="leave_request_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16704</ObjectId>
+      <ObjectId>17404</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>917</StateNumber>
-      <UnderlyingIndexId>16703</UnderlyingIndexId>
+      <StateNumber>1177</StateNumber>
+      <UnderlyingIndexId>17403</UnderlyingIndexId>
     </key>
-    <check id="380" parent="275" name="payroll_base_salary_check">
+    <check id="389" parent="276" name="payroll_base_salary_check">
       <ColNames>base_salary</ColNames>
-      <ObjectId>16656</ObjectId>
+      <ObjectId>17356</ObjectId>
       <Predicate>base_salary &gt;= (0)::numeric</Predicate>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
     </check>
-    <check id="381" parent="275" name="payroll_bonus_check">
+    <check id="390" parent="276" name="payroll_bonus_check">
       <ColNames>bonus</ColNames>
-      <ObjectId>16657</ObjectId>
+      <ObjectId>17357</ObjectId>
       <Predicate>bonus &gt;= (0)::numeric</Predicate>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
     </check>
-    <check id="382" parent="275" name="payroll_deductions_check">
+    <check id="391" parent="276" name="payroll_deductions_check">
       <ColNames>deductions</ColNames>
-      <ObjectId>16658</ObjectId>
+      <ObjectId>17358</ObjectId>
       <Predicate>deductions &gt;= (0)::numeric</Predicate>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
     </check>
-    <check id="383" parent="275" name="check_payroll_dates">
+    <check id="392" parent="276" name="check_payroll_dates">
       <ColNames>pay_period_end
 pay_period_start</ColNames>
-      <ObjectId>16660</ObjectId>
+      <ObjectId>17360</ObjectId>
       <Predicate>pay_period_end &gt;= pay_period_start</Predicate>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
     </check>
-    <check id="384" parent="275" name="payroll_total_paid_check">
+    <check id="393" parent="276" name="payroll_total_paid_check">
       <ColNames>total_paid</ColNames>
-      <ObjectId>16659</ObjectId>
+      <ObjectId>17359</ObjectId>
       <Predicate>total_paid &gt;= (0)::numeric</Predicate>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
     </check>
-    <column id="385" parent="275" name="payroll_id">
+    <column id="394" parent="276" name="payroll_id">
       <DefaultExpression>nextval(&apos;payroll_payroll_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16645</SequenceId>
+      <SequenceId>17345</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="386" parent="275" name="employee_id">
+    <column id="395" parent="276" name="employee_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="387" parent="275" name="pay_period_start">
+    <column id="396" parent="276" name="pay_period_start">
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="388" parent="275" name="pay_period_end">
+    <column id="397" parent="276" name="pay_period_end">
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="389" parent="275" name="base_salary">
+    <column id="398" parent="276" name="base_salary">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>5</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>numeric(12,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="390" parent="275" name="bonus">
+    <column id="399" parent="276" name="bonus">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>numeric(12,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="391" parent="275" name="deductions">
+    <column id="400" parent="276" name="deductions">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>7</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>numeric(12,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="392" parent="275" name="total_paid">
+    <column id="401" parent="276" name="total_paid">
       <DefaultExpression>0</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>8</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>numeric(12,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="393" parent="275" name="payment_date">
+    <column id="402" parent="276" name="payment_date">
       <DefaultExpression>CURRENT_DATE</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>9</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="394" parent="275" name="created_at">
+    <column id="403" parent="276" name="created_at">
       <DefaultExpression>now()</DefaultExpression>
       <Position>10</Position>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="395" parent="275" name="payroll_employee_id_fkey">
+    <foreign-key id="404" parent="276" name="payroll_employee_id_fkey">
       <ColNames>employee_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16663</ObjectId>
+      <ObjectId>17363</ObjectId>
       <OnDelete>cascade</OnDelete>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16579</RefTableId>
+      <RefTableId>17269</RefTableId>
     </foreign-key>
-    <index id="396" parent="275" name="payroll_pkey">
+    <index id="405" parent="276" name="payroll_pkey">
       <ColNames>payroll_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16661</ObjectId>
+      <ObjectId>17361</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>915</StateNumber>
+      <StateNumber>1175</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="397" parent="275" name="idx_payroll_employee">
+    <index id="406" parent="276" name="idx_payroll_employee">
       <ColNames>employee_id</ColNames>
-      <ObjectId>16723</ObjectId>
-      <StateNumber>931</StateNumber>
+      <ObjectId>17423</ObjectId>
+      <StateNumber>1193</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="398" parent="275" name="idx_payroll_period">
+    <index id="407" parent="276" name="idx_payroll_period">
       <ColNames>pay_period_start
 pay_period_end</ColNames>
-      <ObjectId>16724</ObjectId>
-      <StateNumber>932</StateNumber>
+      <ObjectId>17424</ObjectId>
+      <StateNumber>1194</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="399" parent="275" name="payroll_pkey">
+    <key id="408" parent="276" name="payroll_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16662</ObjectId>
+      <ObjectId>17362</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>915</StateNumber>
-      <UnderlyingIndexId>16661</UnderlyingIndexId>
+      <StateNumber>1175</StateNumber>
+      <UnderlyingIndexId>17361</UnderlyingIndexId>
     </key>
-    <check id="400" parent="276" name="performance_score_check">
+    <check id="409" parent="277" name="performance_score_check">
       <ColNames>score</ColNames>
-      <ObjectId>16630</ObjectId>
+      <ObjectId>17330</ObjectId>
       <Predicate>(score &gt; (0)::numeric) AND (score &lt;= (100)::numeric)</Predicate>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
     </check>
-    <column id="401" parent="276" name="performance_id">
+    <column id="410" parent="277" name="performance_id">
       <DefaultExpression>nextval(&apos;performance_performance_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16623</SequenceId>
+      <SequenceId>17323</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="402" parent="276" name="employee_id">
+    <column id="411" parent="277" name="employee_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="403" parent="276" name="review_date">
+    <column id="412" parent="277" name="review_date">
       <DefaultExpression>CURRENT_DATE</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>3</Position>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <StoredType>date|0s</StoredType>
       <TypeId>1082</TypeId>
     </column>
-    <column id="404" parent="276" name="score">
+    <column id="413" parent="277" name="score">
       <NotNull>1</NotNull>
       <Position>4</Position>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <StoredType>numeric(5,2 digit)|0s</StoredType>
       <TypeId>1700</TypeId>
     </column>
-    <column id="405" parent="276" name="comments">
+    <column id="414" parent="277" name="comments">
       <Position>5</Position>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="406" parent="276" name="reviewer_id">
+    <column id="415" parent="277" name="reviewer_id">
       <NotNull>1</NotNull>
       <Position>6</Position>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="407" parent="276" name="created_at">
+    <column id="416" parent="277" name="created_at">
       <DefaultExpression>now()</DefaultExpression>
       <Position>7</Position>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="408" parent="276" name="performance_employee_id_fkey">
+    <foreign-key id="417" parent="277" name="performance_employee_id_fkey">
       <ColNames>employee_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16635</ObjectId>
+      <ObjectId>17335</ObjectId>
       <OnDelete>cascade</OnDelete>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16579</RefTableId>
+      <RefTableId>17269</RefTableId>
     </foreign-key>
-    <foreign-key id="409" parent="276" name="performance_reviewer_id_fkey">
+    <foreign-key id="418" parent="277" name="performance_reviewer_id_fkey">
       <ColNames>reviewer_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16640</ObjectId>
-      <StateNumber>914</StateNumber>
+      <ObjectId>17340</ObjectId>
+      <StateNumber>1174</StateNumber>
       <RefKeyColPositions>1</RefKeyColPositions>
-      <RefTableId>16564</RefTableId>
+      <RefTableId>17254</RefTableId>
     </foreign-key>
-    <index id="410" parent="276" name="performance_pkey">
+    <index id="419" parent="277" name="performance_pkey">
       <ColNames>performance_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16633</ObjectId>
+      <ObjectId>17333</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>914</StateNumber>
+      <StateNumber>1174</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="411" parent="276" name="idx_performance_employee">
+    <index id="420" parent="277" name="idx_performance_employee">
       <ColNames>employee_id</ColNames>
-      <ObjectId>16721</ObjectId>
-      <StateNumber>929</StateNumber>
+      <ObjectId>17421</ObjectId>
+      <StateNumber>1191</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="412" parent="276" name="idx_performance_reviewer">
+    <index id="421" parent="277" name="idx_performance_reviewer">
       <ColNames>reviewer_id</ColNames>
-      <ObjectId>16722</ObjectId>
-      <StateNumber>930</StateNumber>
+      <ObjectId>17422</ObjectId>
+      <StateNumber>1192</StateNumber>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="413" parent="276" name="performance_pkey">
+    <key id="422" parent="277" name="performance_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16634</ObjectId>
+      <ObjectId>17334</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>914</StateNumber>
-      <UnderlyingIndexId>16633</UnderlyingIndexId>
+      <StateNumber>1174</StateNumber>
+      <UnderlyingIndexId>17333</UnderlyingIndexId>
     </key>
-    <column id="414" parent="277" name="employee_id">
+    <check id="423" parent="278" name="valid_salary_range">
+      <ColNames>max_salary
+min_salary</ColNames>
+      <ObjectId>17242</ObjectId>
+      <Predicate>max_salary &gt; min_salary</Predicate>
+      <StateNumber>1169</StateNumber>
+    </check>
+    <check id="424" parent="278" name="position_salary_rules_check">
+      <ColNames>max_salary
+min_salary</ColNames>
+      <ObjectId>17241</ObjectId>
+      <Predicate>max_salary &gt;= min_salary</Predicate>
+      <StateNumber>1169</StateNumber>
+    </check>
+    <check id="425" parent="278" name="position_salary_rules_min_salary_check">
+      <ColNames>min_salary</ColNames>
+      <ObjectId>17240</ObjectId>
+      <Predicate>min_salary &gt;= (0)::numeric</Predicate>
+      <StateNumber>1169</StateNumber>
+    </check>
+    <column id="426" parent="278" name="position">
+      <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1169</StateNumber>
+      <StoredType>varchar(100)|0s</StoredType>
+      <TypeId>1043</TypeId>
+    </column>
+    <column id="427" parent="278" name="min_salary">
+      <NotNull>1</NotNull>
+      <Position>2</Position>
+      <StateNumber>1169</StateNumber>
+      <StoredType>numeric(12,2 digit)|0s</StoredType>
+      <TypeId>1700</TypeId>
+    </column>
+    <column id="428" parent="278" name="max_salary">
+      <NotNull>1</NotNull>
+      <Position>3</Position>
+      <StateNumber>1169</StateNumber>
+      <StoredType>numeric(12,2 digit)|0s</StoredType>
+      <TypeId>1700</TypeId>
+    </column>
+    <column id="429" parent="278" name="created_at">
+      <DefaultExpression>now()</DefaultExpression>
+      <Position>4</Position>
+      <StateNumber>1169</StateNumber>
+      <StoredType>timestamp|0s</StoredType>
+      <TypeId>1114</TypeId>
+    </column>
+    <index id="430" parent="278" name="position_salary_rules_pkey">
+      <ColNames>position</ColNames>
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>17243</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>1169</StateNumber>
+      <Unique>1</Unique>
+      <AccessMethodId>403</AccessMethodId>
+      <CollationNames>default</CollationNames>
+      <CollationIds>100</CollationIds>
+      <CollationParentNames>pg_catalog</CollationParentNames>
+    </index>
+    <key id="431" parent="278" name="position_salary_rules_pkey">
+      <NameSurrogate>1</NameSurrogate>
+      <ObjectId>17244</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>1169</StateNumber>
+      <UnderlyingIndexId>17243</UnderlyingIndexId>
+    </key>
+    <column id="432" parent="279" name="employee_id">
+      <Position>1</Position>
+      <StateNumber>1200</StateNumber>
       <StoredType>integer|0s</StoredType>
     </column>
-    <column id="415" parent="277" name="full_name">
+    <column id="433" parent="279" name="full_name">
       <Position>2</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="416" parent="277" name="email">
+    <column id="434" parent="279" name="email">
       <Position>3</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="417" parent="277" name="position">
+    <column id="435" parent="279" name="position">
       <Position>4</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="418" parent="277" name="department">
+    <column id="436" parent="279" name="department">
       <Position>5</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="419" parent="277" name="base_salary">
+    <column id="437" parent="279" name="base_salary">
       <Position>6</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>numeric(12,2 digit)|0s</StoredType>
     </column>
-    <column id="420" parent="277" name="hire_date">
+    <column id="438" parent="279" name="hire_date">
       <Position>7</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>date|0s</StoredType>
     </column>
-    <column id="421" parent="277" name="latest_score">
+    <column id="439" parent="279" name="latest_score">
       <Position>8</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>numeric|0s</StoredType>
     </column>
-    <column id="422" parent="277" name="last_review_date">
+    <column id="440" parent="279" name="last_review_date">
       <Position>9</Position>
-      <StateNumber>938</StateNumber>
+      <StateNumber>1200</StateNumber>
       <StoredType>date|0s</StoredType>
     </column>
-    <column id="423" parent="278" name="employee_id">
+    <column id="441" parent="280" name="employee_id">
       <Position>1</Position>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <StoredType>integer|0s</StoredType>
     </column>
-    <column id="424" parent="278" name="full_name">
+    <column id="442" parent="280" name="full_name">
       <Position>2</Position>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="425" parent="278" name="email">
+    <column id="443" parent="280" name="email">
       <Position>3</Position>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <StoredType>varchar(100)|0s</StoredType>
     </column>
-    <column id="426" parent="278" name="total_payrolls">
+    <column id="444" parent="280" name="total_payrolls">
       <Position>4</Position>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <StoredType>bigint|0s</StoredType>
     </column>
-    <column id="427" parent="278" name="total_earnings">
+    <column id="445" parent="280" name="total_earnings">
       <Position>5</Position>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <StoredType>numeric|0s</StoredType>
     </column>
-    <column id="428" parent="278" name="avg_payment">
+    <column id="446" parent="280" name="avg_payment">
       <Position>6</Position>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <StoredType>numeric|0s</StoredType>
     </column>
-    <column id="429" parent="278" name="last_payment_date">
+    <column id="447" parent="280" name="last_payment_date">
       <Position>7</Position>
-      <StateNumber>939</StateNumber>
+      <StateNumber>1201</StateNumber>
       <StoredType>date|0s</StoredType>
     </column>
   </database-model>

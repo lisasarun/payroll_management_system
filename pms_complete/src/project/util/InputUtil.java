@@ -26,6 +26,40 @@ public class InputUtil {
         }
     }
 
+    /**
+     * Read admin username with validation.
+     * Username must be 3-20 characters, letters only.
+     */
+    public static String readAdminUsername(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = SC.nextLine().trim();
+            
+            if (s.isEmpty()) {
+                System.out.println("  Username cannot be empty.");
+                continue;
+            }
+            
+            if (s.length() < 3) {
+                System.out.println("  Username must be at least 3 characters.");
+                continue;
+            }
+            
+            if (s.length() > 20) {
+                System.out.println("  Username must not exceed 20 characters.");
+                continue;
+            }
+            
+            // Only letters allowed (no numbers, spaces, or special characters)
+            if (!s.matches("^[a-zA-Z]+$")) {
+                System.out.println("  Username must contain only letters (no numbers or special characters).");
+                continue;
+            }
+            
+            return s;
+        }
+    }
+
     public static String readOptionalString(String prompt) {
         System.out.print(prompt);
         return SC.nextLine().trim();
@@ -40,7 +74,7 @@ public class InputUtil {
                 s = new String(passwordChars);
             } else {
                 System.out.print(prompt + " [visible]: ");
-                s = SC.nextLine().trim();
+                s = SC.nextLine();  // DO NOT TRIM - whitespace could be part of password
             }
             
             // Password length validation: 8-16 characters
@@ -50,6 +84,27 @@ public class InputUtil {
             }
             if (s.length() > 16) {
                 System.out.println("  Invalid. Password must not exceed 16 characters. Try again!");
+                continue;
+            }
+            return s;
+        }
+    }
+
+    /** Read password confirmation without validation (just non-empty check). */
+    public static String readPasswordConfirmation(String prompt) {
+        while (true) {
+            java.io.Console con = System.console();
+            String s;
+            if (con != null) {
+                char[] passwordChars = con.readPassword(prompt + ": ");
+                s = new String(passwordChars);
+            } else {
+                System.out.print(prompt + " [visible]: ");
+                s = SC.nextLine().trim();
+            }
+            
+            if (s.isEmpty()) {
+                System.out.println("  Password cannot be empty.");
                 continue;
             }
             return s;
@@ -84,6 +139,23 @@ public class InputUtil {
                 } else {
                     System.out.println("  Base salary must be at least 100.00.");
                 }
+            } catch (NumberFormatException e) {
+                System.out.println("  Invalid amount.");
+            }
+        }
+    }
+
+    public static BigDecimal readBigDecimalInRange(String prompt, BigDecimal min, BigDecimal max) {
+        while (true) {
+            System.out.print(prompt);
+            String raw = SC.nextLine().trim();
+            try {
+                BigDecimal v = new BigDecimal(raw);
+                if (v.compareTo(min) < 0 || v.compareTo(max) > 0) {
+                    System.out.printf("  Amount must be between %s and %s.%n", min.toPlainString(), max.toPlainString());
+                    continue;
+                }
+                return v;
             } catch (NumberFormatException e) {
                 System.out.println("  Invalid amount.");
             }
@@ -208,7 +280,7 @@ public class InputUtil {
     public static String readStrongPassword(String prompt) {
         while (true) {
             System.out.print(prompt + " (8-16 chars, upper, lower, digit, special): ");
-            String s = SC.nextLine().trim();
+            String s = SC.nextLine();  // DO NOT TRIM - whitespace could be part of password
             if (s.isEmpty()) {
                 System.out.println("  Password cannot be empty.");
                 continue;
@@ -342,19 +414,30 @@ public class InputUtil {
 
     public static double readScore(String prompt) {
         while (true) {
-            System.out.print(prompt + " (0.00-100.00): ");
+            System.out.print(prompt + " (0.01-100.00): ");
+            String input = SC.nextLine().trim();
+            
+            if (input.isEmpty()) {
+                System.out.println("  Score cannot be empty.");
+                continue;
+            }
+            
             try {
-                double v = Double.parseDouble(SC.nextLine().trim());
-                if (v >= 0 && v <= 100) return v;
-                System.out.println("  Score must be 0–100.");
-            } catch (NumberFormatException e) { System.out.println("  Invalid score."); }
+                double v = Double.parseDouble(input);
+                if (v > 0 && v <= 100) {
+                    return v;
+                }
+                System.out.println("  Score must be greater than 0 and up to 100.");
+            } catch (NumberFormatException e) { 
+                System.out.println("  Invalid number format. Please enter a valid score.");
+            }
         }
     }
 
-    /** Read leave reason: must be 10-40 characters. */
+    /** Read leave reason: must be 10-100 characters and contain at least one letter. */
     public static String readLeaveReason(String prompt) {
         while (true) {
-            System.out.print(prompt + " (10-40 characters): ");
+            System.out.print(prompt + " (10-100 characters): ");
             String s = SC.nextLine().trim();
             
             if (s.isEmpty()) {
@@ -367,12 +450,128 @@ public class InputUtil {
                 continue;
             }
             
-            if (s.length() > 40) {
-                System.out.println("  Reason can be max 40 characters.");
+            if (s.length() > 100) {
+                System.out.println("  Reason must not exceed 100 characters.");
+                continue;
+            }
+            
+            // Must contain at least one letter
+            if (!s.matches(".*[a-zA-Z].*")) {
+                System.out.println("  Reason must contain at least one letter.");
                 continue;
             }
             
             return s;
+        }
+    }
+
+    /** Read review note: letters-based text, 1-3 sentences only. */
+    public static String readReviewNote(String prompt) {
+        while (true) {
+            System.out.print(prompt + " (1-3 sentences): ");
+            String s = SC.nextLine().trim();
+
+            if (s.isEmpty()) {
+                System.out.println("  Review note cannot be empty.");
+                continue;
+            }
+            if (s.length() < 5) {
+                System.out.println("  Review note must be at least 5 characters.");
+                continue;
+            }
+            if (s.length() > 200) {
+                System.out.println("  Review note must not exceed 200 characters.");
+                continue;
+            }
+            if (!s.matches(".*[a-zA-Z].*")) {
+                System.out.println("  Review note must contain at least one letter.");
+                continue;
+            }
+            if (!s.matches("^[a-zA-Z .,!?()'\\-]+$")) {
+                System.out.println("  Review note contains invalid characters.");
+                continue;
+            }
+            int sentenceCount = countSentences(s);
+            if (sentenceCount < 1 || sentenceCount > 3) {
+                System.out.println("  Review note must contain 1 to 3 sentences.");
+                continue;
+            }
+            return s;
+        }
+    }
+
+    private static int countSentences(String text) {
+        String normalized = text.replaceAll("\\s+", " ").trim();
+        if (normalized.isEmpty()) return 0;
+        // Split by sentence terminators and ignore empty parts.
+        String[] parts = normalized.split("[.!?]+");
+        int count = 0;
+        for (String part : parts) {
+            if (!part.trim().isEmpty()) count++;
+        }
+        return count == 0 ? 1 : count;
+    }
+
+    /** Read bonus reason: 10-120 chars and must contain letters; limited symbols only. */
+    public static String readBonusReason(String prompt) {
+        while (true) {
+            System.out.print(prompt + " (10-120 characters): ");
+            String s = SC.nextLine().trim();
+
+            if (s.isEmpty()) {
+                System.out.println("  Reason cannot be empty.");
+                continue;
+            }
+            if (s.length() < 10) {
+                System.out.println("  Reason must be at least 10 characters.");
+                continue;
+            }
+            if (s.length() > 120) {
+                System.out.println("  Reason must not exceed 120 characters.");
+                continue;
+            }
+            if (!s.matches(".*[a-zA-Z].*")) {
+                System.out.println("  Reason must contain at least one letter.");
+                continue;
+            }
+            if (!s.matches("^[a-zA-Z0-9 .,()'\\-_/]+$")) {
+                System.out.println("  Reason contains invalid characters.");
+                continue;
+            }
+            return s;
+        }
+    }
+
+    /**
+     * Read selection from a list of predefined choices.
+     * @param prompt The prompt message
+     * @param choices Array of available choices
+     * @return The selected choice
+     */
+    public static String readChoice(String prompt, String[] choices) {
+        System.out.println(prompt);
+        for (int i = 0; i < choices.length; i++) {
+            System.out.println("    " + (i + 1) + ". " + choices[i]);
+        }
+        
+        while (true) {
+            System.out.print("  Select (1-" + choices.length + "): ");
+            String input = SC.nextLine().trim();
+            
+            if (input.isEmpty()) {
+                System.out.println("  Selection cannot be empty.");
+                continue;
+            }
+            
+            try {
+                int choice = Integer.parseInt(input);
+                if (choice >= 1 && choice <= choices.length) {
+                    return choices[choice - 1];
+                }
+                System.out.println("  Invalid selection. Please choose 1-" + choices.length + ".");
+            } catch (NumberFormatException e) {
+                System.out.println("  Please enter a valid number.");
+            }
         }
     }
 }

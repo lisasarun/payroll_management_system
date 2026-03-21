@@ -4,6 +4,7 @@ import project.dto.EmployeeDTO;
 import project.model.Bonus;
 import project.model.Employee;
 import project.model.Pagination;
+import project.repository.ReferenceDataRepository;
 import project.service.BonusService;
 import project.service.EmployeeService;
 import project.util.InputUtil;
@@ -17,6 +18,7 @@ public class AdminController {
 
     private final EmployeeService empService   = new EmployeeService();
     private final BonusService    bonusService = new BonusService();
+    private final ReferenceDataRepository refDataRepo = new ReferenceDataRepository();
 
     //  MANAGE EMPLOYEES
 
@@ -35,7 +37,6 @@ public class AdminController {
                     searchEmployee();
                 }
                 case "4" -> {
-                    showAllEmployeesForSelection();
                     disableEmployee();
                 }
                 case "5" -> listEmployees();
@@ -50,6 +51,30 @@ public class AdminController {
         String fullName   = InputUtil.readFullName("  Full Name       : ");
         String email      = InputUtil.readEmailMatchingName("  Email           : ", fullName);
         String password   = InputUtil.readStrongPassword("  Password        ");
+        
+        // Load positions and departments dynamically from database
+        List<String> positionsList = refDataRepo.getAllPositions();
+        List<String> departmentsList = refDataRepo.getAllDepartments();
+        
+        // Fallback to hardcoded values if database tables not ready
+        String[] positions = positionsList.isEmpty() 
+            ? new String[]{"Junior Developer", "Senior Developer", "Software Engineer", 
+                          "HR Coordinator", "Marketing Specialist", "Financial Analyst", "Manager"}
+            : positionsList.toArray(new String[0]);
+        
+        String[] departments = departmentsList.isEmpty()
+            ? new String[]{"Engineering", "Human Resources", "Marketing", 
+                          "Finance", "Operations", "Sales", "IT Support"}
+            : departmentsList.toArray(new String[0]);
+        
+        String position   = InputUtil.readChoice("  Position        :", positions);
+        String department = InputUtil.readChoice("  Department      :", departments);
+        
+        // Show salary range for the position
+        String salaryRange = project.util.SalaryCalculator.getSalaryRange(position);
+        if (salaryRange != null) {
+            System.out.println("  Allowed salary range for " + position + ": " + salaryRange);
+        }
         BigDecimal salary = InputUtil.readBigDecimal("  Base Salary ($) : ");
 
         Employee emp = new Employee();
@@ -57,23 +82,29 @@ public class AdminController {
         emp.setEmail(email);
         emp.setPassword(password);   // EmployeeRepository.save() hashes this
         emp.setBaseSalary(salary);
+        emp.setPosition(position);
+        emp.setDepartment(department);
         emp.setActive(true);
 
         if (empService.addEmployee(emp)) {
             ViewUtil.printSuccess("Employee added successfully.");
             // After successful add, show current employees so admin can see the new record
             showAllEmployeesForSelection();
-        } else {
-            ViewUtil.printError("Failed to add employee (email may already exist).");
         }
+        // Error messages already displayed by service/repository layer
     }
 
     private void updateEmployee() {
         ViewUtil.printTitle("UPDATE EMPLOYEE");
         int id = InputUtil.readInt("  Employee ID: ");
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
 
         EmployeeDTO dto = empService.getById(id);
-        if (dto == null) { ViewUtil.printError("Employee not found."); return; }
+        if (dto == null) { ViewUtil.printError("Employee not found or disabled."); return; }
 
         System.out.println("  Employee : " + dto.getFullName());
         System.out.println("  Leave blank to keep current value.");
@@ -96,6 +127,54 @@ public class AdminController {
             if (email == null) return; // validation printed the error
         }
 
+        // Position - use selection menu with option to keep current
+        String position = dto.getPosition();
+        System.out.printf("  Position   [%s]%n", position != null ? position : "N/A");
+        System.out.println("    [K] Keep current");
+        System.out.println("    [C] Change position");
+        String posChoice = InputUtil.readMenuChoice("  Select: ");
+        if (!posChoice.equalsIgnoreCase("K") && !posChoice.equalsIgnoreCase("C")) {
+            ViewUtil.printError("Invalid option. Please select K or C.");
+            return;
+        }
+        if (posChoice.equalsIgnoreCase("C")) {
+            // Load positions from database
+            List<String> positionsList = refDataRepo.getAllPositions();
+            String[] positions = positionsList.isEmpty() 
+                ? new String[]{"Junior Developer", "Senior Developer", "Software Engineer", 
+                              "HR Coordinator", "Marketing Specialist", "Financial Analyst", "Manager"}
+                : positionsList.toArray(new String[0]);
+            position = InputUtil.readChoice("  Select new position:", positions);
+        }
+
+        // Department - use selection menu with option to keep current
+        String department = dto.getDepartment();
+        System.out.printf("  Department [%s]%n", department != null ? department : "N/A");
+        System.out.println("    [K] Keep current");
+        System.out.println("    [C] Change department");
+        String deptChoice = InputUtil.readMenuChoice("  Select: ");
+        if (!deptChoice.equalsIgnoreCase("K") && !deptChoice.equalsIgnoreCase("C")) {
+            ViewUtil.printError("Invalid option. Please select K or C.");
+            return;
+        }
+        if (deptChoice.equalsIgnoreCase("C")) {
+            // Load departments from database
+            List<String> departmentsList = refDataRepo.getAllDepartments();
+            String[] departments = departmentsList.isEmpty()
+                ? new String[]{"Engineering", "Human Resources", "Marketing", 
+                              "Finance", "Operations", "Sales", "IT Support"}
+                : departmentsList.toArray(new String[0]);
+            department = InputUtil.readChoice("  Select new department:", departments);
+        }
+
+        // Show salary range if position is set or changed
+        if (position != null && !position.isEmpty()) {
+            String salaryRange = project.util.SalaryCalculator.getSalaryRange(position);
+            if (salaryRange != null) {
+                System.out.println("  Allowed salary range for " + position + ": " + salaryRange);
+            }
+        }
+
         // Salary — validate if provided (same rules as addEmployee)
         System.out.printf("  Salary     [%s]: ", dto.getBaseSalary());
         String salStr = InputUtil.readOptionalString("");
@@ -114,39 +193,156 @@ public class AdminController {
         emp.setFullName(name);
         emp.setEmail(email);
         emp.setBaseSalary(salary);
+        emp.setPosition(position);
+        emp.setDepartment(department);
 
         // Hash new password if provided, then update
         if (!newPass.isEmpty()) {
             emp.setPassword(PasswordUtil.hash(newPass));
-            if (empService.updateEmployeeWithPasswordChange(emp, dto.getEmail()))
+            if (empService.updateEmployeeWithPasswordChange(emp, dto.getEmail())) {
                 ViewUtil.printSuccess("Employee updated (password changed).");
-            else
-                ViewUtil.printError("Update failed (email may already be in use).");
+            }
+            // Error messages already displayed by service/repository layer
         } else {
-            if (empService.updateEmployeeWithEmailCheck(emp, dto.getEmail()))
+            if (empService.updateEmployeeWithEmailCheck(emp, dto.getEmail())) {
                 ViewUtil.printSuccess("Employee updated.");
-            else
-                ViewUtil.printError("Update failed (email may already be in use).");
+            }
+            // Error messages already displayed by service/repository layer
         }
     }
 
     private void searchEmployee() {
         ViewUtil.printTitle("SEARCH EMPLOYEE");
-        String kw = InputUtil.readString("  Keyword (name): ");
-        List<EmployeeDTO> list = empService.search(kw, 1, 20);
+        System.out.println("  [1] Search by Name");
+        System.out.println("  [2] Search by Position");
+        System.out.println("  [3] Search by Department");
+        System.out.print("  Select: ");
+        String choice = InputUtil.readMenuChoice("");
+        
+        List<EmployeeDTO> list;
+        if (choice.equals("2")) {
+            // Search by Position - use selection menu
+            List<String> positionsList = refDataRepo.getAllPositions();
+            
+            if (positionsList.isEmpty()) {
+                ViewUtil.printError("No positions found in database.");
+                return;
+            }
+            
+            String[] positions = positionsList.toArray(new String[0]);
+            String selectedPosition = InputUtil.readChoice("  Select position to search:", positions);
+            list = empService.searchByPositionOrDepartment(selectedPosition, 1, 20);
+            
+        } else if (choice.equals("3")) {
+            // Search by Department - use selection menu
+            List<String> departmentsList = refDataRepo.getAllDepartments();
+            
+            if (departmentsList.isEmpty()) {
+                ViewUtil.printError("No departments found in database.");
+                return;
+            }
+            
+            String[] departments = departmentsList.toArray(new String[0]);
+            String selectedDepartment = InputUtil.readChoice("  Select department to search:", departments);
+            list = empService.searchByPositionOrDepartment(selectedDepartment, 1, 20);
+            
+        } else {
+            // Search by Name - free text is okay here
+            String kw = InputUtil.readString("  Keyword (name): ");
+            list = empService.search(kw, 1, 20);
+        }
+        
         if (list.isEmpty()) { ViewUtil.printInfo("No results found."); return; }
         ViewUtil.printEmployeeTable(list, 1, 1);
     }
 
     private void disableEmployee() {
-        ViewUtil.printTitle("DISABLE EMPLOYEE");
+        boolean running = true;
+        while (running) {
+            ViewUtil.printTitle("DISABLE EMPLOYEE");
+            System.out.println("  [1] Active Employees");
+            System.out.println("  [2] Disabled Employees");
+            System.out.println("  [3] Enable Employee");
+            System.out.println("  [0] Back");
+            String choice = InputUtil.readMenuChoice("  Select: ");
+
+            switch (choice) {
+                case "1" -> disableFromActiveList();
+                case "2" -> showEmployeesByStatus(false);
+                case "3" -> enableFromDisabledList();
+                case "0" -> running = false;
+                default  -> ViewUtil.printError("Invalid option.");
+            }
+        }
+    }
+
+    private void disableFromActiveList() {
+        if (!showEmployeesByStatus(true)) return;
         int id = InputUtil.readInt("  Employee ID: ");
-        EmployeeDTO dto = empService.getById(id);
-        if (dto == null) { ViewUtil.printError("Employee not found."); return; }
-        System.out.println("  Employee: " + dto.getFullName());
-        if (!InputUtil.readConfirm("  Confirm disable?")) { ViewUtil.printInfo("Cancelled."); return; }
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
+        
+        Employee model = empService.getModelByIdIgnoreStatus(id);
+        if (model == null) {
+            ViewUtil.printError("Employee ID not found.");
+            return;
+        }
+        if (!model.isActive()) {
+            ViewUtil.printError("Employee is already disabled.");
+            return;
+        }
+        System.out.println("  Employee: " + model.getFullName());
+        if (!InputUtil.readConfirm("  Confirm disable?")) {
+            ViewUtil.printInfo("Cancelled.");
+            return;
+        }
         if (empService.disableEmployee(id)) ViewUtil.printSuccess("Employee disabled.");
-        else                                ViewUtil.printError("Failed to disable employee.");
+        else                                ViewUtil.printError("Failed to disable employee. Please try again.");
+    }
+
+    private void enableFromDisabledList() {
+        List<EmployeeDTO> disabled = empService.getByActiveStatus(false);
+        if (disabled.isEmpty()) {
+            ViewUtil.printInfo("No disabled employees found.");
+            return;
+        }
+        ViewUtil.printEmployeeTable(disabled, 1, 1);
+        int id = InputUtil.readInt("  Employee ID: ");
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
+        
+        Employee full = empService.getModelByIdIgnoreStatus(id);
+        if (full == null) {
+            ViewUtil.printError("Employee ID not found.");
+            return;
+        }
+        if (full.isActive()) {
+            ViewUtil.printError("Employee is already active.");
+            return;
+        }
+        System.out.println("  Employee: " + full.getFullName());
+        if (!InputUtil.readConfirm("  Confirm enable?")) {
+            ViewUtil.printInfo("Cancelled.");
+            return;
+        }
+        if (empService.enableEmployee(id)) ViewUtil.printSuccess("Employee enabled.");
+        else                               ViewUtil.printError("Failed to enable employee. Please try again.");
+    }
+
+    private boolean showEmployeesByStatus(boolean active) {
+        List<EmployeeDTO> list = empService.getByActiveStatus(active);
+        if (list.isEmpty()) {
+            ViewUtil.printInfo(active ? "No active employees found." : "No disabled employees found.");
+            return false;
+        }
+        ViewUtil.printEmployeeTable(list, 1, 1);
+        return true;
     }
 
     private void listEmployees() {
@@ -253,22 +449,37 @@ public class AdminController {
 
     private void addBonus() {
         int id = InputUtil.readInt("  Employee ID     : ");
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
+        
         EmployeeDTO dto = empService.getById(id);
-        if (dto == null) { ViewUtil.printError("Employee not found."); return; }
+        if (dto == null) { ViewUtil.printError("Employee not found or disabled."); return; }
         System.out.println("  Employee: " + dto.getFullName());
-        BigDecimal amount = InputUtil.readBigDecimal("  Bonus Amount ($): ");
-        String reason     = InputUtil.readString("  Reason          : ");
+        BigDecimal amount = InputUtil.readBigDecimalInRange(
+                "  Bonus Amount ($): ",
+                BigDecimal.valueOf(10),
+                BigDecimal.valueOf(5000)
+        );
+        String reason     = InputUtil.readBonusReason("  Reason          ");
 
         if (bonusService.addBonus(id, amount, reason))
             ViewUtil.printSuccess("Bonus added successfully.");
-        else
-            ViewUtil.printError("Failed to add bonus.");
+        // Specific failure messages are already printed by service/repository layer
     }
 
     private void viewBonuses() {
         int id = InputUtil.readInt("  Employee ID: ");
+        
+        if (id <= 0) {
+            ViewUtil.printError("Invalid Employee ID. ID must be a positive number.");
+            return;
+        }
+        
         EmployeeDTO dto = empService.getById(id);
-        if (dto == null) { ViewUtil.printError("Employee not found."); return; }
+        if (dto == null) { ViewUtil.printError("Employee not found or disabled."); return; }
 
         List<Bonus> bonuses = bonusService.getByEmployee(id);
         if (bonuses.isEmpty()) { ViewUtil.printInfo("No bonuses found for this employee."); return; }

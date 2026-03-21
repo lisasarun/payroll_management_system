@@ -28,6 +28,13 @@ public class JasperReportGenerator {
         try {
             new File(OUTPUT_DIR).mkdirs();
 
+            // Check if PDF already exists for this payroll ID and period
+            String existingPdf = findExistingPayslip(slip);
+            if (existingPdf != null) {
+                System.out.println("  ℹ Payslip PDF already exists: " + existingPdf);
+                return existingPdf;
+            }
+
             // Use a unique filename to avoid Windows file-lock issues when a previous PDF is still open.
             String filename = buildUniqueFilename(slip);
 
@@ -85,6 +92,23 @@ public class JasperReportGenerator {
         }
     }
 
+    /**
+     * Finds existing payslip PDF for the given employee and pay period.
+     * Returns the file path if found, null otherwise.
+     */
+    private String findExistingPayslip(Payslip slip) {
+        File dir = new File(OUTPUT_DIR);
+        if (!dir.exists()) return null;
+
+        String prefix = "payslip_emp" + slip.getEmployeeId() + "_" + slip.getPayPeriodStart();
+        File[] files = dir.listFiles((d, name) -> name.startsWith(prefix) && name.endsWith(".pdf"));
+
+        if (files != null && files.length > 0) {
+            // Return the first matching file (most recent should be used if multiple exist)
+            return files[0].getPath();
+        }
+        return null;
+    }
 
     private InputStream loadTemplate() {
 

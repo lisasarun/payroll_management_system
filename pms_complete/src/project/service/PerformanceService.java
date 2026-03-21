@@ -19,6 +19,13 @@ public class PerformanceService {
         Employee emp = empRepo.findById(employeeId);
         if (emp == null) { System.out.println("  Employee not found."); return false; }
 
+        // Check if employee already has a review today
+        if (perfRepo.hasReviewToday(employeeId)) {
+            System.out.println("  ✘ Employee already has a performance review today.");
+            System.out.println("  Multiple reviews on the same day are not allowed.");
+            return false;
+        }
+
         Performance p = new Performance();
         p.setEmployeeId(employeeId);
         p.setReviewDate(java.time.LocalDate.now());
@@ -64,5 +71,39 @@ public class PerformanceService {
     /** Returns the set of employee IDs that have at least one review. */
     public java.util.Set<Integer> getEmployeeIdsWithReviews() {
         return perfRepo.findEmployeeIdsWithReviews();
+    }
+
+    /**
+     * Update an existing performance review.
+     * @param performanceId The review ID to update
+     * @param score New score
+     * @param comments New comments
+     * @return true if successful
+     */
+    public boolean updateReview(int performanceId, double score, String comments) {
+        return perfRepo.update(performanceId, score, comments);
+    }
+
+    /**
+     * Delete a performance review.
+     * @param performanceId The review ID to delete
+     * @return true if successful
+     */
+    public boolean deleteReview(int performanceId) {
+        return perfRepo.delete(performanceId);
+    }
+
+    /**
+     * Get a performance review by ID.
+     * @param performanceId The review ID
+     * @return PerformanceDTO or null if not found
+     */
+    public PerformanceDTO getReviewById(int performanceId) {
+        Performance p = perfRepo.findById(performanceId);
+        if (p == null) return null;
+        PerformanceDTO dto = EntityMapper.toPerformanceDTO(p);
+        Employee emp = empRepo.findById(p.getEmployeeId());
+        if (emp != null) dto.setEmployeeName(emp.getFullName());
+        return dto;
     }
 }

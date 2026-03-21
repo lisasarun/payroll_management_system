@@ -4,6 +4,7 @@ import project.dto.AttendanceDTO;
 import project.dto.EmployeeDTO;
 import project.dto.PayrollDTO;
 import project.dto.PerformanceDTO;
+import project.model.Employee;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -58,9 +59,22 @@ public class ViewUtil {
         System.out.println("  [6] Change Password");
         System.out.println("  [7] Submit Leave Request");
         System.out.println("  [8] View My Leave Requests");
+        System.out.println("  [9] View Profile");
         System.out.println("  [0] Logout");
         System.out.println(LINE);
         System.out.print("  Select option: ");
+    }
+
+    public static void printEmployeeProfile(Employee e) {
+        System.out.println("\n" + "═".repeat(54));
+        System.out.printf("%30s%n", "PROFILE");
+        System.out.println("═".repeat(54));
+        System.out.printf("  ID        : %s%n", e.getEmployeeId());
+        System.out.printf("  Name      : %s%n", e.getFullName() != null ? e.getFullName() : "N/A");
+        System.out.printf("  Position  : %s%n", e.getPosition() != null ? e.getPosition() : "N/A");
+        System.out.printf("  Department: %s%n", e.getDepartment() != null ? e.getDepartment() : "N/A");
+        System.out.printf("  Salary    : %s%n", money(e.getBaseSalary()));
+        System.out.println("═".repeat(54));
     }
 
     public static void printManageEmployeeMenu() {
@@ -77,12 +91,16 @@ public class ViewUtil {
 
     public static void printEmployeeTable(List<EmployeeDTO> list, int page, int total) {
         printTitle("EMPLOYEE LIST — Page " + page + " of " + total);
-        System.out.printf("  %-4s %-25s %-28s %-12s%n", "ID", "Full Name", "Email", "Base Salary");
+        System.out.printf("  %-4s %-20s %-24s %-18s %-15s %-12s%n", "ID", "Full Name", "Email", "Position", "Department", "Salary");
         System.out.println(TLINE);
         for (EmployeeDTO e : list) {
-            System.out.printf("  %-4d %-25s %-28s %-12s%n",
-                    e.getEmployeeId(), trunc(e.getFullName(), 25),
-                    trunc(e.getEmail(), 28), money(e.getBaseSalary()));
+            System.out.printf("  %-4d %-20s %-24s %-18s %-15s %-12s%n",
+                    e.getEmployeeId(), 
+                    trunc(e.getFullName(), 20),
+                    trunc(e.getEmail(), 24), 
+                    trunc(e.getPosition() != null ? e.getPosition() : "N/A", 18),
+                    trunc(e.getDepartment() != null ? e.getDepartment() : "N/A", 15),
+                    money(e.getBaseSalary()));
         }
         System.out.println(TLINE);
         if (total > 1) {

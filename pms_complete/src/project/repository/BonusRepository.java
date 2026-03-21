@@ -73,4 +73,34 @@ public class BonusRepository {
         } catch (SQLException e) { System.err.println("[BonusRepo] getTotal: " + e.getMessage()); }
         return BigDecimal.ZERO;
     }
+
+    /** Count bonuses added for one employee in a specific year. */
+    public int countByEmployeeAndYear(int employeeId, int year) {
+        String sql = "SELECT COUNT(*) FROM bonus WHERE employee_id = ? AND EXTRACT(YEAR FROM awarded_date) = ?";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setInt(2, year);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            System.err.println("[BonusRepo] countByEmployeeAndYear: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    /** Sum bonus amounts for one employee in a specific year. */
+    public BigDecimal sumByEmployeeAndYear(int employeeId, int year) {
+        String sql = "SELECT COALESCE(SUM(amount),0) FROM bonus WHERE employee_id = ? AND EXTRACT(YEAR FROM awarded_date) = ?";
+        try (Connection c = DbConfig.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setInt(2, year);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getBigDecimal(1);
+        } catch (SQLException e) {
+            System.err.println("[BonusRepo] sumByEmployeeAndYear: " + e.getMessage());
+        }
+        return BigDecimal.ZERO;
+    }
 }

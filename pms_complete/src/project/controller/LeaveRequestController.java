@@ -32,9 +32,8 @@ public class LeaveRequestController {
 
         if (leaveService.submitLeaveRequest(employeeId, startDate, endDate, leaveType, reason)) {
             ViewUtil.printSuccess("Leave request submitted successfully.");
-        } else {
-            ViewUtil.printError("Failed to submit leave request.");
         }
+        // Service layer already prints specific error messages, no need for generic error here
     }
 
     public void viewMyLeaveRequests(int employeeId) {
@@ -111,7 +110,7 @@ public class LeaveRequestController {
 
         if (status == null) return;
 
-        String reviewNote = InputUtil.readString("  Review Note    : ");
+        String reviewNote = InputUtil.readReviewNote("  Review Note    : ");
 
         if (leaveService.reviewLeaveRequest(requestId, status, adminId, reviewNote)) {
             ViewUtil.printSuccess("Leave request " + status.toLowerCase() + ".");

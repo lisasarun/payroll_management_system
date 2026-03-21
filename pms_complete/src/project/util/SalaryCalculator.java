@@ -17,7 +17,7 @@ public class SalaryCalculator {
     private static final double TAX_RATE        = 0.10;
     private static final double SOC_SEC_RATE    = 0.02;
 
-    // Position salary rules: position -> [min, max]
+
     private static final Map<String, int[]> SALARY_RULES = new HashMap<>();
 
     static {
@@ -25,7 +25,7 @@ public class SalaryCalculator {
             throw new IllegalStateException("Invalid salary calculation constants: WORK_DAYS and HOURS_PER_DAY must be positive");
         }
 
-        // Initialize salary rules for each position
+
         SALARY_RULES.put("Junior Developer", new int[]{500, 1500});
         SALARY_RULES.put("Senior Developer", new int[]{2000, 5000});
         SALARY_RULES.put("Software Engineer", new int[]{1000, 3000});
@@ -77,12 +77,7 @@ public class SalaryCalculator {
         return base.add(ot).add(bonus).subtract(deductions).setScale(2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Validates if the given salary is within the allowed range for the position.
-     * @param position The employee's position
-     * @param salary The base salary to validate
-     * @return true if salary is within range, false otherwise
-     */
+
     public static boolean isValidSalaryForPosition(String position, BigDecimal salary) {
         if (position == null || salary == null) return false;
         
@@ -95,11 +90,7 @@ public class SalaryCalculator {
         return salary.compareTo(minSalary) >= 0 && salary.compareTo(maxSalary) <= 0;
     }
 
-    /**
-     * Gets the allowed salary range for a position as a formatted string.
-     * @param position The position to query
-     * @return Formatted range string like "$500 – $1500", or null if no rules exist
-     */
+
     public static String getSalaryRange(String position) {
         if (position == null) return null;
         
@@ -109,10 +100,7 @@ public class SalaryCalculator {
         return String.format("$%,d – $%,d", range[0], range[1]);
     }
 
-    /**
-     * Gets all available positions with salary rules.
-     * @return Map of position names to their salary ranges [min, max]
-     */
+
     public static Map<String, int[]> getAllPositionRules() {
         return new HashMap<>(SALARY_RULES);
     }

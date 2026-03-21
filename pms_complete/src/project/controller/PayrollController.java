@@ -117,7 +117,7 @@ public class PayrollController {
     public void generatePayslip() {
         ViewUtil.printTitle("GENERATE PAYSLIP");
 
-        // Show paginated employee list so admin can pick an ID
+
         int total = empService.countAll();
         if (total == 0) { ViewUtil.printInfo("No employees found."); return; }
         int size = 5;
@@ -149,11 +149,9 @@ public class PayrollController {
         if (payrolls.isEmpty()) { ViewUtil.printInfo("No payroll records found."); return; }
 
         System.out.println("\n  Payroll records for " + emp.getFullName() + ":");
-        // Payroll ID is displayed here (READ-ONLY): user can select it, but never edit it.
+
         printPayrollTable(payrolls);
 
-        // Payroll ID is used here for report generation.
-        // We validate the ID exists in the list before building the payslip.
         int payrollId = readExistingPayrollId(payrolls, "\n  Enter Payroll ID: ");
         Payslip slip = payrollService.buildPayslip(empId, payrollId);
         if (slip == null) { ViewUtil.printError("Could not build payslip."); return; }
@@ -163,8 +161,7 @@ public class PayrollController {
         String pdfPath = reportGen.generatePayslip(slip);
         if (pdfPath != null) {
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);
-            
-            // Auto-open the PDF
+
             if (openPdf(pdfPath)) {
                 ViewUtil.printInfo("Payslip PDF opened successfully.");
             } else {
@@ -179,17 +176,16 @@ public class PayrollController {
     }
 
     public void viewMyPayslip(int employeeId) {
-        System.out.println(); // Add newline before showing payslip screen
+        System.out.println();
         ViewUtil.printTitle("MY PAYSLIP");
         List<PayrollDTO> payrolls = payrollService.getByEmployee(employeeId);
         if (payrolls.isEmpty()) { ViewUtil.printInfo("No payroll records yet."); return; }
 
         System.out.println("  Your payroll records:");
-        // Payroll ID is displayed here (READ-ONLY): user can select it, but never edit it.
+
         printPayrollTable(payrolls);
 
-        // Payroll ID is used here for report generation.
-        // We validate the ID exists in the list before building the payslip.
+
         int payrollId = readExistingPayrollId(payrolls, "\n  Enter Payroll ID: ");
         Payslip slip = payrollService.buildPayslip(employeeId, payrollId);
         if (slip == null) { ViewUtil.printError("Payslip not available."); return; }
@@ -199,8 +195,7 @@ public class PayrollController {
         String pdfPath = reportGen.generatePayslip(slip);
         if (pdfPath != null) {
             ViewUtil.printSuccess("PDF saved to: " + pdfPath);
-            
-            // Auto-open the PDF
+
             if (openPdf(pdfPath)) {
                 ViewUtil.printInfo("Payslip PDF opened successfully.");
             } else {
@@ -225,7 +220,6 @@ public class PayrollController {
                 return false;
             }
 
-            // Use Desktop API to open with default application
             if (java.awt.Desktop.isDesktopSupported()) {
                 java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
                 if (desktop.isSupported(java.awt.Desktop.Action.OPEN)) {
@@ -234,18 +228,20 @@ public class PayrollController {
                 }
             }
 
-            // Fallback: Try OS-specific commands
             String os = System.getProperty("os.name").toLowerCase();
             ProcessBuilder pb;
             
             if (os.contains("win")) {
-                // Windows: use 'start' command
+
+
                 pb = new ProcessBuilder("cmd", "/c", "start", "\"\"", pdfPath);
             } else if (os.contains("mac")) {
-                // macOS: use 'open' command
+
+
                 pb = new ProcessBuilder("open", pdfPath);
             } else {
-                // Linux: try 'xdg-open'
+
+
                 pb = new ProcessBuilder("xdg-open", pdfPath);
             }
             
@@ -258,14 +254,7 @@ public class PayrollController {
         }
     }
 
-    /**
-     * UI helper: prints payroll records in a clean aligned table.
-     * Columns required by spec:
-     * - Payroll ID (READ-ONLY)
-     * - Employee ID
-     * - Salary (we display Total Paid)
-     * - Date (Payment Date)
-     */
+
     private void printPayrollTable(List<PayrollDTO> payrolls) {
         System.out.printf("%n  %-10s %-10s %-14s %-12s%n", "PayrollID", "EmpID", "Salary", "Pay Date");
         System.out.println("  " + "-".repeat(52));
@@ -279,10 +268,7 @@ public class PayrollController {
         System.out.println("  " + "-".repeat(52));
     }
 
-    /**
-     * Reads a Payroll ID from the user and validates it exists in the given list.
-     * Used for actions that require a payroll record (payslip generation / future update/delete).
-     */
+
     private int readExistingPayrollId(List<PayrollDTO> payrolls, String prompt) {
         while (true) {
             int id = InputUtil.readInt(prompt);

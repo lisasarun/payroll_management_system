@@ -11,10 +11,10 @@ public class EmployeeController {
     private final EmployeeRepository empRepo = new EmployeeRepository();
 
     public void changePassword(int employeeId) {
-        System.out.println(); // Add newline before showing change password screen
+        System.out.println();
         ViewUtil.printTitle("CHANGE PASSWORD");
 
-        // Validate current password first before proceeding
+
         var emp = empRepo.findById(employeeId);
         if (emp == null) {
             ViewUtil.printError("Employee not found.");
@@ -27,7 +27,7 @@ public class EmployeeController {
             return;
         }
 
-        // Now ask for new password with strong validation
+
         String newPass  = InputUtil.readStrongPassword("  New Password    ");
         String confirm  = InputUtil.readStrongPassword("  Confirm New     ");
 

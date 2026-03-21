@@ -12,10 +12,16 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BonusDTO {
+
     private int bonusId;
+
     private int employeeId;
+
     private String employeeName;
+
     private BigDecimal amount;
+
     private String reason;
+
     private LocalDate awardedDate;
 }

@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class InputUtil {
 
     private static final Scanner SC = new Scanner(System.in);
-    // STRICT parsing: rejects impossible dates like 2026-02-31 (won't Auto-correct to March)
+
     private static final DateTimeFormatter DATE_FMT = new DateTimeFormatterBuilder()
             .appendPattern("uuuu-MM-dd")
             .toFormatter()
@@ -26,10 +26,7 @@ public class InputUtil {
         }
     }
 
-    /**
-     * Read admin username with validation.
-     * Username must be 3-20 characters, letters only.
-     */
+
     public static String readAdminUsername(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -49,8 +46,7 @@ public class InputUtil {
                 System.out.println("  Username must not exceed 20 characters.");
                 continue;
             }
-            
-            // Only letters allowed (no numbers, spaces, or special characters)
+
             if (!s.matches("^[a-zA-Z]+$")) {
                 System.out.println("  Username must contain only letters (no numbers or special characters).");
                 continue;
@@ -74,10 +70,10 @@ public class InputUtil {
                 s = new String(passwordChars);
             } else {
                 System.out.print(prompt + " [visible]: ");
-                s = SC.nextLine();  // DO NOT TRIM - whitespace could be part of password
+                s = SC.nextLine();
             }
             
-            // Password length validation: 8-16 characters
+
             if (s.length() < 8) {
                 System.out.println("  Invalid. Password must be at least 8 characters. Try again!");
                 continue;
@@ -90,7 +86,7 @@ public class InputUtil {
         }
     }
 
-    /** Read password confirmation without validation (just non-empty check). */
+
     public static String readPasswordConfirmation(String prompt) {
         while (true) {
             java.io.Console con = System.console();
@@ -132,7 +128,7 @@ public class InputUtil {
             System.out.print(prompt);
             try {
                 BigDecimal v = new BigDecimal(SC.nextLine().trim());
-                // Business rule: base salary must be at least 100 (N/A 0 or very small values)
+
                 if (v.compareTo(BigDecimal.valueOf(100)) >= 0) return v;
                 if (v.compareTo(BigDecimal.ZERO) <= 0) {
                     System.out.println("  Amount must be greater than 0.");
@@ -169,13 +165,13 @@ public class InputUtil {
             try {
                 return LocalDate.parse(raw, DATE_FMT);
             } catch (DateTimeParseException e) {
-                // Covers both Wrong format and impossible calendar dates like 2026-02-31
+
                 System.out.println("  Invalid date. Use yyyy-MM-dd (example: 2026-02-28).");
             }
         }
     }
 
-    /** Read a date and restrict it to a specific year (ect only 2026). */
+
     public static LocalDate readDateInYear(String prompt, int year) {
         while (true) {
             LocalDate d = readDate(prompt);
@@ -184,7 +180,7 @@ public class InputUtil {
         }
     }
 
-    /** Read an end date that must be in the same year and not before the given start date. */
+
     public static LocalDate readEndDateInYearNotBeforeStart(String prompt, int year, LocalDate startDate) {
         while (true) {
             LocalDate end = readDateInYear(prompt, year);
@@ -213,7 +209,7 @@ public class InputUtil {
             System.out.print(prompt);
             String s = SC.nextLine().trim();
             
-            // Email length validation: 6-30 characters
+
             if (s.length() < 6) {
                 System.out.println("  Invalid. Email must be at least 6 characters. Try again!");
                 continue;
@@ -223,9 +219,9 @@ public class InputUtil {
                 continue;
             }
             
-            // FIX Issue #9: Stricter email validation (max 1 consecutive special char, no ++)
+
             if (s.matches("^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-])*\\.[a-zA-Z]{2,}$")) {
-                // Additional check: no consecutive special characters
+
                 if (!s.contains("..") && !s.contains("--") && !s.contains("__") &&
                         !s.contains("++") && !s.contains(".-") && !s.contains("-.")) {
                     return s;
@@ -276,11 +272,11 @@ public class InputUtil {
         return false;
     }
 
-    /** Strong password: 8-16 chars, at least one upper, one lower, one digit, one special character. */
+
     public static String readStrongPassword(String prompt) {
         while (true) {
             System.out.print(prompt + " (8-16 chars, upper, lower, digit, special): ");
-            String s = SC.nextLine();  // DO NOT TRIM - whitespace could be part of password
+            String s = SC.nextLine();
             if (s.isEmpty()) {
                 System.out.println("  Password cannot be empty.");
                 continue;
@@ -313,7 +309,7 @@ public class InputUtil {
         }
     }
 
-    /** Email: valid format and local part must match the given full name (Ex: Sarunlisa -> sarunlisa@company.com). */
+
     public static String readEmailMatchingName(String prompt, String fullName) {
         String normalizedName = fullName.toLowerCase().replaceAll("\\s+", "");
         if (normalizedName.isEmpty()) {
@@ -323,7 +319,7 @@ public class InputUtil {
             System.out.print(prompt);
             String s = SC.nextLine().trim();
             
-            // Email length validation: 6-30 characters
+
             if (s.length() < 6) {
                 System.out.println("  Email must be at least 6 characters.");
                 continue;
@@ -348,10 +344,7 @@ public class InputUtil {
         }
     }
 
-    /**
-     * One-shot full name validator (used when the field is optional in update forms).
-     * Returns the trimmed name on success, or null + prints an error on failure.
-     */
+
     public static String validateFullName(String s) {
         s = s.trim();
         if (s.length() < 2 || s.length() > 50) {
@@ -369,10 +362,7 @@ public class InputUtil {
         return s;
     }
 
-    /**
-     * One-shot email validator that also checks it matches the given full name.
-     * Returns the email on success, or null + prints an error on failure.
-     */
+
     public static String validateEmailMatchingName(String s, String fullName) {
         s = s.trim();
         if (!s.matches("^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]@[a-zA-Z0-9]([a-zA-Z0-9-])*\\.[a-zA-Z]{2,}$") ||
@@ -390,10 +380,7 @@ public class InputUtil {
         return s;
     }
 
-    /**
-     * One-shot salary validator (same rules as readBigDecimal).
-     * Returns the BigDecimal on success, or null + prints an error on failure.
-     */
+
     public static BigDecimal validateSalary(String s) {
         try {
             BigDecimal v = new BigDecimal(s.trim());
@@ -434,7 +421,7 @@ public class InputUtil {
         }
     }
 
-    /** Read leave reason: must be 10-100 characters and contain at least one letter. */
+
     public static String readLeaveReason(String prompt) {
         while (true) {
             System.out.print(prompt + " (10-100 characters): ");
@@ -465,7 +452,7 @@ public class InputUtil {
         }
     }
 
-    /** Read review note: letters-based text, 1-3 sentences only. */
+
     public static String readReviewNote(String prompt) {
         while (true) {
             System.out.print(prompt + " (1-3 sentences): ");
@@ -512,7 +499,7 @@ public class InputUtil {
         return count == 0 ? 1 : count;
     }
 
-    /** Read bonus reason: 10-120 chars and must contain letters; limited symbols only. */
+
     public static String readBonusReason(String prompt) {
         while (true) {
             System.out.print(prompt + " (10-120 characters): ");
@@ -542,12 +529,7 @@ public class InputUtil {
         }
     }
 
-    /**
-     * Read selection from a list of predefined choices.
-     * @param prompt The prompt message
-     * @param choices Array of available choices
-     * @return The selected choice
-     */
+
     public static String readChoice(String prompt, String[] choices) {
         System.out.println(prompt);
         for (int i = 0; i < choices.length; i++) {

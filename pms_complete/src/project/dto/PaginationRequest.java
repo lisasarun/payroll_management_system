@@ -10,7 +10,6 @@ public record PaginationRequest(int page, int size, String sortBy, String sortDi
         if (searchKeyword == null) searchKeyword = "";
     }
 
-    // ADD THESE CONVENIENCE CONSTRUCTORS
 
     public PaginationRequest(int page, int size) {
         this(page, size, "id", "DESC", "");
@@ -24,7 +23,6 @@ public record PaginationRequest(int page, int size, String sortBy, String sortDi
         this(page, size, "id", "DESC", searchKeyword);
     }
 
-    // Existing methods
     public int getOffset() { return (page - 1) * size; }
     public boolean hasSearch() { return searchKeyword != null && !searchKeyword.trim().isEmpty(); }
     public String getSearchTerm() { return hasSearch() ? searchKeyword.trim() : null; }

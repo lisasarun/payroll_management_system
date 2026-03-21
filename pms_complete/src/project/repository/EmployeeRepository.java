@@ -132,13 +132,7 @@ public class EmployeeRepository {
         return list;
     }
 
-    /**
-     * Search employees by position or department (case-insensitive).
-     * @param keyword Search term to match against position or department
-     * @param page Page number (starting from 1)
-     * @param size Number of results per page
-     * @return List of matching employees
-     */
+
     public List<Employee> searchByPositionOrDepartment(String keyword, int page, int size) {
         List<Employee> list = new ArrayList<>();
         String sql = "SELECT * FROM employees WHERE (position ILIKE ? OR department ILIKE ?) AND is_active = TRUE ORDER BY employee_id LIMIT ? OFFSET ?";
@@ -155,9 +149,7 @@ public class EmployeeRepository {
         return list;
     }
 
-    /**
-     * Find all active employees who DO NOT have any payroll in the given period.
-     */
+
     public List<Employee> findActiveWithoutPayroll(java.time.LocalDate from, java.time.LocalDate to) {
         List<Employee> list = new ArrayList<>();
         String sql = """
@@ -197,7 +189,7 @@ public class EmployeeRepository {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { 
             System.err.println("[EmpRepo] save failed: " + e.getMessage());
-            // Check for foreign key constraint violations
+
             if (e.getMessage().contains("foreign key") || e.getMessage().contains("violates")) {
                 if (e.getMessage().contains("position")) {
                     System.out.println("  ✘ Invalid position. Position must exist in position_salary_rules table.");
@@ -224,7 +216,8 @@ public class EmployeeRepository {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { 
             System.err.println("[EmpRepo] update: " + e.getMessage());
-            // Check for foreign key constraint violations
+
+
             if (e.getMessage().contains("foreign key") || e.getMessage().contains("violates")) {
                 if (e.getMessage().contains("position")) {
                     System.out.println("  ✘ Invalid position. Position must exist in position_salary_rules table.");
@@ -247,12 +240,12 @@ public class EmployeeRepository {
             ps.setBigDecimal(3, emp.getBaseSalary());
             ps.setString(4, emp.getPosition());
             ps.setString(5, emp.getDepartment());
-            ps.setString(6, emp.getPassword()); // already hashed by caller
+            ps.setString(6, emp.getPassword());
             ps.setInt(7, emp.getEmployeeId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { 
             System.err.println("[EmpRepo] updateWithPassword: " + e.getMessage());
-            // Check for foreign key constraint violations
+
             if (e.getMessage().contains("foreign key") || e.getMessage().contains("violates")) {
                 if (e.getMessage().contains("position")) {
                     System.out.println("  ✘ Invalid position. Position must exist in position_salary_rules table.");

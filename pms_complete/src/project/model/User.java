@@ -3,13 +3,12 @@ package project.model;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**
- * Admin/User entity representing admin users in the system
- */
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class User {
 
     private int adminId;

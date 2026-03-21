@@ -29,9 +29,9 @@ public class ViewUtil {
 
     public static void printSuccess(String msg) { System.out.println("  ✔ " + msg); }
     public static void printError(String msg)   { 
-        System.out.flush(); // Flush stdout first to ensure proper ordering
+        System.out.flush();
         System.err.println("  ✘ " + msg); 
-        System.err.flush(); // Flush stderr immediately
+        System.err.flush();
     }
     public static void printInfo(String msg)    { System.out.println("  ℹ " + msg); }
 

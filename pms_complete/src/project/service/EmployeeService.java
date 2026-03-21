@@ -18,8 +18,7 @@ public class EmployeeService {
             System.out.println("  Email already exists.");
             return false;
         }
-        
-        // Validate salary for position
+
         if (!validateSalaryForPosition(emp.getPosition(), emp.getBaseSalary())) {
             return false;
         }
@@ -28,7 +27,7 @@ public class EmployeeService {
     }
 
     public boolean updateEmployee(Employee emp) {
-        // Validate salary for position
+
         if (!validateSalaryForPosition(emp.getPosition(), emp.getBaseSalary())) {
             return false;
         }
@@ -42,7 +41,7 @@ public class EmployeeService {
             return false;
         }
         
-        // Validate salary for position
+
         if (!validateSalaryForPosition(emp.getPosition(), emp.getBaseSalary())) {
             return false;
         }
@@ -56,7 +55,7 @@ public class EmployeeService {
             return false;
         }
         
-        // Validate salary for position
+
         if (!validateSalaryForPosition(emp.getPosition(), emp.getBaseSalary())) {
             return false;
         }
@@ -64,14 +63,10 @@ public class EmployeeService {
         return repo.updateWithPassword(emp);
     }
 
-    /**
-     * Validates that the salary is within the allowed range for the given position.
-     * Prints an error message if validation fails.
-     * @return true if valid, false otherwise
-     */
+
     private boolean validateSalaryForPosition(String position, java.math.BigDecimal salary) {
         if (position == null || position.trim().isEmpty()) {
-            // No position specified, skip validation
+
             return true;
         }
         
@@ -135,20 +130,14 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Search employees by position or department.
-     * @param keyword Search term to match against position or department
-     * @param page Page number
-     * @param size Results per page
-     * @return List of matching employees
-     */
+
     public List<EmployeeDTO> searchByPositionOrDepartment(String keyword, int page, int size) {
         return repo.searchByPositionOrDepartment(keyword, page, size).stream()
                 .map(EntityMapper::toEmployeeDTO)
                 .collect(Collectors.toList());
     }
 
-    /** Active employees who don't have payroll in the given period. */
+
     public List<EmployeeDTO> getWithoutPayroll(java.time.LocalDate from, java.time.LocalDate to) {
         return repo.findActiveWithoutPayroll(from, to).stream()
                 .map(EntityMapper::toEmployeeDTO)

@@ -48,7 +48,6 @@ public class PerformanceController {
         System.out.println("  Employee: " + emp.getFullName());
         double score = InputUtil.readScore("  Score");
 
-        // Comments are optional — press Enter to skip
         System.out.print("  Comments (leave blank to skip): ");
         String comments = InputUtil.readOptionalString("");
         if (comments.isEmpty()) comments = null;
@@ -59,11 +58,7 @@ public class PerformanceController {
             ViewUtil.printError("Failed to save review.");
     }
 
-    /**
-     * Shows all active employees paginated (5/page) with a ✔/✘ sign
-     * indicating whether they have received a performance review.
-     * Selecting an employee ID shows their full review history.
-     */
+
     private void viewAllEmployeesWithReviewStatus() {
         int total = empService.countAll();
         if (total == 0) { ViewUtil.printInfo("No employees found."); return; }
@@ -106,7 +101,6 @@ public class PerformanceController {
         }
     }
 
-    /** Shows all employees who have never received a performance review. */
     private void viewEmployeesWithoutReview() {
         java.util.List<EmployeeDTO> list = perfService.getEmployeesWithoutReview();
         ViewUtil.printTitle("EMPLOYEES WITHOUT PERFORMANCE REVIEW");

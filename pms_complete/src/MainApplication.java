@@ -24,14 +24,14 @@ public class MainApplication {
 
     public static void main(String[] args) {
 
-        // Connect to Database - MUST be first
+
         DbConfig.init();
 
         ViewUtil.printAppHeader();
         System.out.println("  Welcome to PMS — Payroll Management System");
         System.out.println("  Press 0 at any time to exit.\n");
 
-        // Main loop
+
         while (true) {
             String role = selectRole();
             if (role == null) break;
@@ -43,14 +43,14 @@ public class MainApplication {
             };
         }
 
-        // Clean shutdown
+
         System.out.println("\n" + "═".repeat(72));
         System.out.println("  Thank you for using PMS. Goodbye!");
         System.out.println("═".repeat(72) + "\n");
         DbConfig.close();
     }
 
-    //  Role selection
+
 
     private static String selectRole() {
         while (true) {
@@ -69,8 +69,7 @@ public class MainApplication {
         }
     }
 
-    //  Admin login + dashboard
-//
+
     private static boolean handleAdminLogin() {
         System.out.println("\n  --- ADMIN LOGIN ---");
         String username = InputUtil.readAdminUsername("  Username : ");
@@ -107,7 +106,7 @@ public class MainApplication {
         }
     }
 
-    // Employee login + dashboard
+
 
     private static boolean handleEmployeeLogin() {
         System.out.println("\n  --- EMPLOYEE LOGIN ---");

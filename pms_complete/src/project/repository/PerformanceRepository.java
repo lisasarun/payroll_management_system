@@ -32,10 +32,11 @@ public class PerformanceRepository {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { 
             System.err.println("[PerfRepo] save: " + e.getMessage());
-            // Check for constraint violations
+
             if (e.getMessage().contains("check constraint")) {
                 if (e.getMessage().contains("score")) {
                     System.out.println("  ✘ Score must be greater than 0 and up to 100.");
+
                 }
             }
         }
@@ -76,7 +77,7 @@ public class PerformanceRepository {
         return 0.0;
     }
 
-    /** Returns the set of employee IDs that have at least one performance review. */
+
     public java.util.Set<Integer> findEmployeeIdsWithReviews() {
         java.util.Set<Integer> ids = new java.util.HashSet<>();
         try (Connection c = DbConfig.getConnection();
@@ -88,11 +89,7 @@ public class PerformanceRepository {
         return ids;
     }
 
-    /**
-     * Check if an employee already has a performance review today.
-     * @param employeeId The employee ID to check
-     * @return true if employee has a review today, false otherwise
-     */
+
     public boolean hasReviewToday(int employeeId) {
         String sql = "SELECT 1 FROM performance WHERE employee_id = ? AND review_date = CURRENT_DATE";
         try (Connection c = DbConfig.getConnection();
@@ -106,13 +103,7 @@ public class PerformanceRepository {
         return false;
     }
 
-    /**
-     * Update an existing performance review.
-     * @param performanceId The review ID to update
-     * @param score New score
-     * @param comments New comments
-     * @return true if successful
-     */
+
     public boolean update(int performanceId, double score, String comments) {
         String sql = "UPDATE performance SET score = ?, comments = ? WHERE performance_id = ?";
         try (Connection c = DbConfig.getConnection();
@@ -133,11 +124,7 @@ public class PerformanceRepository {
         return false;
     }
 
-    /**
-     * Delete a performance review.
-     * @param performanceId The review ID to delete
-     * @return true if successful
-     */
+
     public boolean delete(int performanceId) {
         String sql = "DELETE FROM performance WHERE performance_id = ?";
         try (Connection c = DbConfig.getConnection();
@@ -150,11 +137,7 @@ public class PerformanceRepository {
         return false;
     }
 
-    /**
-     * Find a performance review by ID.
-     * @param performanceId The review ID
-     * @return Performance object or null if not found
-     */
+
     public Performance findById(int performanceId) {
         String sql = "SELECT * FROM performance WHERE performance_id = ?";
         try (Connection c = DbConfig.getConnection();

@@ -74,7 +74,7 @@ public class BonusRepository {
         return BigDecimal.ZERO;
     }
 
-    /** Count bonuses added for one employee in a specific year. */
+
     public int countByEmployeeAndYear(int employeeId, int year) {
         String sql = "SELECT COUNT(*) FROM bonus WHERE employee_id = ? AND EXTRACT(YEAR FROM awarded_date) = ?";
         try (Connection c = DbConfig.getConnection();
@@ -89,7 +89,7 @@ public class BonusRepository {
         return 0;
     }
 
-    /** Sum bonus amounts for one employee in a specific year. */
+
     public BigDecimal sumByEmployeeAndYear(int employeeId, int year) {
         String sql = "SELECT COALESCE(SUM(amount),0) FROM bonus WHERE employee_id = ? AND EXTRACT(YEAR FROM awarded_date) = ?";
         try (Connection c = DbConfig.getConnection();

@@ -16,7 +16,6 @@ public class AttendanceDTO {
 
     private int employeeId;
 
-
     private String employeeName;
 
     private LocalDate date;

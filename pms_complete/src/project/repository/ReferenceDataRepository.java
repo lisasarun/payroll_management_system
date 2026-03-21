@@ -35,9 +35,7 @@ public class ReferenceDataRepository {
         return positions;
     }
 
-    /**
-     * Get all valid departments from departments table
-     */
+
     public List<String> getAllDepartments() {
         List<String> departments = new ArrayList<>();
         String sql = "SELECT department_name FROM departments ORDER BY department_name";
@@ -56,9 +54,7 @@ public class ReferenceDataRepository {
         return departments;
     }
 
-    /**
-     * Check if a position exists in the database
-     */
+
     public boolean positionExists(String position) {
         String sql = "SELECT 1 FROM position_salary_rules WHERE position = ?";
         
@@ -75,9 +71,7 @@ public class ReferenceDataRepository {
         return false;
     }
 
-    /**
-     * Check if a department exists in the database
-     */
+
     public boolean departmentExists(String department) {
         String sql = "SELECT 1 FROM departments WHERE department_name = ?";
         

@@ -125,10 +125,7 @@ public class LeaveRequestRepository {
         return lr;
     }
 
-    /**
-     * Check if employee has overlapping leave requests for the given date range.
-     * Only checks PENDING and APPROVED status to prevent conflicts.
-     */
+
     public boolean hasOverlappingLeave(int employeeId, LocalDate startDate, LocalDate endDate) {
         String sql = "SELECT COUNT(*) FROM leave_request " +
                 "WHERE employee_id = ? AND status IN ('PENDING', 'APPROVED') " +
@@ -152,9 +149,7 @@ public class LeaveRequestRepository {
         return false;
     }
 
-    /**
-     * Check if employee already has a request with same date range and type.
-     */
+
     public boolean hasDuplicateRequest(int employeeId, LocalDate startDate, LocalDate endDate, String leaveType) {
         String sql = "SELECT COUNT(*) FROM leave_request " +
                 "WHERE employee_id = ? AND start_date = ? AND end_date = ? " +
@@ -173,9 +168,7 @@ public class LeaveRequestRepository {
         return false;
     }
 
-    /**
-     * Count pending leave requests for an employee.
-     */
+
     public int countPendingRequests(int employeeId) {
         String sql = "SELECT COUNT(*) FROM leave_request WHERE employee_id = ? AND status = 'PENDING'";
         try (Connection c = DbConfig.getConnection();
@@ -189,10 +182,7 @@ public class LeaveRequestRepository {
         return 0;
     }
 
-    /**
-     * Calculate total leave days for an employee in a specific month.
-     * Only counts APPROVED leaves.
-     */
+
     public int getTotalLeaveDaysInMonth(int employeeId, int year, int month) {
         String sql = "SELECT SUM(end_date - start_date + 1) AS total_days " +
                 "FROM leave_request " +

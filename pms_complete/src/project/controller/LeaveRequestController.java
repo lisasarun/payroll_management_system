@@ -14,7 +14,7 @@ public class LeaveRequestController {
 
 
     public void submitLeaveRequest(int employeeId) {
-        System.out.println(); // Add newline before showing leave request screen
+        System.out.println();
         ViewUtil.printTitle("SUBMIT LEAVE REQUEST");
 
         System.out.println("  Leave Types: SICK, VACATION, PERSONAL, EMERGENCY");
@@ -25,7 +25,6 @@ public class LeaveRequestController {
             return;
         }
 
-        // Only allow dates within year 2026 (LocalDate.parse also blocks invalid dates like 2026-02-31)
         LocalDate startDate = InputUtil.readDateInYear("  Start Date     : ", 2026);
         LocalDate endDate   = InputUtil.readDateInYear("  End Date       : ", 2026);
         String reason = InputUtil.readLeaveReason("  Reason         ");
@@ -33,7 +32,6 @@ public class LeaveRequestController {
         if (leaveService.submitLeaveRequest(employeeId, startDate, endDate, leaveType, reason)) {
             ViewUtil.printSuccess("Leave request submitted successfully.");
         }
-        // Service layer already prints specific error messages, no need for generic error here
     }
 
     public void viewMyLeaveRequests(int employeeId) {
